@@ -16,4 +16,5 @@ COPY apps/core-api apps/core-api
 RUN uv sync --frozen --no-dev --package rpim-core-api
 
 EXPOSE 8000
-CMD ["uv", "run", "--no-sync", "uvicorn", "rpim_core_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Migrations run at start (Alembic-only schema rule); then the API serves.
+CMD ["sh", "-c", "cd apps/core-api && uv run --no-sync alembic upgrade head && exec uv run --no-sync uvicorn rpim_core_api.main:app --host 0.0.0.0 --port 8000"]

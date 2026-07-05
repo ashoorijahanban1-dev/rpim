@@ -3,10 +3,10 @@ import os
 from alembic import context
 from sqlalchemy import create_engine
 
-# M0: no tables yet. M1 sets this to the SQLAlchemy metadata object, and its
-# first migration must include `CREATE EXTENSION IF NOT EXISTS vector`
-# (see docs/decisions/ — pgvector init boundary).
-target_metadata = None
+from rpim_core_api import models  # noqa: F401  (register tables on Base)
+from rpim_core_api.db import Base
+
+target_metadata = Base.metadata
 
 
 def _database_url() -> str:
