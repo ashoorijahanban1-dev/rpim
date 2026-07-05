@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPIM — بلوپرینت اجرایی نسخه ۱.۲</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root{
+    --paper:#FAFAF6; --ink:#16202E; --ink-soft:#44506183;
+    --draft:#1D5CA8; --draft-deep:#123E74; --grid:#1D5CA814;
+    --ok:#1C7A4D; --ok-bg:#1C7A4D14; --need:#A2660B; --need-bg:#A2660B14;
+    --stop:#9A2C2C; --stop-bg:#9A2C2C10;
+    --mono:"IBM Plex Mono","SFMono-Regular",ui-monospace,Consolas,monospace;
+    --sans:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.95}
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--draft)}
+  /* ── هدر با بافت کاغذ شطرنجی نقشه‌کشی ── */
+  header.hero{
+    background:
+      linear-gradient(180deg,#ffffff00 0%,var(--paper) 96%),
+      repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 26px),
+      repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 26px);
+    border-bottom:2px solid var(--ink);
+    padding:56px 0 34px;
+  }
+  .stamp{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    border:1.5px solid var(--draft);color:var(--draft);padding:4px 12px;border-radius:3px;margin-bottom:18px}
+  h1{font-size:44px;line-height:1.2;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+  h1 .en{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--draft);display:block;letter-spacing:.06em}
+  .sub{color:#3E4A5B;max-width:640px;margin:10px 0 0}
+  .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;font-family:var(--mono);font-size:12.5px;color:#33405299}
+  .meta b{color:var(--ink);font-weight:600}
+  /* ── فهرست ── */
+  nav.toc{display:flex;flex-wrap:wrap;gap:8px;padding:20px 0 6px;border-bottom:1px solid #16202E1f}
+  nav.toc a{font-size:12.5px;text-decoration:none;color:var(--ink);background:#fff;border:1px solid #16202E2b;
+    padding:5px 13px;border-radius:99px}
+  nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--draft);color:var(--draft)}
+  /* ── بخش‌ها ── */
+  section{margin-top:64px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--draft);font-weight:600}
+  h2{font-size:27px;margin:6px 0 14px;font-weight:800}
+  h3{font-size:18px;margin:30px 0 10px;font-weight:700}
+  p{margin:10px 0}
+  .lead{font-size:16.5px;color:#2A3648}
+  /* ── کارت‌ها و برچسب‌ها ── */
+  .card{background:#fff;border:1px solid #16202E22;border-radius:10px;padding:20px 22px;margin:16px 0}
+  .verdict{border-right:5px solid var(--ok);background:var(--ok-bg)}
+  .warnbox{border-right:5px solid var(--need);background:var(--need-bg)}
+  .stopbox{border-right:5px solid var(--stop);background:var(--stop-bg)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:4px;font-weight:600;white-space:nowrap}
+  .tag.ok{background:var(--ok-bg);color:var(--ok);border:1px solid #1C7A4D44}
+  .tag.need{background:var(--need-bg);color:var(--need);border:1px solid #A2660B44}
+  .tag.info{background:#1D5CA812;color:var(--draft-deep);border:1px solid #1D5CA844}
+  .assume{font-family:var(--mono);font-size:10.5px;color:var(--need);border:1px dashed var(--need);
+    border-radius:3px;padding:1px 6px;vertical-align:2px}
+  /* ── جدول‌ها ── */
+  table.t{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;font-size:13.8px}
+  table.t th{background:var(--ink);color:#fff;padding:9px 12px;text-align:right;font-weight:600;font-size:12.5px}
+  table.t td{border:1px solid #16202E1e;padding:8px 12px;vertical-align:top}
+  table.t tr:nth-child(even) td{background:#F2F4F7}
+  .num{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  /* ── شماتیک دو سرور ── */
+  .legs{display:grid;grid-template-columns:1fr 64px 1fr;gap:0;align-items:stretch;margin:22px 0}
+  .leg{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:16px 18px;position:relative}
+  .leg h4{margin:0 0 2px;font-size:16.5px}
+  .leg .role{font-family:var(--mono);font-size:11px;color:var(--draft);letter-spacing:.1em;margin-bottom:10px}
+  .leg .spec{font-family:var(--mono);font-size:11.5px;background:var(--ink);color:#fff;border-radius:5px;
+    padding:5px 10px;display:inline-block;margin-bottom:12px}
+  .leg ul{margin:0;padding:0;list-style:none}
+  .leg li{padding:7px 0;border-top:1px dashed #16202E26;font-size:13.6px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .leg li .ram{font-family:var(--mono);font-size:11px;color:#5A6678;white-space:nowrap}
+  .tunnel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+  .tunnel .pipe{width:3px;flex:1;background:repeating-linear-gradient(180deg,var(--draft) 0 8px,transparent 8px 15px)}
+  .tunnel .lbl{writing-mode:vertical-rl;font-family:var(--mono);font-size:10.5px;color:var(--draft);letter-spacing:.14em}
+  /* ── گانت ── */
+  .gantt{background:#fff;border:1px solid #16202E22;border-radius:10px;padding:18px 16px;overflow-x:auto}
+  .g-grid{display:grid;grid-template-columns:150px repeat(13,minmax(52px,1fr));min-width:880px}
+  .g-grid .h{font-family:var(--mono);font-size:10px;color:#5A6678;text-align:center;padding:4px 2px;border-bottom:2px solid var(--ink)}
+  .g-grid .rowlbl{font-size:12.8px;font-weight:600;padding:11px 6px;border-bottom:1px solid #16202E14}
+  .g-grid .cell{border-bottom:1px solid #16202E14;border-right:1px dashed #16202E10;position:relative;min-height:42px}
+  .bar{position:absolute;inset:9px 4px;border-radius:5px;font-family:var(--mono);font-size:10px;color:#fff;
+    display:flex;align-items:center;padding:0 8px;font-weight:600;letter-spacing:.04em;white-space:nowrap;overflow:hidden}
+  .b0{background:var(--ink)} .b1{background:var(--draft)} .b2{background:#7A4A9E} .b3{background:var(--ok)} .bx{background:var(--need)}
+  .g-note{font-size:12px;color:#5A6678;margin-top:10px}
+  /* ── کد ── */
+  pre{background:var(--ink);color:#E8EDF4;font-family:var(--mono);font-size:12.3px;line-height:1.75;
+    padding:16px 18px;border-radius:9px;overflow-x:auto;direction:ltr;text-align:left}
+  code.k{font-family:var(--mono);font-size:.9em;background:#1D5CA812;color:var(--draft-deep);padding:1px 6px;border-radius:4px;direction:ltr;display:inline-block}
+  .foot{margin-top:80px;border-top:2px solid var(--ink);padding-top:16px;font-family:var(--mono);font-size:11.5px;color:#5A6678}
+  @media(max-width:760px){
+    h1{font-size:32px}
+    .legs{grid-template-columns:1fr}
+    .tunnel{flex-direction:row;height:56px}
+    .tunnel .pipe{width:auto;height:3px;background:repeating-linear-gradient(90deg,var(--draft) 0 8px,transparent 8px 15px)}
+    .tunnel .lbl{writing-mode:horizontal-tb}
+  }
+  @media print{nav.toc{display:none} section{margin-top:34px} .card,.gantt{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="stamp">EXECUTION BLUEPRINT · v1.2</span>
+    <h1>بلوپرینت اجرایی RPIM
+      <span class="en">Realistic Persian Intelligent Marketer</span>
+    </h1>
+    <p class="sub">نسخه عملیاتی: نگاشت معماری روی منابع موجودِ شما، فهرست دقیق تهیه‌ها، نقشه اجرای Claude Code و نقشه راه زمان‌بندی‌شده. مکمل سند مفهومی v1.2 — نه جایگزین آن. (این نسخه با مصوبات v1.2 هم‌گام شده: حالت سکوت، مصاحبه آنبوردینگ، لاگ شاگرد A0 و گزارش ماهانه.)</p>
+    <div class="meta">
+      <span>تاریخ <b>۱۴ تیر ۱۴۰۵ / 2026-07-05</b></span>
+      <span>وضعیت <b>آماده شروع فاز ۰</b></span>
+      <span>قاعده سند <b>هر عدد یا بازه است یا برچسب «فرض» دارد</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc" aria-label="فهرست">
+  <a href="#s1">۱ · ارزیابی منابع فعلی</a>
+  <a href="#s2">۲ · نگاشت سرویس‌ها به سرورها</a>
+  <a href="#s3">۳ · اکانت Google Pro</a>
+  <a href="#s4">۴ · چک‌لیست تهیه‌ها</a>
+  <a href="#s5">۵ · استراتژی مدل‌ها</a>
+  <a href="#s6">۶ · نقشه اجرا با Claude Code</a>
+  <a href="#s7">۷ · نقشه راه ترسیمی</a>
+  <a href="#s8">۸ · ریسک‌های همین ستاپ</a>
+</nav>
+
+<!-- ═══════════ ۱ ═══════════ -->
+<section id="s1">
+  <div class="eyebrow">SECTION 01 — RESOURCE AUDIT</div>
+  <h2>ارزیابی منابع فعلی: کافی است یا نه؟</h2>
+
+  <div class="card verdict">
+    <b>حکم صریح:</b> با همین دو سرور و بدون خرید سخت‌افزار جدید، <b>فاز ۰ (اعتبارسنجی) و فاز ۱ (MVP) به‌طور کامل قابل اجراست</b> — تا حدود ۲۰ تا ۳۰ برند فعال <span class="assume">فرض</span>. توپولوژی دوپایه‌ای که در بلوپرینت v1.0 طراحی شد، دقیقاً روی همین دو سرور می‌نشیند: سرور آمریکا = پایه خارج، سرور ایران = پایه داخل. کمبودها سخت‌افزاری نیستند؛ <b>سرویسی و اعتباری‌اند</b> (بخش ۴).
+  </div>
+
+  <table class="t">
+    <tr><th>دارایی</th><th>مشخصات</th><th>نقش در RPIM</th><th>کفایت</th></tr>
+    <tr>
+      <td><b>VPS آمریکا</b></td>
+      <td class="num">8C · 12GB · 100GB NVMe</td>
+      <td>پایه خارج: دروازه مدل‌ها، کرالر منابع خارجی، رندر تصویر، ناشر تلگرام</td>
+      <td><span class="tag ok">کافی برای فاز ۰–۲</span></td>
+    </tr>
+    <tr>
+      <td><b>VPS ایران</b></td>
+      <td class="num">8C · 8GB · 100GB NVMe</td>
+      <td>پایه داخل: داشبورد، API اصلی، دیتابیس اصلی، ناشر بله/ایتا، درگاه پرداخت</td>
+      <td><span class="tag ok">کافی برای فاز ۰–۱</span></td>
+    </tr>
+    <tr>
+      <td><b>Google Pro</b></td>
+      <td class="num">اشتراک مصرفی</td>
+      <td>ابزار کار بنیان‌گذار + پروتوتایپ؛ <b>نه</b> زیرساخت محصول (بخش ۳)</td>
+      <td><span class="tag need">مفید ولی ناکافی</span></td>
+    </tr>
+  </table>
+
+  <div class="card stopbox">
+    <b>صادقانه: با این منابع چه چیزی نمی‌شود؟</b> میزبانی مدل زبانی خودمیزبان در سطح تولید (۱۲GB رم بدون GPU فقط برای «حالت اضطراری تنزل‌یافته» با مدل خیلی کوچک کافی است، نه تولید محتوای مشتری)؛ تولید ویدئوی مولد؛ لایه «ج» منابع ترند (داده‌فروش شبکه‌های فیلترشده)؛ و رشد بالای ~۳۰ برند بدون ارتقای رم سرور ایران. هیچ‌کدام مانع MVP نیستند — فقط باید در وعده‌ها هم نباشند.
+  </div>
+</section>
+
+<!-- ═══════════ ۲ ═══════════ -->
+<section id="s2">
+  <div class="eyebrow">SECTION 02 — SERVICE PLACEMENT</div>
+  <h2>نگاشت سرویس‌ها به دو سرور</h2>
+  <p class="lead">قاعده جای‌گذاری فقط یک جمله است: <b>هر سرویس کنار شبکه‌ای می‌نشیند که باید با آن حرف بزند.</b> تلگرام از دیتاسنتر ایران در دسترس نیست → ناشر تلگرام روی پایه خارج. بله/ایتا/زرین‌پال داخلی‌اند → روی پایه داخل. مدل‌ها تحریمی‌اند → دروازه مدل روی پایه خارج.</p>
+
+  <div class="legs">
+    <div class="leg">
+      <h4>پایه داخل — VPS ایران</h4>
+      <div class="role">USER-FACING · IRAN-NET SERVICES</div>
+      <span class="spec">8 CORE · 8GB RAM · 100GB NVMe</span>
+      <ul>
+        <li>Caddy (وب‌سرور + TLS خودکار) <span class="ram">~۶۰MB</span></li>
+        <li>داشبورد Next.js (صف تایید، موبایل‌فرست) <span class="ram">۴۰۰–۷۰۰MB</span></li>
+        <li>Core API — FastAPI ×۲ ورکر <span class="ram">۴۰۰–۶۰۰MB</span></li>
+        <li><b>PostgreSQL 16 + pgvector</b> (دیتابیس اصلی) <span class="ram">۱.۵–۲GB</span></li>
+        <li>Redis (کش + صف داخلی) <span class="ram">۲۰۰–۳۰۰MB</span></li>
+        <li>ناشر بله + ایتا + زمان‌بند انتشار <span class="ram">۳۰۰–۵۰۰MB</span></li>
+        <li>Umami (آنالیتیکس سبک به‌جای Matomo) <span class="ram">۳۰۰–۴۰۰MB</span></li>
+        <li>اتصال زرین‌پال / پنل پیامک (فاز بعد) <span class="ram">—</span></li>
+        <li><b>فضای آزاد ایمنی</b> <span class="ram">≥۱.۵GB</span></li>
+      </ul>
+    </div>
+    <div class="tunnel" aria-hidden="true">
+      <div class="pipe"></div>
+      <span class="lbl">WIREGUARD + MESSAGE QUEUE</span>
+      <div class="pipe"></div>
+    </div>
+    <div class="leg">
+      <h4>پایه خارج — VPS آمریکا</h4>
+      <div class="role">MODEL GATEWAY · CRAWL · RENDER</div>
+      <span class="spec">8 CORE · 12GB RAM · 100GB NVMe</span>
+      <ul>
+        <li>Caddy <span class="ram">~۶۰MB</span></li>
+        <li><b>Model Gateway</b> (مسیریاب + زنجیره جایگزینی + دفتر هزینه) <span class="ram">۳۰۰–۵۰۰MB</span></li>
+        <li>سرویس Embedding — bge-m3 روی CPU (int8) <span class="ram">۱–۱.۵GB</span></li>
+        <li>کرالر Playwright — سقف ۲ نمونه هم‌زمان <span class="ram">۱.۵–۲.۵GB</span></li>
+        <li>موتور قالب تصویر — HTML→PNG با Chromium <span class="ram">۰.۸–۱.۲GB</span></li>
+        <li>ناشر تلگرام (Bot API) <span class="ram">۱۵۰–۲۵۰MB</span></li>
+        <li>Redis (صف کارهای خارج) <span class="ram">۲۰۰–۳۰۰MB</span></li>
+        <li>MinIO / کش مدیا موقت <span class="ram">۲۰۰–۴۰۰MB</span></li>
+        <li><b>فضای آزاد ایمنی</b> <span class="ram">≥۳GB</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <p>ارتباط دو پایه: تونل WireGuard روی پورت غیراستاندارد + صف پیام با تحویل idempotent. چون مسیر ایران↔خارج گاهی مختل می‌شود، طراحی باید <b>ازسرگیری‌پذیر</b> باشد: اگر تونل قطع شد، کارها در صف می‌مانند و داشبورد داخل با داده محلی زنده می‌ماند؛ مسیر پشتیبان همگام‌سازی روی HTTPS/443 پیش‌بینی شود <span class="assume">الزام طراحی</span>.</p>
+
+  <h3>بودجه‌بندی دیسک (۱۰۰GB × ۲)</h3>
+  <table class="t">
+    <tr><th>مصرف</th><th>سرور</th><th>برآورد سال اول</th></tr>
+    <tr><td>دیتابیس (متن + بردارها، ~۲۰ برند)</td><td>ایران</td><td class="num">۵–۱۵GB <span class="assume">فرض</span></td></tr>
+    <tr><td>مدیای تولیدی (تصاویر قالب، ~۱۵۰۰ فایل/ماه)</td><td>ایران + آینه خارج</td><td class="num">۶–۱۲GB/سال</td></tr>
+    <tr><td>لاگ + مانیتورینگ (با چرخش ۳۰روزه)</td><td>هر دو</td><td class="num">۵–۱۰GB</td></tr>
+    <tr><td>مدل embedding + وابستگی‌ها + Chromium</td><td>آمریکا</td><td class="num">~۱۰GB</td></tr>
+  </table>
+  <p>نتیجه: دیسک سال اول مشکلی ندارد؛ فقط <b>بکاپ نباید روی همین دو سرور بماند</b> — ردیف ۸ چک‌لیست تهیه‌ها.</p>
+</section>
+
+<!-- ═══════════ ۳ ═══════════ -->
+<section id="s3">
+  <div class="eyebrow">SECTION 03 — GOOGLE PRO REALITY CHECK</div>
+  <h2>اکانت Google Pro دقیقاً به چه دردی می‌خورد؟</h2>
+  <p class="lead">نکته‌ای که باید بدون توهم روشن شود: <b>اشتراک مصرفی Google AI Pro شامل اعتبار API نیست.</b> این اشتراک به «شما» سرویس می‌دهد، نه به «محصول شما». API جمینای از مسیر جدای Google AI Studio فعال و جداگانه صورتحساب می‌شود (یک سطح رایگانِ محدود برای توسعه دارد).</p>
+  <table class="t">
+    <tr><th>کاربرد</th><th>قابل استفاده؟</th><th>توضیح</th></tr>
+    <tr><td>NotebookLM برای پروتوتایپ «مغز برند» در فاز ۰</td><td><span class="tag ok">بله — ارزشمند</span></td><td>قبل از نوشتن کد، رفتار ایده‌آل M1 را با اسناد ۲–۳ مشتری Concierge شبیه‌سازی کن؛ خروجی‌اش مشخصات دقیق M1 می‌شود.</td></tr>
+    <tr><td>ابزار روزمره تحقیق/نوشتن بنیان‌گذار</td><td><span class="tag ok">بله</span></td><td>بخشی از سرویس Concierge فاز ۰ را عملاً با همین می‌دهی.</td></tr>
+    <tr><td>فراخوانی مدل از داخل کد RPIM</td><td><span class="tag need">خیر</span></td><td>نیازمند کلید API از AI Studio + فعال‌سازی صورتحساب جدا — ردیف ۳ چک‌لیست.</td></tr>
+    <tr><td>تولید تصویر محصول در مقیاس</td><td><span class="tag need">خیر</span></td><td>سهمیه مصرفی اشتراک برای مصرف محصول نه مجاز است نه مقیاس‌پذیر.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════ ۴ ═══════════ -->
+<section id="s4">
+  <div class="eyebrow">SECTION 04 — PROCUREMENT CHECKLIST</div>
+  <h2>چک‌لیست تهیه‌ها: چیزهایی که باید فراهم کنی</h2>
+  <p>مرتب بر اساس ترتیب نیاز. سطح هزینه کیفی است تا سند با نوسان قیمت‌ها کهنه نشود؛ اعداد دلاری فقط لنگر ذهنی‌اند <span class="assume">تقریبی</span>.</p>
+  <table class="t">
+    <tr><th>#</th><th>قلم</th><th>برای چه؟</th><th>هزینه</th><th>فاز</th></tr>
+    <tr><td class="num">01</td><td><b>دامنه .com</b> (+ اختیاری .ir)</td><td>هویت محصول، TLS، ایمیل</td><td class="num">~۱۰–۱۵$/سال</td><td><span class="tag info">۰</span></td></tr>
+    <tr><td class="num">02</td><td>Cloudflare (پلن رایگان)</td><td>DNS، مخفی‌سازی IP سرورها، CDN سبک</td><td class="num">رایگان</td><td><span class="tag info">۰</span></td></tr>
+    <tr><td class="num">03</td><td><b>کلید API جمینای</b> (AI Studio + صورتحساب)</td><td>مسیر اصلی مدل متن؛ سطح رایگان برای توسعه، پولی برای تولید</td><td class="num">مصرفی — کم</td><td><span class="tag info">۰</span></td></tr>
+    <tr><td class="num">04</td><td><b>دسترسی Claude Code</b> (اشتراک Pro/Max یا کلید API آنتروپیک)</td><td>ابزار ساخت کل محصول — مهم‌ترین خرید این فهرست</td><td class="num">ماهانه — متوسط</td><td><span class="tag info">۰</span></td></tr>
+    <tr><td class="num">05</td><td>کلید مدل جایگزین (DeepSeek یا OpenRouter)</td><td>حلقه دوم زنجیره جایگزینی + کاندید کارهای ارزان</td><td class="num">شارژ اولیه ~۵–۱۰$</td><td><span class="tag info">۱</span></td></tr>
+    <tr><td class="num">06</td><td>GitHub خصوصی + Actions</td><td>مخزن کد، CI، استقرار با SSH</td><td class="num">رایگان</td><td><span class="tag info">۰</span></td></tr>
+    <tr><td class="num">07</td><td>Sentry + UptimeRobot (سطح رایگان)</td><td>رصد خطا و قطعی هر دو پایه</td><td class="num">رایگان</td><td><span class="tag info">۱</span></td></tr>
+    <tr><td class="num">08</td><td><b>فضای بکاپ بیرونی</b> (Storage Box خارجی یا آبجکت‌استوریج آروان)</td><td>بکاپ شبانه رمزنگاری‌شده دیتابیس + مدیا، خارج از هر دو سرور</td><td class="num">~۴–۱۰$/ماه</td><td><span class="tag info">۱</span></td></tr>
+    <tr><td class="num">09</td><td>توکن بات تلگرام / بله / ایتایار</td><td>ریل‌های انتشار خودکار M7</td><td class="num">رایگان / ناچیز</td><td><span class="tag info">۱</span></td></tr>
+    <tr><td class="num">10</td><td>پنل پیامک داخلی (نوع کاوه‌نگار)</td><td>کانال پیامک + اعلان تایید به مشتری</td><td class="num">ودیعه کم</td><td><span class="tag info">۲</span></td></tr>
+    <tr><td class="num">11</td><td>درگاه پرداخت (زرین‌پال)</td><td>فروش اشتراک از پایان فاز ۱</td><td class="num">کارمزد تراکنش</td><td><span class="tag info">۱→۲</span></td></tr>
+    <tr><td class="num">12</td><td>شخصیت حقوقی + اینماد</td><td>فروش قانونی و اعتماد؛ پیش‌نیاز قرارداد با برندهای جدی</td><td class="num">متوسط — یک‌باره</td><td><span class="tag info">۲</span></td></tr>
+    <tr><td class="num">13</td><td>GPU اجاره‌ای ساعتی (نوع RunPod)</td><td>فقط اگر مسیر تصویر خودمیزبان انتخاب شد؛ خرید نکن، اجاره کن</td><td class="num">ساعتی — مشروط</td><td><span class="tag info">۲→۳</span></td></tr>
+  </table>
+  <div class="card warnbox">
+    <b>یادداشت حقوقی کوتاه و صادق:</b> سرویس‌دهی به مشتریان داخل ایران با APIهای آمریکایی، هم بحث تحریم دارد هم شرایط استفاده هر ارائه‌دهنده. این بلوپرینت معماری را چندتامین‌کننده طراحی کرده تا به یک مسیر گره نخوری؛ اما پیش از عقد قرارداد با مشتریان، این مورد را با یک مشاور حقوقی آشنا به تحریم‌ها شفاف کن. مسئولیت انطباق، بخشی از محصول است نه پاورقی.
+  </div>
+</section>
+
+<!-- ═══════════ ۵ ═══════════ -->
+<section id="s5">
+  <div class="eyebrow">SECTION 05 — MODEL STRATEGY</div>
+  <h2>استراتژی مدل‌ها: چه مدلی، برای چه کاری، از کجا</h2>
+  <p class="lead">هیچ «یک مدل برای همه‌چیز» وجود ندارد؛ Model Gateway بر اساس نوع کار مسیریابی می‌کند. این جدول پیکربندی پیشنهادی روز اول است — نه حکم ابدی. انتخاب نهایی ردیف T2 فقط با <b>سنجه فارسی خودت</b> انجام می‌شود، نه ادعای وبلاگ‌ها.</p>
+  <table class="t">
+    <tr><th>ردیف</th><th>نوع کار</th><th>انتخاب اول</th><th>جایگزین زنجیره</th><th>منطق</th></tr>
+    <tr><td class="num">T1</td><td>کارهای انبوه ارزان: تگ‌گذاری، دسته‌بندی، امتیاز ترند، خلاصه</td><td>مدل کلاس Flash (جمینای) یا DeepSeek</td><td>هرکدام که اول نبود</td><td>حجم بالا، تحمل خطای بیشتر؛ هزینه باید نزدیک صفر بماند</td></tr>
+    <tr><td class="num">T2</td><td><b>تولید نهایی محتوای مشتری</b> (فارسی)</td><td>مدل کلاس Pro جمینای <b>یا</b> Claude Sonnet</td><td>دیگری + مسیر واسط داخلی به‌عنوان حلقه سوم</td><td>کیفیت فارسی و پیروی از لحن برند تعیین‌کننده است → سنجه ۵۰پرامپتی فاز ۰</td></tr>
+    <tr><td class="num">T3</td><td>Embedding (مغز برند + جستجوی ترند)</td><td><b>bge-m3 خودمیزبان</b> روی CPU سرور آمریکا</td><td>API embedding ابری</td><td>چندزبانه، فارسی‌فهم، رایگان در مقیاس — حذف کامل هزینه per-call</td></tr>
+    <tr><td class="num">T4</td><td>تصویر مولد (غیرقالبی)</td><td>API تصویر ابری (فاز ۲)</td><td>FLUX/SDXL روی GPU اجاره‌ای</td><td>در MVP، موتور قالب HTML→PNG بار اصلی را می‌کشد و رایگان است</td></tr>
+    <tr><td class="num">T5</td><td>حالت اضطراری تنزل‌یافته</td><td>مدل کوچک کوانتیزه روی CPU (فقط پیش‌نویس داخلی)</td><td>—</td><td>۱۲GB بدون GPU یعنی «چراغ اضطراری»، نه موتور تولید — صادقانه در SLA بیاید</td></tr>
+  </table>
+  <h3>سنجه ۵۰پرامپتی فاز ۰ (تصمیم T2 را این می‌گیرد)</h3>
+  <p>۵۰ بریف واقعی از ۲–۳ مشتری Concierge بساز (کپشن محصول، پست مناسبتی، پاسخ به ترند، مقاله کوتاه سئو، متن پیامک). هر بریف را به ۳ کاندید بده، خروجی‌ها را کور به خودت + صاحب برند نشان بده و از ۱ تا ۵ نمره بده: صحت ادعا، لحن برند، طبیعی‌بودن فارسی. هم‌زمان هزینه هر دارایی را از دفتر هزینه Gateway بخوان. برنده = بهترین نمره‌به‌ازای‌هزینه. این آزمون نیم‌روز کار دارد و ماه‌ها هزینه اشتباه را حذف می‌کند.</p>
+</section>
+
+<!-- ═══════════ ۶ ═══════════ -->
+<section id="s6">
+  <div class="eyebrow">SECTION 06 — CLAUDE CODE EXECUTION PLAN</div>
+  <h2>نقشه اجرا با Claude Code</h2>
+  <p class="lead">Claude Code تیم مهندسی فاز ۱ توست — به شرطی که مثل یک مهندس ارشد مدیریتش کنی: زمینه مکتوب، مایلستون‌های کوچک با معیار پذیرش، و تست قبل از کامیت. این بخش دقیقاً همان چیزی است که باید جلوی Claude Code بگذاری.</p>
+
+  <h3>۶.۱ — کدام مدل Claude برای کدام کار؟</h3>
+  <table class="t">
+    <tr><th>کار</th><th>مدل پیشنهادی</th><th>چرا</th></tr>
+    <tr><td>معماری، طراحی اسکیما، تصمیم‌های سخت، دیباگ‌های گره‌خورده</td><td class="num">Claude Opus 4.8 یا Fable 5</td><td>عمق استدلال؛ اشتباه معماری گران‌ترین اشتباه پروژه است</td></tr>
+    <tr><td><b>پیاده‌سازی روزمره مایلستون‌ها (بدنه اصلی کار)</b></td><td class="num">Claude Sonnet 4.6</td><td>بهترین نسبت کیفیت/هزینه/سرعت برای کدنویسی عامل‌محور</td></tr>
+    <tr><td>ویرایش‌های کوچک، رفع لینت، تغییرات متنی</td><td class="num">Claude Haiku 4.5</td><td>ارزان و سریع؛ برای کارهای کم‌ریسک کافی</td></tr>
+  </table>
+  <p>الگوی عملی: هر مایلستون را با مدل قوی‌تر «طرح» بزن (plan mode)، سپس اجرای طرح را به Sonnet بسپار. دسترسی از طریق اشتراک Pro/Max (شامل Claude Code) یا کلید API — ردیف ۰۴ چک‌لیست.</p>
+
+  <h3>۶.۲ — ساختار مخزن (monorepo)</h3>
+<pre>rpim/
+├── CLAUDE.md              ← قانون اساسی پروژه برای هر سشن
+├── docs/
+│   ├── blueprint-v1.md    ← سند مفهومی (همین دو بلوپرینت)
+│   └── decisions/         ← ADR: هر تصمیم معماری، یک فایل
+├── apps/
+│   ├── core-api/          ← FastAPI · پایه داخل
+│   ├── dashboard/         ← Next.js · صف تایید موبایل‌فرست
+│   ├── model-gateway/     ← FastAPI · پایه خارج · مسیریاب + دفتر هزینه
+│   └── workers/           ← Celery: ingestion، انتشار، کرال، رندر
+├── packages/shared/       ← اسکیماهای Pydantic/TS مشترک
+├── infra/
+│   ├── docker-compose.iran.yml
+│   ├── docker-compose.us.yml
+│   ├── wireguard/  ·  caddy/  ·  backup/
+└── scripts/eval/          ← سنجه ۵۰پرامپتی فارسی</pre>
+
+  <h3>۶.۳ — محتوای CLAUDE.md (خلاصه الزامی)</h3>
+  <p>این فایل را یک‌بار خوب بنویس؛ کیفیت همه سشن‌ها به آن گره می‌خورد: <b>(۱)</b> هفت اصل بلوپرینت v1.0 به‌صورت قواعد کد (مثلاً «هیچ انتشاری بدون UTM/متادیتا کامپایل نمی‌شود»، «پرچم سکوت بر هر جاب انتشار مقدم است»، «هیچ secret در کد — فقط env»)، <b>(۲)</b> نقشه دوپایه و اینکه هر سرویس کجا دیپلوی می‌شود، <b>(۳)</b> دستورهای اجرا و تست (<code class="k">make test</code>، <code class="k">make lint</code>، <code class="k">docker compose up</code>)، <b>(۴)</b> تعریف Done هر مایلستون از جدول ۶.۴، <b>(۵)</b> سبک کد (type hints اجباری، تست برای هر سرویس، مهاجرت DB فقط با Alembic)، <b>(۶)</b> قاعده فارسی: همه متن‌های رو به کاربر RTL و از فایل‌های locale.</p>
+
+  <h3>۶.۴ — مایلستون‌های اجرا (هر ردیف = ۱ تا ۳ سشن Claude Code)</h3>
+  <table class="t">
+    <tr><th>#</th><th>مایلستون</th><th>خروجی</th><th>معیار پذیرش (تست قبول)</th><th>مدل</th></tr>
+    <tr><td class="num">M0</td><td>اسکلت + زیرساخت</td><td>monorepo، دو compose، CI (لینت+تست)، WireGuard، Caddy</td><td>هر دو پایه با یک دستور بالا می‌آیند؛ healthcheck دوطرفه سبز</td><td class="num">Opus/Fable طرح → Sonnet</td></tr>
+    <tr><td class="num">M1</td><td>هویت و مستاجر</td><td>ثبت‌نام/ورود، مدل Tenant، پروفایل برند (لحن، خطوط قرمز، واژه‌نامه) + مصاحبه آنبوردینگ گفت‌وگومحور</td><td>ایزولاسیون داده دو مستاجر آزمایشی با تست اثبات شود</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M2</td><td>Ingestion مغز برند</td><td>آپلود سند، کرال سایت برند، چانکینگ، bge-m3، pgvector</td><td>پرسش فارسی → ۵ چانک مرتبط با منبع؛ تاخیر &lt; ۲ ثانیه</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M3</td><td><b>Model Gateway</b></td><td>interface واحد، زنجیره T1–T5، retry/timeout، دفتر هزینه per-tenant</td><td>قطع عمدی مسیر اول → جایگزین بدون خطای کاربر؛ هزینه هر call ثبت شود</td><td class="num">Opus/Fable طرح → Sonnet</td></tr>
+    <tr><td class="num">M4</td><td>تولید محتوا</td><td>بریف → پیش‌نویس با RAG + امتیاز لحن + لاگ سه‌سیگنالی شاگرد (A0: بریف/خروجی تاییدشده، ویرایش انسان، دلیل رد)</td><td>۱۰ بریف نمونه → خروجی با ارجاع به دانش برند، بدون ادعای بی‌منبع</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M5</td><td>QA و حاکمیت</td><td>راستی‌آزمایی ادعا علیه مغز برند، طبقه‌بند حساسیت + فهرست سیاه، چک مشخصات کانال، پایشگر «حالت سکوت» (فید رویداد ملی → پرچم سراسری)</td><td>ست ۲۰ نمونه‌ی تله (قیمت غلط، موضوع حساس) همگی پرچم بخورند</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M6</td><td>صف تایید</td><td>UI موبایل‌فرست: تایید/ویرایش/رد با دلیل ساختارمند</td><td>چرخه کامل تایید از گوشی &lt; ۳۰ ثانیه؛ لاگ دلیل رد ذخیره شود</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M7</td><td>ناشر چندکاناله</td><td>تلگرام (پایه خارج) + بله/ایتا (پایه داخل)، زمان‌بندی، جاب idempotent</td><td>قطع تونل وسط انتشار → نه گم شدن، نه دوباره‌فرستادن؛ فعال‌سازی پرچم سکوت → توقف فوری حتی برای جاب‌های در صف</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M8</td><td>موتور قالب تصویر</td><td>قالب‌های برند HTML→PNG با فونت فارسی، خروجی چنداندازه</td><td>۳ قالب × ۳ سایز، رندر &lt; ۵ ثانیه، متن فارسی سالم</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M9</td><td>سنجش</td><td>UTM ساز، کد کمپین، Umami، داشبورد هزینه/مصرف مستاجر، گزارش ماهانه «چه گرفتی»</td><td>مسیر «پست → کلیک → لندینگ» سرتاسری در گزارش دیده شود</td><td class="num">Sonnet</td></tr>
+    <tr><td class="num">M10</td><td>ایمنی بهره‌برداری</td><td>کلید قطع سراسری، بکاپ شبانه رمزنگاری‌شده بیرونی، اسکریپت استقرار، runbook</td><td>Kill switch &lt; ۵ ثانیه؛ بازیابی DB از بکاپ روی محیط تمیز تمرین شود</td><td class="num">Opus/Fable طرح → Sonnet</td></tr>
+  </table>
+
+  <h3>۶.۵ — قواعد کار با Claude Code (تجربه‌محور)</h3>
+  <p><b>یک سشن = یک مایلستون.</b> اول plan mode، طرح را خودت بخوان و تایید کن، بعد اجرا. <b>کامیت‌های کوچک</b> بعد از هر تست سبز؛ هرگز «همه‌چیز یک‌جا». <b>تست دروازه است:</b> از Claude بخواه اول تستِ معیار پذیرش را بنویسد، بعد پیاده‌سازی. <b>زمینه بده نه حدس:</b> بخش مربوط بلوپرینت را در پرامپت پیوست کن. <b>Secrets هرگز وارد سشن نشوند</b> — فقط نام متغیر env. و در پایان هر مایلستون: از Claude بخواه <code class="k">docs/decisions/</code> را با تصمیم‌های گرفته‌شده به‌روز کند تا سشن بعدی حافظه داشته باشد.</p>
+
+  <h3>۶.۶ — پرامپت شروع سشن اول (نمونه واقعی)</h3>
+<pre>Read CLAUDE.md and docs/blueprint-v1.md fully.
+We are on milestone M0 of section 6.4.
+1) Propose the repo scaffold + both docker-compose files
+   (iran leg / us leg) as a plan. Wait for my approval.
+2) Constraints: Python 3.12 + FastAPI, Next.js 15, Postgres 16
+   + pgvector, Redis, Caddy. No secrets in code. All services
+   must have /health endpoints.
+3) Acceptance: `make up-iran` and `make up-us` bring each leg
+   up locally; `make test` passes; cross-leg healthcheck script
+   is green over WireGuard config stubs.</pre>
+</section>
+
+<!-- ═══════════ ۷ ═══════════ -->
+<section id="s7">
+  <div class="eyebrow">SECTION 07 — ROADMAP</div>
+  <h2>نقشه راه ترسیمی — تیر ۱۴۰۵ تا تیر ۱۴۰۶</h2>
+  <div class="gantt" role="img" aria-label="گانت ۱۲ماهه فازهای RPIM">
+    <div class="g-grid">
+      <div class="h"></div>
+      <div class="h">تیر۰۵</div><div class="h">مرداد</div><div class="h">شهریور</div><div class="h">مهر</div>
+      <div class="h">آبان</div><div class="h">آذر</div><div class="h">دی</div><div class="h">بهمن</div>
+      <div class="h">اسفند</div><div class="h">فرور۰۶</div><div class="h">اردیبهشت</div><div class="h">خرداد</div><div class="h">تیر۰۶</div>
+
+      <div class="rowlbl">فاز ۰ · اعتبارسنجی</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar b0" style="inset-inline-start:0%;width:15.4%">Concierge + سنجه ۵۰پرامپتی</span>
+      </div>
+
+      <div class="rowlbl">ساخت MVP · M0–M10</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar b1" style="inset-inline-start:7.7%;width:38.4%">Claude Code · ۱۱ مایلستون</span>
+      </div>
+
+      <div class="rowlbl">فاز ۱ · بهره‌برداری</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar b1" style="inset-inline-start:30.8%;width:23%;opacity:.75">پایلوت → ۱۰ برند فعال</span>
+      </div>
+
+      <div class="rowlbl">فاز ۲ · مغز</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar b2" style="inset-inline-start:46.2%;width:23%">ترند + استراتژی + IG همیارانه</span>
+      </div>
+
+      <div class="rowlbl">فاز ۳ · خودمختاری</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar b3" style="inset-inline-start:69.2%;width:30.8%">ریسرچ + مکالمه + L2/L3</span>
+      </div>
+
+      <div class="rowlbl">دروازه‌های Go/No-Go</div>
+      <div class="cell" style="grid-column:span 13">
+        <span class="bar bx" style="inset-inline-start:14%;width:3%" title="G1"></span>
+        <span class="bar bx" style="inset-inline-start:45%;width:3%" title="G2"></span>
+        <span class="bar bx" style="inset-inline-start:68%;width:3%" title="G3"></span>
+      </div>
+    </div>
+    <p class="g-note"><b>دروازه‌ها:</b> G1 (پایان مرداد) ≥۲ مشتری Concierge که ماه دوم را تمدید کنند، وگرنه بازطراحی ارزش پیش از ساخت · G2 (پایان آذر) نرخ تایید بدون ویرایش ≥۷۰٪ و ریزش &lt;۱۰٪ · G3 (پایان اسفند) ≥۵۰٪ محتوای منتشرشده منشا ترند/استراتژی خودکار. عبور نکردن از دروازه = توقف و اصلاح، نه ادامه با امید. همه بازه‌ها <span class="assume">فرض</span> با کشش ±۳ تا ۴ هفته.</p>
+  </div>
+</section>
+
+<!-- ═══════════ ۸ ═══════════ -->
+<section id="s8">
+  <div class="eyebrow">SECTION 08 — SETUP-SPECIFIC RISKS</div>
+  <h2>ریسک‌های مختص همین ستاپ دوسروره</h2>
+  <table class="t">
+    <tr><th>ریسک</th><th>واقعیت</th><th>پاسخ عملیاتی</th></tr>
+    <tr><td>هر پایه فقط یک سرور دارد (SPOF)</td><td>خرابی سخت‌افزاری یعنی قطعی همان پایه</td><td>بکاپ شبانه بیرونی + تمرین بازیابی (M10) + runbook «بازسازی از صفر در ۲ ساعت»؛ سرور دوم فقط وقتی درآمد توجیه کرد</td></tr>
+    <tr><td>اختلال مسیر ایران↔خارج</td><td>تونل گاهی کند یا قطع می‌شود</td><td>صف idempotent، حالت تنزل‌یافته داشبورد، مسیر پشتیبان روی 443</td></tr>
+    <tr><td>سقف رم پایه داخل (8GB)</td><td>حدود ۲۵–۳۰ برند فعال به سقف می‌رسد <span class="assume">فرض</span></td><td>آستانه هشدار: مصرف پایدار &gt;۷۵٪ → ارتقای رم (ارزان‌ترین ارتقای ممکن، برنامه‌ریزی‌شده نه اضطراری)</td></tr>
+    <tr><td>لو رفتن IP سرورها</td><td>هدف حمله یا اختلال می‌شوند</td><td>Cloudflare جلوی هر دو دامنه، فایروال UFW، فقط SSH-key، fail2ban</td></tr>
+    <tr><td>وابستگی توسعه به یک نفر + Claude Code</td><td>حافظه پروژه در سرِ سشن‌ها گم می‌شود</td><td>CLAUDE.md + پوشه decisions به‌عنوان حافظه رسمی؛ هیچ تصمیمی فقط شفاهی نماند</td></tr>
+  </table>
+  <p>ریسک‌های محصولی و بازار (تحریم مدل، بن اینستاگرام، شکستن کرالر، ارز) در بخش ۸ سند v1.0 پوشش داده شده و اینجا تکرار نشده‌اند.</p>
+</section>
+
+<div class="foot">
+  RPIM · Execution Blueprint v1.2 · مکمل سند مفهومی v1.2 · هر تغییر در فرض‌ها اول اینجا ثبت می‌شود، بعد در کد.
+</div>
+
+</div>
+</body>
+</html>

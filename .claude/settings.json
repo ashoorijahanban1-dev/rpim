@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && if [ -f Makefile ]; then make test 2>&1 | tail -15; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json;d=json.load(sys.stdin);ti=d.get('tool_input',{});p=str(ti.get('file_path') or ti.get('path') or '');bad=('.env' in p and not p.endswith('.example'));sys.stderr.write('Blocked: real .env files are off-limits; use .env.*.example.\\n') if bad else None;sys.exit(2 if bad else 0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
