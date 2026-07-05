@@ -16,3 +16,9 @@
 - core-api binds `${CORE_BIND:-127.0.0.1}:8000` symmetrically (WG IP
   `10.66.0.1` on the server) for the us→iran healthcheck path.
 - Local-profile Caddy: iran `:8001` (any interface), us `127.0.0.1:8002`.
+- **Host-port overrides (amended after first deploy):** on the US server the
+  Coolify panel owns `:8000` and Traefik commonly owns `:8080`, so published
+  host ports are parameterized (`CORE_PORT`, `GATEWAY_PORT`; server values
+  18000/18080, local/CI defaults unchanged). When WireGuard lands, revisit so
+  the bind IP:port matches the committed `GATEWAY_URL`/`CORE_API_URL`
+  contracts (either move ports back on the WG IPs or update the URL envs).

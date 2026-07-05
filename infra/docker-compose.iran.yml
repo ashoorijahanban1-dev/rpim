@@ -60,7 +60,8 @@ services:
       GATEWAY_URL: ${GATEWAY_URL:-http://10.66.0.2:8080}
     ports:
       # local: loopback · real server: CORE_BIND=10.66.0.1 (WireGuard IP) · CI: 0.0.0.0
-      - "${CORE_BIND:-127.0.0.1}:8000:8000"
+      # CORE_PORT dodges host collisions (Coolify panel owns 8000 on the US server)
+      - "${CORE_BIND:-127.0.0.1}:${CORE_PORT:-8000}:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

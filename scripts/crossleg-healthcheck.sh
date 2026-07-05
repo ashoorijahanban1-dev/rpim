@@ -26,12 +26,12 @@ check() {
 case "$MODE" in
 local)
 	check "iran leg (caddy→core-api)" "http://localhost:${IRAN_HTTP_PORT:-8001}/health"
-	check "us leg (model-gateway)" "http://localhost:8080/health"
+	check "us leg (model-gateway)" "http://localhost:${GATEWAY_PORT:-8080}/health"
 	;;
 crossleg-ci)
 	echo "iran→us: curl from inside core-api container ..."
 	docker compose -f infra/docker-compose.iran.yml -p rpim-iran exec -T core-api \
-		python -c "import urllib.request;assert b'\"status\":\"ok\"' in urllib.request.urlopen('http://host.docker.internal:8080/health',timeout=10).read().replace(b' ',b'')"
+		python -c "import urllib.request;assert b'\"status\":\"ok\"' in urllib.request.urlopen('http://host.docker.internal:${GATEWAY_PORT:-8080}/health',timeout=10).read().replace(b' ',b'')"
 	echo "OK   iran→us"
 	echo "us→iran: curl from inside model-gateway container ..."
 	docker compose -f infra/docker-compose.us.yml -p rpim-us exec -T model-gateway \

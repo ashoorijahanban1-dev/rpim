@@ -100,6 +100,16 @@ set_envs() { # uuid, then KEY=VALUE args
 	done
 }
 
+upsert_env() { # uuid key value — create OR update (used for corrective overrides)
+	local uuid="$1" key="$2" val="$3"
+	api POST "/applications/$uuid/envs" \
+		-d "{\"key\":\"$key\",\"value\":\"$val\",\"is_preview\":false}" >/dev/null 2>&1 ||
+		api PATCH "/applications/$uuid/envs" \
+			-d "{\"key\":\"$key\",\"value\":\"$val\"}" >/dev/null ||
+		echo "!! failed to upsert env $key on $uuid" >&2
+	echo "→ env $key upserted" >&2
+}
+
 provision_leg() { # name compose_path env... — progress on stderr, uuid on stdout
 	local name="$1" compose="$2"
 	shift 2
@@ -120,6 +130,15 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 		echo "→ $name exists: $uuid (envs untouched)" >&2
 	fi
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
+	# Corrective overrides apply to EXISTING apps too (host-port collisions on
+	# the server: Coolify panel owns 8000, Traefik owns 8080).
+	for kv in "$@"; do
+		case "${kv%%=*}" in
+		CORE_PORT | GATEWAY_PORT | CORE_BIND | GATEWAY_BIND)
+			upsert_env "$uuid" "${kv%%=*}" "${kv#*=}"
+			;;
+		esac
+	done
 	api GET "/deploy?uuid=$uuid" >/dev/null &&
 		echo "→ $name deploy triggered" >&2 ||
 		echo "!! deploy trigger failed for $name (see error above)" >&2
@@ -131,12 +150,12 @@ IRAN_UUID=$(provision_leg "rpim-iran-leg" "/infra/docker-compose.iran.yml" \
 	"POSTGRES_USER=rpim" "POSTGRES_PASSWORD=$PGPASS" "POSTGRES_DB=rpim" \
 	"DATABASE_URL=postgresql://rpim:$PGPASS@postgres:5432/rpim" \
 	"APP_SECRET_KEY=$APPKEY" "JWT_SECRET=$JWT" "INTERNAL_TOKEN=$ITOK" \
-	"GATEWAY_URL=http://10.66.0.2:8080" "CORE_BIND=127.0.0.1" | tail -1)
+	"GATEWAY_URL=http://10.66.0.2:8080" "CORE_BIND=127.0.0.1" "CORE_PORT=18000" | tail -1)
 
 US_UUID=$(provision_leg "rpim-us-leg" "/infra/docker-compose.us.yml" \
 	"APP_ENV=production" \
 	"INTERNAL_TOKEN=$ITOK" \
-	"CORE_API_URL=http://10.66.0.1:8000" "GATEWAY_BIND=127.0.0.1" | tail -1)
+	"CORE_API_URL=http://10.66.0.1:8000" "GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)
 
 echo
 echo "Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):"
