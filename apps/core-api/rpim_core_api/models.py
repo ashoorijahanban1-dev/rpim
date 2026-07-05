@@ -43,8 +43,21 @@ class BrandProfile(Base):
     tone: Mapped[str] = mapped_column(String(4000), default="")
     personas: Mapped[list] = mapped_column(JSON, default=list)
     lexicon: Mapped[dict] = mapped_column(JSON, default=dict)
+    allowed_claims: Mapped[list] = mapped_column(JSON, default=list)
     forbidden_claims: Mapped[list] = mapped_column(JSON, default=list)
     red_lines: Mapped[list] = mapped_column(JSON, default=list)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
+
+
+class OnboardingInterview(Base):
+    __tablename__ = "onboarding_interviews"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), unique=True, index=True)
+    answers: Mapped[dict] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(String(16), default="draft")
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )

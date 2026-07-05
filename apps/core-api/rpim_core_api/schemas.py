@@ -27,9 +27,24 @@ class BrandProfileIn(BaseModel):
     tone: str = ""
     personas: list[str] = Field(default_factory=list)
     lexicon: dict[str, str] = Field(default_factory=dict)
+    allowed_claims: list[str] = Field(default_factory=list)
     forbidden_claims: list[str] = Field(default_factory=list)
     red_lines: list[str] = Field(default_factory=list)
 
 
 class BrandProfileOut(BrandProfileIn):
     pass
+
+
+class AnswersIn(BaseModel):
+    answers: dict
+
+
+class InterviewOut(BaseModel):
+    status: str
+    questions: list[dict]
+    answers: dict
+
+
+class CompleteOut(BaseModel):
+    status: str

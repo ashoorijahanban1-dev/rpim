@@ -27,6 +27,7 @@ def get_profile(
         tone=profile.tone,
         personas=profile.personas,
         lexicon=profile.lexicon,
+        allowed_claims=profile.allowed_claims or [],
         forbidden_claims=profile.forbidden_claims,
         red_lines=profile.red_lines,
     )
@@ -45,6 +46,7 @@ def put_profile(
     profile.tone = body.tone
     profile.personas = body.personas
     profile.lexicon = body.lexicon
+    profile.allowed_claims = body.allowed_claims
     profile.forbidden_claims = body.forbidden_claims
     profile.red_lines = body.red_lines
     session.commit()
