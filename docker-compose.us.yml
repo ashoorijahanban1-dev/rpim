@@ -11,7 +11,7 @@ services:
     ports:
       - "127.0.0.1:${US_HTTP_PORT:-8002}:80"
     volumes:
-      - ./caddy/Caddyfile.us:/etc/caddy/Caddyfile:ro
+      - ./infra/caddy/Caddyfile.us:/etc/caddy/Caddyfile:ro
     depends_on:
       model-gateway:
         condition: service_healthy
@@ -23,10 +23,10 @@ services:
 
   model-gateway:
     build:
-      context: ..
+      context: .
       dockerfile: apps/model-gateway/Dockerfile
     env_file:
-      - path: ../.env.us
+      - path: ./.env.us
         required: false
     environment:
       REDIS_URL: redis://redis:6379/0 # service hostname, not a secret

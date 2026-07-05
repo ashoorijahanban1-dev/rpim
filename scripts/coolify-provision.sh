@@ -128,6 +128,11 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 		echo "→ $name created: $uuid" >&2
 	else
 		echo "→ $name exists: $uuid (envs untouched)" >&2
+		# Corrective: compose files moved to the repo root (Coolify cannot build
+		# contexts that point ABOVE the compose file's directory).
+		api PATCH "/applications/$uuid" -d "{\"docker_compose_location\": \"$compose\"}" >/dev/null &&
+			echo "→ $name compose location set to $compose" >&2 ||
+			echo "!! failed to update compose location for $name" >&2
 	fi
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
 	# Corrective overrides apply to EXISTING apps too (host-port collisions on
@@ -145,14 +150,14 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 	echo "$uuid"
 }
 
-IRAN_UUID=$(provision_leg "rpim-iran-leg" "/infra/docker-compose.iran.yml" \
+IRAN_UUID=$(provision_leg "rpim-iran-leg" "/docker-compose.iran.yml" \
 	"APP_ENV=production" \
 	"POSTGRES_USER=rpim" "POSTGRES_PASSWORD=$PGPASS" "POSTGRES_DB=rpim" \
 	"DATABASE_URL=postgresql://rpim:$PGPASS@postgres:5432/rpim" \
 	"APP_SECRET_KEY=$APPKEY" "JWT_SECRET=$JWT" "INTERNAL_TOKEN=$ITOK" \
 	"GATEWAY_URL=http://10.66.0.2:8080" "CORE_BIND=127.0.0.1" "CORE_PORT=18000" | tail -1)
 
-US_UUID=$(provision_leg "rpim-us-leg" "/infra/docker-compose.us.yml" \
+US_UUID=$(provision_leg "rpim-us-leg" "/docker-compose.us.yml" \
 	"APP_ENV=production" \
 	"INTERNAL_TOKEN=$ITOK" \
 	"CORE_API_URL=http://10.66.0.1:8000" "GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)

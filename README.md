@@ -8,7 +8,7 @@ milestones: [`CLAUDE.md`](CLAUDE.md) · [`docs/RPIM-Blueprint-v1.2.md`](docs/RPI
 
 Two legs (blueprint §2): **iran** (dashboard, core-api, Postgres+pgvector,
 Redis, workers) and **us** (model-gateway, Redis). Legs talk over WireGuard.
-`infra/docker-compose.{iran,us}.yml` are the deployable units.
+`docker-compose.{iran,us}.yml` are the deployable units.
 
 ## Local dev / CI
 
@@ -30,8 +30,8 @@ Coolify is the deploy path on the real servers; its proxy owns 80/443, so the
 `local` compose profile (our Caddy) is **not** enabled there.
 
 1. In Coolify create two **Docker Compose** resources from this repo:
-   - iran server → `infra/docker-compose.iran.yml`
-   - us server → `infra/docker-compose.us.yml`
+   - iran server → `docker-compose.iran.yml`
+   - us server → `docker-compose.us.yml`
 2. Set environment variables in the Coolify UI (values live ONLY there —
    CLAUDE.md rule 4). Names: see `.env.iran.example` / `.env.us.example`.
    Critical: `INTERNAL_TOKEN` must be identical on both legs;

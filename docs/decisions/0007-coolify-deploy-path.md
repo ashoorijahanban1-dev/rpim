@@ -9,7 +9,7 @@ collide with it.
 
 **Decision.**
 - Both legs deploy as Coolify **Docker Compose resources** pointing at
-  `infra/docker-compose.{iran,us}.yml` on this repo.
+  `docker-compose.{iran,us}.yml` on this repo.
 - Our Caddy moves behind the compose profile `local` — used ONLY for local
   dev and CI. On servers, Coolify's proxy fulfills the blueprint's
   Caddy/ingress role; public routing/TLS is configured in the Coolify UI.

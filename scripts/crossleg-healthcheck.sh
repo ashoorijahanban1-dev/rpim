@@ -30,11 +30,11 @@ local)
 	;;
 crossleg-ci)
 	echo "iran→us: curl from inside core-api container ..."
-	docker compose -f infra/docker-compose.iran.yml -p rpim-iran exec -T core-api \
+	docker compose -f docker-compose.iran.yml -p rpim-iran exec -T core-api \
 		python -c "import urllib.request;assert b'\"status\":\"ok\"' in urllib.request.urlopen('http://host.docker.internal:${GATEWAY_PORT:-8080}/health',timeout=10).read().replace(b' ',b'')"
 	echo "OK   iran→us"
 	echo "us→iran: curl from inside model-gateway container ..."
-	docker compose -f infra/docker-compose.us.yml -p rpim-us exec -T model-gateway \
+	docker compose -f docker-compose.us.yml -p rpim-us exec -T model-gateway \
 		python -c "import urllib.request;assert b'\"status\":\"ok\"' in urllib.request.urlopen('http://host.docker.internal:${IRAN_HTTP_PORT:-8001}/health',timeout=10).read().replace(b' ',b'')"
 	echo "OK   us→iran"
 	;;

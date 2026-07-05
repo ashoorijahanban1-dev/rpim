@@ -17,7 +17,7 @@ ITOK=$(openssl rand -hex 32)
 
 cat <<EOF
 ############################################################
-# IRAN leg — Coolify resource: infra/docker-compose.iran.yml
+# IRAN leg — Coolify resource: docker-compose.iran.yml
 ############################################################
 APP_ENV=production
 POSTGRES_USER=rpim
@@ -32,7 +32,7 @@ GATEWAY_URL=http://10.66.0.2:8080
 CORE_BIND=127.0.0.1
 
 ############################################################
-# US leg — Coolify resource: infra/docker-compose.us.yml
+# US leg — Coolify resource: docker-compose.us.yml
 ############################################################
 APP_ENV=production
 # must be IDENTICAL to the iran leg:

@@ -39,8 +39,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: make env-init
-      - run: docker compose -f infra/docker-compose.iran.yml --profile local config -q
-      - run: docker compose -f infra/docker-compose.us.yml --profile local config -q
+      - run: docker compose -f docker-compose.iran.yml --profile local config -q
+      - run: docker compose -f docker-compose.us.yml --profile local config -q
 
   # The automated M0 acceptance: both legs actually up + two-way healthcheck.
   smoke:
@@ -59,8 +59,8 @@ jobs:
       - name: Logs on failure
         if: failure()
         run: |
-          docker compose -f infra/docker-compose.iran.yml -p rpim-iran --profile local logs --tail 80
-          docker compose -f infra/docker-compose.us.yml -p rpim-us --profile local logs --tail 80
+          docker compose -f docker-compose.iran.yml -p rpim-iran --profile local logs --tail 80
+          docker compose -f docker-compose.us.yml -p rpim-us --profile local logs --tail 80
       - name: Teardown
         if: always()
         run: make down-iran && make down-us
