@@ -1,0 +1,217 @@
+# CI smoke FAILURE — 2026-07-05T23:50:48Z — commit a024da79bcde14b1d134284f7c557b13027a2470
+## iran leg logs (tail)
+postgres-1  | The files belonging to this database system will be owned by user "postgres".
+postgres-1  | This user must also own the server process.
+postgres-1  | 
+postgres-1  | The database cluster will be initialized with locale "en_US.utf8".
+postgres-1  | The default database encoding has accordingly been set to "UTF8".
+postgres-1  | The default text search configuration will be set to "english".
+postgres-1  | 
+postgres-1  | Data page checksums are disabled.
+postgres-1  | 
+workers-1   | /app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+workers-1   | absolutely not recommended!
+workers-1   | 
+workers-1   | Please specify a different user using the --uid option.
+workers-1   | 
+core-api-1  | Traceback (most recent call last):
+core-api-1  |   File "/app/.venv/bin/alembic", line 10, in <module>
+dashboard-1  |    ▲ Next.js 15.5.20
+workers-1   | User information: uid=0 euid=0 gid=0 egid=0
+dashboard-1  |    - Local:        http://localhost:3000
+dashboard-1  |    - Network:      http://0.0.0.0:3000
+dashboard-1  | 
+dashboard-1  |  ✓ Starting...
+dashboard-1  |  ✓ Ready in 132ms
+core-api-1   |     sys.exit(main())
+core-api-1   |              ^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
+core-api-1   |     CommandLine(prog=prog).main(argv=argv)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
+core-api-1   |     self.run_cmd(cfg, options)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
+core-api-1   |     fn(
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
+core-api-1   |     script.run_env()
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
+core-api-1   |     util.load_python_file(self.dir, "env.py")
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
+core-api-1   |     module = load_module_py(module_id, path)
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
+core-api-1   |     spec.loader.exec_module(module)  # type: ignore
+core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+redis-1     | 1:C 05 Jul 2026 23:50:34.957 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+redis-1      | 1:C 05 Jul 2026 23:50:34.957 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+postgres-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+postgres-1   | creating subdirectories ... ok
+postgres-1   | selecting dynamic shared memory implementation ... posix
+postgres-1   | selecting default max_connections ... 100
+postgres-1   | selecting default shared_buffers ... 128MB
+postgres-1   | selecting default time zone ... Etc/UTC
+postgres-1   | creating configuration files ... ok
+postgres-1   | running bootstrap script ... ok
+postgres-1   | performing post-bootstrap initialization ... ok
+postgres-1   | syncing data to disk ... ok
+postgres-1   | initdb: warning: enabling "trust" authentication for local connections
+postgres-1   | 
+postgres-1   | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1   | 
+postgres-1   | Success. You can now start the database server using:
+postgres-1   | 
+postgres-1   |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1   | 
+postgres-1   | waiting for server to start....2026-07-05 23:50:35.678 UTC [48] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-05 23:50:35.679 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-05 23:50:35.681 UTC [51] LOG:  database system was shut down at 2026-07-05 23:50:35 UTC
+postgres-1   | 2026-07-05 23:50:35.685 UTC [48] LOG:  database system is ready to accept connections
+postgres-1   |  done
+postgres-1   | server started
+postgres-1   | CREATE DATABASE
+core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+redis-1      | 1:C 05 Jul 2026 23:50:34.957 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+workers-1    | 
+workers-1    |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+postgres-1   | 
+workers-1    |  
+postgres-1   | 
+postgres-1   | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01-pgvector.sql
+postgres-1   | CREATE EXTENSION
+postgres-1   | 
+postgres-1   | 
+postgres-1   | 2026-07-05 23:50:35.934 UTC [48] LOG:  received fast shutdown request
+postgres-1   | waiting for server to shut down....2026-07-05 23:50:35.935 UTC [48] LOG:  aborting any active transactions
+postgres-1   | 2026-07-05 23:50:35.937 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+postgres-1   | 2026-07-05 23:50:35.939 UTC [49] LOG:  shutting down
+workers-1    |  -------------- celery@18fa23f34c2c v5.6.3 (recovery)
+workers-1    | --- ***** ----- 
+workers-1    | -- ******* ---- Linux-6.17.0-1018-azure-x86_64-with-glibc2.41 2026-07-05 23:50:46
+workers-1    | - *** --- * --- 
+workers-1    | - ** ---------- [config]
+redis-1      | 1:C 05 Jul 2026 23:50:34.957 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis-1      | 1:M 05 Jul 2026 23:50:34.958 * monotonic clock: POSIX clock_gettime
+redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Running mode=standalone, port=6379.
+workers-1    | - ** ---------- .> app:         rpim:0x7fa4c3fe4e90
+workers-1    | - ** ---------- .> transport:   redis://redis:6379/0
+workers-1    | - ** ---------- .> results:     disabled://
+workers-1    | - *** --- * --- .> concurrency: 4 (prefork)
+workers-1    | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Server initialized
+redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Ready to accept connections tcp
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
+core-api-1   |     run_migrations_online()
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
+core-api-1   |     engine = create_engine(_database_url())
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "<string>", line 2, in create_engine
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
+core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
+core-api-1   |     import psycopg2
+core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
+core-api-1   | Traceback (most recent call last):
+core-api-1   |   File "/app/.venv/bin/alembic", line 10, in <module>
+core-api-1   |     sys.exit(main())
+core-api-1   |              ^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
+core-api-1   |     CommandLine(prog=prog).main(argv=argv)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
+core-api-1   |     self.run_cmd(cfg, options)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
+core-api-1   |     fn(
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
+core-api-1   |     script.run_env()
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
+core-api-1   |     util.load_python_file(self.dir, "env.py")
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
+core-api-1   |     module = load_module_py(module_id, path)
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
+workers-1    | --- ***** ----- 
+workers-1    |  -------------- [queues]
+workers-1    |                 .> rpim             exchange=rpim(direct) key=rpim
+workers-1    |                 
+workers-1    | 
+core-api-1   |     spec.loader.exec_module(module)  # type: ignore
+postgres-1   | 2026-07-05 23:50:35.939 UTC [49] LOG:  checkpoint starting: shutdown immediate
+core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+postgres-1   | 2026-07-05 23:50:35.957 UTC [49] LOG:  checkpoint complete: wrote 948 buffers (5.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.015 s, sync=0.002 s, total=0.018 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4638 kB, estimate=4638 kB; lsn=0/1971D40, redo lsn=0/1971D40
+postgres-1   | 2026-07-05 23:50:35.964 UTC [48] LOG:  database system is shut down
+postgres-1   |  done
+postgres-1   | server stopped
+postgres-1   | 
+postgres-1   | PostgreSQL init process complete; ready for start up.
+postgres-1   | 
+postgres-1   | 2026-07-05 23:50:36.058 UTC [1] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-05 23:50:36.059 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1   | 2026-07-05 23:50:36.059 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1   | 2026-07-05 23:50:36.060 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-05 23:50:36.063 UTC [66] LOG:  database system was shut down at 2026-07-05 23:50:35 UTC
+postgres-1   | 2026-07-05 23:50:36.068 UTC [1] LOG:  database system is ready to accept connections
+workers-1    | [tasks]
+workers-1    |   . rpim.ping
+workers-1    | 
+workers-1    | [2026-07-05 23:50:46,331: INFO/MainProcess] Connected to redis://redis:6379/0
+workers-1    | [2026-07-05 23:50:46,335: INFO/MainProcess] mingle: searching for neighbors
+workers-1    | [2026-07-05 23:50:47,344: INFO/MainProcess] mingle: all alone
+workers-1    | [2026-07-05 23:50:47,358: INFO/MainProcess] celery@18fa23f34c2c ready.
+core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
+core-api-1   |     run_migrations_online()
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
+core-api-1   |     engine = create_engine(_database_url())
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "<string>", line 2, in create_engine
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
+core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
+core-api-1   |     import psycopg2
+core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
+core-api-1   | Traceback (most recent call last):
+core-api-1   |   File "/app/.venv/bin/alembic", line 10, in <module>
+core-api-1   |     sys.exit(main())
+core-api-1   |              ^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
+core-api-1   |     CommandLine(prog=prog).main(argv=argv)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
+core-api-1   |     self.run_cmd(cfg, options)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
+core-api-1   |     fn(
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
+core-api-1   |     script.run_env()
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
+core-api-1   |     util.load_python_file(self.dir, "env.py")
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
+core-api-1   |     module = load_module_py(module_id, path)
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
+core-api-1   |     spec.loader.exec_module(module)  # type: ignore
+core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
+core-api-1   |     run_migrations_online()
+core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
+core-api-1   |     engine = create_engine(_database_url())
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "<string>", line 2, in create_engine
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
+core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
+core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
+core-api-1   |     import psycopg2
+core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
+## us leg logs (tail)
