@@ -1,19 +1,11 @@
-import os
-
 from alembic import context
 from sqlalchemy import create_engine
 
 from rpim_core_api import models  # noqa: F401  (register tables on Base)
 from rpim_core_api.db import Base
+from rpim_core_api.db import _database_url as _database_url  # normalized psycopg3 URL
 
 target_metadata = Base.metadata
-
-
-def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL")
-    if not url:
-        raise RuntimeError("DATABASE_URL is not set (env only — never hardcoded)")
-    return url
 
 
 def run_migrations_offline() -> None:
