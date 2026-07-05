@@ -65,18 +65,26 @@ jobs:
         if: always()
         run: make down-iran && make down-us
 
-  # Stays skipped until Coolify secrets/vars exist (README § Production deploy).
-  # Token lives ONLY in GitHub Secrets — never in this repo or any session.
+  # Skips itself until the COOLIFY_TOKEN secret and infra/coolify-uuids.env
+  # (written by the coolify-provision workflow) exist. Token lives ONLY in
+  # GitHub Secrets — never in this repo or any session.
   deploy:
     runs-on: ubuntu-latest
     needs: [smoke]
-    if: github.ref == 'refs/heads/main' && vars.COOLIFY_IRAN_UUID != ''
+    if: github.ref == 'refs/heads/main'
+    env:
+      COOLIFY_URL: http://rpim.ir:8000
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
     steps:
-      - name: Redeploy iran leg via Coolify
+      - uses: actions/checkout@v4
+      - name: Redeploy both legs via Coolify
         run: |
-          curl -fsS "${{ vars.COOLIFY_URL }}/api/v1/deploy?uuid=${{ vars.COOLIFY_IRAN_UUID }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
-      - name: Redeploy us leg via Coolify
-        run: |
-          curl -fsS "${{ vars.COOLIFY_URL }}/api/v1/deploy?uuid=${{ vars.COOLIFY_US_UUID }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          if [ -z "$COOLIFY_TOKEN" ] || [ ! -f infra/coolify-uuids.env ]; then
+            echo "Coolify not wired yet (secret or uuid file missing) — skipping."
+            exit 0
+          fi
+          . infra/coolify-uuids.env
+          curl -fsS "$COOLIFY_URL/api/v1/deploy?uuid=$COOLIFY_IRAN_UUID" \
+            -H "Authorization: Bearer $COOLIFY_TOKEN"
+          curl -fsS "$COOLIFY_URL/api/v1/deploy?uuid=$COOLIFY_US_UUID" \
+            -H "Authorization: Bearer $COOLIFY_TOKEN"

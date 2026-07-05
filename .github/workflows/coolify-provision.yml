@@ -1,0 +1,78 @@
+name: coolify-provision
+
+# Runs the idempotent Coolify provisioning from a GitHub runner (the Claude
+# sandbox cannot reach the panel; runners can). Results are committed back to
+# the repo because Actions logs are not readable from Claude sessions:
+#   docs/ops/coolify-provision-report.txt  — sanitized run log
+#   infra/coolify-uuids.env                — resource UUIDs for the deploy job
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/coolify-provision.yml"
+      - "scripts/coolify-provision.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: coolify-provision
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    env:
+      COOLIFY_URL: http://rpim.ir:8000
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Provision (never fails the step — report is the channel)
+        run: |
+          set +e
+          if [ -z "$COOLIFY_TOKEN" ]; then
+            echo "FATAL: COOLIFY_TOKEN secret is missing or empty" > report.txt
+            rc=2
+          else
+            bash scripts/coolify-provision.sh > report.txt 2>&1
+            rc=$?
+          fi
+          # Belt & suspenders: literal (non-regex) redaction, then verify.
+          # If the token would still appear, the report is withheld entirely.
+          python3 -c '
+          import os
+          tok = os.environ.get("COOLIFY_TOKEN") or ""
+          s = open("report.txt", encoding="utf-8", errors="replace").read()
+          if tok:
+              s = s.replace(tok, "REDACTED")
+          open("report.txt", "w", encoding="utf-8").write(s)
+          '
+          if [ -n "$COOLIFY_TOKEN" ] && grep -qF -- "$COOLIFY_TOKEN" report.txt; then
+            echo "FATAL: token redaction failed — report withheld" > report.txt
+            rc=3
+          fi
+          echo "exit_code=$rc" >> report.txt
+          echo "rc=$rc" >> "$GITHUB_ENV"
+
+      - name: Commit report + UUIDs back to the repo
+        run: |
+          mkdir -p docs/ops
+          {
+            echo "# Coolify provisioning report — $(date -u +%FT%TZ) — commit $GITHUB_SHA"
+            cat report.txt
+          } > docs/ops/coolify-provision-report.txt
+          if grep -q '^exit_code=0$' report.txt; then
+            IRAN=$(sed -n 's/^  iran-leg: //p' report.txt | tail -1)
+            US=$(sed -n 's/^  us-leg: //p' report.txt | tail -1)
+            if [ -n "$IRAN" ] && [ -n "$US" ]; then
+              printf 'COOLIFY_IRAN_UUID=%s\nCOOLIFY_US_UUID=%s\n' "$IRAN" "$US" > infra/coolify-uuids.env
+            fi
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ops/coolify-provision-report.txt infra/coolify-uuids.env 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore(ops): coolify provisioning report [skip ci]"
+          git push
+
+      - name: Reflect real status
+        run: exit "$rc"
