@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from sqlalchemy import JSON, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
+from rpim_core_api.brain.vector_type import EmbeddingVector
 from rpim_core_api.db import Base
 
 
@@ -74,9 +75,8 @@ class BrainChunk(Base):
     source_id: Mapped[str] = mapped_column(ForeignKey("brain_sources.id"), index=True)
     seq: Mapped[int] = mapped_column()
     text: Mapped[str] = mapped_column(String(4000))
-    # M2 slice A stores the vector as JSON (works on sqlite tests AND pg);
-    # slice B migrates to pgvector vector(1024) + <=> search (ADR 0010).
-    embedding: Mapped[list] = mapped_column(JSON, default=list)
+    # pgvector vector(1024) on postgres, JSON on sqlite tests (ADR 0011).
+    embedding: Mapped[list] = mapped_column(EmbeddingVector(1024), default=list)
 
 
 class OnboardingInterview(Base):

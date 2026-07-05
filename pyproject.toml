@@ -8,6 +8,7 @@ dependencies = [
     "rpim-core-api",
     "rpim-model-gateway",
     "rpim-workers",
+    "rpim-embeddings",
 ]
 
 [tool.uv]
@@ -18,6 +19,7 @@ rpim-shared = { workspace = true }
 rpim-core-api = { workspace = true }
 rpim-model-gateway = { workspace = true }
 rpim-workers = { workspace = true }
+rpim-embeddings = { workspace = true }
 
 [tool.uv.workspace]
 members = ["apps/*", "packages/*"]

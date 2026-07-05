@@ -33,6 +33,8 @@ services:
       # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
       CORE_API_URL: ${CORE_API_URL:-http://10.66.0.1:8000}
+      EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fake}
+      EMBEDDINGS_URL: http://embeddings:8090
     ports:
       # GATEWAY_PORT dodges host collisions (Traefik commonly owns 8080 on the server)
       - "${GATEWAY_BIND:-127.0.0.1}:${GATEWAY_PORT:-8080}:8080"
@@ -55,6 +57,37 @@ services:
       retries: 5
       start_period: 10s
 
+  embeddings:
+    build:
+      context: .
+      dockerfile: apps/embeddings/Dockerfile
+      args:
+        # Server (Coolify env): true → bakes bge-m3 deps. CI/local stay light.
+        INSTALL_MODEL: ${EMBEDDINGS_INSTALL_MODEL:-false}
+    env_file:
+      - path: ./.env.us
+        required: false
+    environment:
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fake}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
+    volumes:
+      - model-cache:/root/.cache # bge-m3 downloads once, survives redeploys
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8090/health',timeout=3).status==200 else 1)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s # first real-model load is slow
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -63,3 +96,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+volumes:
+  model-cache:

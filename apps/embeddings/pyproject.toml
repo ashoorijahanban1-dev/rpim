@@ -1,0 +1,25 @@
+[project]
+name = "rpim-embeddings"
+version = "0.1.0"
+description = "RPIM Embeddings service — us leg (bge-m3 on CPU; fake backend for tests/CI)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "rpim-shared",
+]
+
+[project.optional-dependencies]
+# Heavy ML deps stay OUT of the default workspace sync so the PostToolUse
+# test hook remains fast; the Docker image opts in via --extra model.
+model = ["sentence-transformers>=3.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rpim_embeddings"]
+
+[tool.uv.sources]
+rpim-shared = { workspace = true }

@@ -98,16 +98,33 @@ def search(
     session: Session = Depends(get_session),
 ) -> dict:
     query_vector = embed_texts([q], tenant_id=identity.tenant_id)[0]
-    # tenant_id scoping is absolute (rule 6). Python-side cosine for slice A;
-    # pgvector `<=>` takes over in slice B (ADR 0010).
-    rows = session.execute(
+    # tenant_id scoping is absolute (rule 6) — filtered on both join sides.
+    base = (
         select(BrainChunk, BrainSource.title)
         .join(BrainSource, BrainChunk.source_id == BrainSource.id)
         .where(
             BrainChunk.tenant_id == identity.tenant_id,
-            BrainSource.tenant_id == identity.tenant_id,  # both sides of the join
+            BrainSource.tenant_id == identity.tenant_id,
         )
-    ).all()
+    )
+
+    if session.get_bind().dialect.name == "postgresql":
+        # pgvector ANN path (<2s acceptance target; HNSW index, ADR 0011).
+        distance = BrainChunk.embedding.op("<=>")(query_vector)
+        rows = session.execute(base.add_columns(distance.label("d")).order_by("d").limit(k)).all()
+        results = [
+            {
+                "text": chunk.text,
+                "source_id": chunk.source_id,
+                "source_title": title,
+                "score": 1.0 - float(dist),
+            }
+            for chunk, title, dist in rows
+        ]
+        return {"results": results}
+
+    # sqlite fallback (tests): python-side cosine over the tenant's chunks.
+    rows = session.execute(base).all()
     scored = sorted(
         (
             {

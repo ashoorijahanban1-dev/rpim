@@ -1,5 +1,6 @@
 import os
 
+import httpx
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
@@ -30,10 +31,22 @@ def embed(body: EmbedIn, x_internal_token: str | None = Header(default=None)) ->
     if backend == "fake":
         vectors = [fake_embed(text) for text in body.texts]
         model = "fake"
+        payload = {"vectors": vectors, "model": model, "dim": len(vectors[0]) if vectors else 1024}
     else:
-        # T3 real backend (bge-m3 service) lands in M2 slice B; until then the
-        # gateway is honest about unavailability instead of pretending.
-        raise HTTPException(status_code=503, detail=f"embedding backend '{backend}' not wired yet")
+        # T3 real backend: forward to the embeddings service (same leg).
+        url = os.environ.get("EMBEDDINGS_URL", "http://embeddings:8090")
+        try:
+            response = httpx.post(
+                f"{url.rstrip('/')}/embed",
+                json={"texts": body.texts},
+                headers={"X-Internal-Token": x_internal_token},
+                timeout=120,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except httpx.HTTPError as exc:
+            raise HTTPException(status_code=502, detail="embeddings backend unreachable") from exc
+        model = payload.get("model", backend)
 
     record(tenant_id=body.tenant_id, task="embed", model=model, units=len(body.texts))
-    return {"vectors": vectors, "model": model, "dim": len(vectors[0]) if vectors else 1024}
+    return payload
