@@ -100,7 +100,7 @@ set_envs() { # uuid, then KEY=VALUE args
 	done
 }
 
-provision_leg() { # name compose_path env...
+provision_leg() { # name compose_path env... — progress on stderr, uuid on stdout
 	local name="$1" compose="$2"
 	shift 2
 	local uuid created=0
@@ -115,13 +115,13 @@ provision_leg() { # name compose_path env...
 			exit 1
 		}
 		created=1
-		echo "→ $name created: $uuid"
+		echo "→ $name created: $uuid" >&2
 	else
-		echo "→ $name exists: $uuid (envs untouched)"
+		echo "→ $name exists: $uuid (envs untouched)" >&2
 	fi
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
 	api GET "/deploy?uuid=$uuid" >/dev/null &&
-		echo "→ $name deploy triggered" ||
+		echo "→ $name deploy triggered" >&2 ||
 		echo "!! deploy trigger failed for $name (see error above)" >&2
 	echo "$uuid"
 }

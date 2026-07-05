@@ -4,7 +4,7 @@ name: coolify-provision
 # sandbox cannot reach the panel; runners can). Results are committed back to
 # the repo because Actions logs are not readable from Claude sessions:
 #   docs/ops/coolify-provision-report.txt  — sanitized run log
-#   infra/coolify-uuids.env                — resource UUIDs for the deploy job
+#   infra/coolify-uuids.conf               — resource UUIDs for the deploy job
 on:
   push:
     branches: [main]
@@ -62,15 +62,15 @@ jobs:
             cat report.txt
           } > docs/ops/coolify-provision-report.txt
           if grep -q '^exit_code=0$' report.txt; then
-            IRAN=$(sed -n 's/^  iran-leg: //p' report.txt | tail -1)
-            US=$(sed -n 's/^  us-leg: //p' report.txt | tail -1)
+            IRAN=$(sed -n 's/^  iran-leg:[[:space:]]*//p' report.txt | tail -1)
+            US=$(sed -n 's/^  us-leg:[[:space:]]*//p' report.txt | tail -1)
             if [ -n "$IRAN" ] && [ -n "$US" ]; then
-              printf 'COOLIFY_IRAN_UUID=%s\nCOOLIFY_US_UUID=%s\n' "$IRAN" "$US" > infra/coolify-uuids.env
+              printf 'COOLIFY_IRAN_UUID=%s\nCOOLIFY_US_UUID=%s\n' "$IRAN" "$US" > infra/coolify-uuids.conf
             fi
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/ops/coolify-provision-report.txt infra/coolify-uuids.env 2>/dev/null || true
+          git add docs/ops/coolify-provision-report.txt infra/coolify-uuids.conf 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore(ops): coolify provisioning report [skip ci]"
           git push
 
