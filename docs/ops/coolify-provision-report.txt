@@ -1,7 +1,11 @@
-# Coolify provisioning report — 2026-07-05T21:01:27Z — commit 8827d928deeaa43941001eb82645c9531384a4ea
+# Coolify provisioning report — 2026-07-05T21:08:04Z — commit 831ed677933a351df53754eab68a6bd930cf6910
 → Coolify 4.1.2
 → server: s88qql7wkilyfabk80aa6zfb
-→ project created: xkqhgfj6sshtle6m7jv5mb52
+→ project exists: xkqhgfj6sshtle6m7jv5mb52
+→ rpim-iran-leg exists: uj6u0a274fksaah42ahcgoxu (envs untouched)
+→ rpim-iran-leg deploy triggered
+→ rpim-us-leg exists: g121hff560aj748anak0uf6f (envs untouched)
+→ rpim-us-leg deploy triggered
 
 Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):
   iran-leg: uj6u0a274fksaah42ahcgoxu
