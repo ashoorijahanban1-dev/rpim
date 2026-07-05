@@ -1,50 +1,92 @@
-# CI smoke FAILURE — 2026-07-05T23:50:48Z — commit a024da79bcde14b1d134284f7c557b13027a2470
+# CI smoke FAILURE — 2026-07-05T23:59:54Z — commit fdcaad0cb383f9725017a404b0b02dbf0416ae3f
 ## iran leg logs (tail)
-postgres-1  | The files belonging to this database system will be owned by user "postgres".
-postgres-1  | This user must also own the server process.
-postgres-1  | 
-postgres-1  | The database cluster will be initialized with locale "en_US.utf8".
-postgres-1  | The default database encoding has accordingly been set to "UTF8".
-postgres-1  | The default text search configuration will be set to "english".
-postgres-1  | 
-postgres-1  | Data page checksums are disabled.
-postgres-1  | 
-workers-1   | /app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
-workers-1   | absolutely not recommended!
-workers-1   | 
-workers-1   | Please specify a different user using the --uid option.
-workers-1   | 
-core-api-1  | Traceback (most recent call last):
-core-api-1  |   File "/app/.venv/bin/alembic", line 10, in <module>
+core-api-1   | INFO:     Started server process [16]
 dashboard-1  |    ▲ Next.js 15.5.20
-workers-1   | User information: uid=0 euid=0 gid=0 egid=0
 dashboard-1  |    - Local:        http://localhost:3000
+core-api-1   | INFO:     Waiting for application startup.
+core-api-1   | INFO:     Application startup complete.
+core-api-1   | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+core-api-1   | INFO:     127.0.0.1:58170 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:42880 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:34008 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:58810 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:54448 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:46530 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:48946 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:42218 - "GET /health HTTP/1.1" 200 OK
+caddy-1      | {"level":"info","ts":1783295950.3138292,"msg":"maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined"}
+caddy-1      | {"level":"info","ts":1783295950.313844,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":15089780736,"previous":9223372036854775807}
+caddy-1      | {"level":"info","ts":1783295950.3138475,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+caddy-1      | {"level":"info","ts":1783295950.3138497,"msg":"adapted config to JSON","adapter":"caddyfile"}
+caddy-1      | {"level":"info","ts":1783295950.3144603,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//[::1]:2019","//127.0.0.1:2019","//localhost:2019"]}
+caddy-1      | {"level":"warn","ts":1783295950.314602,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv0","http_port":80}
+caddy-1      | {"level":"info","ts":1783295950.3146935,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0xad89f32dd80"}
+caddy-1      | {"level":"warn","ts":1783295950.3149436,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1      | {"level":"warn","ts":1783295950.3149557,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1      | {"level":"info","ts":1783295950.3149598,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+postgres-1   | The files belonging to this database system will be owned by user "postgres".
+caddy-1      | {"level":"info","ts":1783295950.3162663,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+core-api-1   | INFO:     172.18.0.7:37180 - "GET /health HTTP/1.1" 200 OK
+postgres-1   | This user must also own the server process.
+core-api-1   | INFO:     172.18.0.7:37180 - "GET /health HTTP/1.1" 200 OK
+postgres-1   | 
+caddy-1      | {"level":"info","ts":1783295950.3162782,"msg":"serving initial configuration"}
+core-api-1   | INFO:     172.18.0.7:37180 - "GET /health HTTP/1.1" 200 OK
+caddy-1      | {"level":"info","ts":1783295950.3166065,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
 dashboard-1  |    - Network:      http://0.0.0.0:3000
+caddy-1      | {"level":"info","ts":1783295950.3171558,"logger":"tls","msg":"finished cleaning storage units"}
+postgres-1   | The database cluster will be initialized with locale "en_US.utf8".
+postgres-1   | The default database encoding has accordingly been set to "UTF8".
+postgres-1   | The default text search configuration will be set to "english".
+postgres-1   | 
 dashboard-1  | 
 dashboard-1  |  ✓ Starting...
-dashboard-1  |  ✓ Ready in 132ms
-core-api-1   |     sys.exit(main())
-core-api-1   |              ^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
-core-api-1   |     CommandLine(prog=prog).main(argv=argv)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
-core-api-1   |     self.run_cmd(cfg, options)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
-core-api-1   |     fn(
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
-core-api-1   |     script.run_env()
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
-core-api-1   |     util.load_python_file(self.dir, "env.py")
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
-core-api-1   |     module = load_module_py(module_id, path)
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
-core-api-1   |     spec.loader.exec_module(module)  # type: ignore
-core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-redis-1     | 1:C 05 Jul 2026 23:50:34.957 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
-core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-redis-1      | 1:C 05 Jul 2026 23:50:34.957 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-postgres-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+dashboard-1  |  ✓ Ready in 108ms
+core-api-1   | INFO:     172.18.0.7:48204 - "POST /auth/register HTTP/1.1" 201 Created
+core-api-1   | INFO:     172.18.0.7:48204 - "POST /brain/sources HTTP/1.1" 201 Created
+core-api-1   | INFO:     172.18.0.7:48204 - "GET /brain/search?q=%d9%86%d8%b4%d8%a7%d9%86%d9%87-1783295993-30791+%d9%85%d8%ad%d8%b5%d9%88%d9%84+%d9%88%db%8c%da%98%d9%87+%d9%be%d8%a7%db%8c%db%8c%d8%b2%db%8c+%d8%a8%d8%a7+%d8%aa%d8%ae%d9%81%db%8c%d9%81+%d8%a7%d8%b3%d8%aa%d8%ab%d9%86%d8%a7%db%8c%db%8c&k=5 HTTP/1.1" 500 Internal Server Error
+core-api-1   | ERROR:    Exception in ASGI application
+core-api-1   | Traceback (most recent call last):
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+core-api-1   |     result = await app(  # type: ignore[func-returns-value]
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+core-api-1   |     return await self.app(scope, receive, send)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1163, in __call__
+core-api-1   |     await super().__call__(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/applications.py", line 90, in __call__
+core-api-1   |     await self.middleware_stack(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+core-api-1   |     raise exc
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+core-api-1   |     await self.app(scope, receive, _send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+core-api-1   |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+core-api-1   |     raise exc
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+core-api-1   |     await app(scope, receive, sender)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+core-api-1   |     await self.app(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+core-api-1   |     await self.middleware_stack(scope, receive, send)
+postgres-1   | Data page checksums are disabled.
+postgres-1   | 
+postgres-1   | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+redis-1      | 1:C 05 Jul 2026 23:58:53.843 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+redis-1      | 1:C 05 Jul 2026 23:58:53.843 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis-1      | 1:C 05 Jul 2026 23:58:53.843 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+redis-1      | 1:C 05 Jul 2026 23:58:53.843 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis-1      | 1:M 05 Jul 2026 23:58:53.843 * monotonic clock: POSIX clock_gettime
+redis-1      | 1:M 05 Jul 2026 23:58:53.844 * Running mode=standalone, port=6379.
+redis-1      | 1:M 05 Jul 2026 23:58:53.844 * Server initialized
+redis-1      | 1:M 05 Jul 2026 23:58:53.845 * Ready to accept connections tcp
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2683, in app
+core-api-1   |     await route.handle(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1753, in handle
+core-api-1   |     await self.original_router.handle(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2738, in handle
 postgres-1   | creating subdirectories ... ok
 postgres-1   | selecting dynamic shared memory implementation ... posix
 postgres-1   | selecting default max_connections ... 100
@@ -62,156 +104,167 @@ postgres-1   | Success. You can now start the database server using:
 postgres-1   | 
 postgres-1   |     pg_ctl -D /var/lib/postgresql/data -l logfile start
 postgres-1   | 
-postgres-1   | waiting for server to start....2026-07-05 23:50:35.678 UTC [48] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
-postgres-1   | 2026-07-05 23:50:35.679 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-postgres-1   | 2026-07-05 23:50:35.681 UTC [51] LOG:  database system was shut down at 2026-07-05 23:50:35 UTC
-postgres-1   | 2026-07-05 23:50:35.685 UTC [48] LOG:  database system is ready to accept connections
+postgres-1   | waiting for server to start....2026-07-05 23:58:54.542 UTC [48] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-05 23:58:54.542 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-05 23:58:54.545 UTC [51] LOG:  database system was shut down at 2026-07-05 23:58:54 UTC
+core-api-1   |     await included_router._handle_selected(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1773, in _handle_selected
+postgres-1   | 2026-07-05 23:58:54.549 UTC [48] LOG:  database system is ready to accept connections
 postgres-1   |  done
 postgres-1   | server started
 postgres-1   | CREATE DATABASE
-core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-redis-1      | 1:C 05 Jul 2026 23:50:34.957 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
-workers-1    | 
-workers-1    |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
 postgres-1   | 
-workers-1    |  
 postgres-1   | 
 postgres-1   | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01-pgvector.sql
 postgres-1   | CREATE EXTENSION
 postgres-1   | 
 postgres-1   | 
-postgres-1   | 2026-07-05 23:50:35.934 UTC [48] LOG:  received fast shutdown request
-postgres-1   | waiting for server to shut down....2026-07-05 23:50:35.935 UTC [48] LOG:  aborting any active transactions
-postgres-1   | 2026-07-05 23:50:35.937 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
-postgres-1   | 2026-07-05 23:50:35.939 UTC [49] LOG:  shutting down
-workers-1    |  -------------- celery@18fa23f34c2c v5.6.3 (recovery)
-workers-1    | --- ***** ----- 
-workers-1    | -- ******* ---- Linux-6.17.0-1018-azure-x86_64-with-glibc2.41 2026-07-05 23:50:46
-workers-1    | - *** --- * --- 
-workers-1    | - ** ---------- [config]
-redis-1      | 1:C 05 Jul 2026 23:50:34.957 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-redis-1      | 1:M 05 Jul 2026 23:50:34.958 * monotonic clock: POSIX clock_gettime
-redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Running mode=standalone, port=6379.
-workers-1    | - ** ---------- .> app:         rpim:0x7fa4c3fe4e90
-workers-1    | - ** ---------- .> transport:   redis://redis:6379/0
-workers-1    | - ** ---------- .> results:     disabled://
-workers-1    | - *** --- * --- .> concurrency: 4 (prefork)
-workers-1    | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
-redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Server initialized
-redis-1      | 1:M 05 Jul 2026 23:50:34.959 * Ready to accept connections tcp
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
-core-api-1   |     run_migrations_online()
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
-core-api-1   |     engine = create_engine(_database_url())
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "<string>", line 2, in create_engine
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
-core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
-core-api-1   |            ^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
-core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
-core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
-core-api-1   |     import psycopg2
-core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
-core-api-1   | Traceback (most recent call last):
-core-api-1   |   File "/app/.venv/bin/alembic", line 10, in <module>
-core-api-1   |     sys.exit(main())
-core-api-1   |              ^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
-core-api-1   |     CommandLine(prog=prog).main(argv=argv)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
-core-api-1   |     self.run_cmd(cfg, options)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
-core-api-1   |     fn(
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
-core-api-1   |     script.run_env()
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
-core-api-1   |     util.load_python_file(self.dir, "env.py")
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
-core-api-1   |     module = load_module_py(module_id, path)
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
-workers-1    | --- ***** ----- 
-workers-1    |  -------------- [queues]
-workers-1    |                 .> rpim             exchange=rpim(direct) key=rpim
-workers-1    |                 
-workers-1    | 
-core-api-1   |     spec.loader.exec_module(module)  # type: ignore
-postgres-1   | 2026-07-05 23:50:35.939 UTC [49] LOG:  checkpoint starting: shutdown immediate
-core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-postgres-1   | 2026-07-05 23:50:35.957 UTC [49] LOG:  checkpoint complete: wrote 948 buffers (5.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.015 s, sync=0.002 s, total=0.018 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4638 kB, estimate=4638 kB; lsn=0/1971D40, redo lsn=0/1971D40
-postgres-1   | 2026-07-05 23:50:35.964 UTC [48] LOG:  database system is shut down
+postgres-1   | waiting for server to shut down...2026-07-05 23:58:54.775 UTC [48] LOG:  received fast shutdown request
+postgres-1   | .2026-07-05 23:58:54.775 UTC [48] LOG:  aborting any active transactions
+postgres-1   | 2026-07-05 23:58:54.777 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+postgres-1   | 2026-07-05 23:58:54.778 UTC [49] LOG:  shutting down
+postgres-1   | 2026-07-05 23:58:54.778 UTC [49] LOG:  checkpoint starting: shutdown immediate
+postgres-1   | 2026-07-05 23:58:54.793 UTC [49] LOG:  checkpoint complete: wrote 948 buffers (5.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.013 s, sync=0.002 s, total=0.016 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4638 kB, estimate=4638 kB; lsn=0/1971D40, redo lsn=0/1971D40
+postgres-1   | 2026-07-05 23:58:54.801 UTC [48] LOG:  database system is shut down
 postgres-1   |  done
 postgres-1   | server stopped
 postgres-1   | 
 postgres-1   | PostgreSQL init process complete; ready for start up.
 postgres-1   | 
-postgres-1   | 2026-07-05 23:50:36.058 UTC [1] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
-postgres-1   | 2026-07-05 23:50:36.059 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-postgres-1   | 2026-07-05 23:50:36.059 UTC [1] LOG:  listening on IPv6 address "::", port 5432
-postgres-1   | 2026-07-05 23:50:36.060 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-postgres-1   | 2026-07-05 23:50:36.063 UTC [66] LOG:  database system was shut down at 2026-07-05 23:50:35 UTC
-postgres-1   | 2026-07-05 23:50:36.068 UTC [1] LOG:  database system is ready to accept connections
+postgres-1   | 2026-07-05 23:58:54.898 UTC [1] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-05 23:58:54.898 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1   | 2026-07-05 23:58:54.898 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+core-api-1   |     await original_route.handle(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1264, in handle
+core-api-1   |     await app(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 150, in app
+core-api-1   |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+core-api-1   |     raise exc
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+workers-1    | /app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+workers-1    | absolutely not recommended!
+workers-1    | 
+workers-1    | Please specify a different user using the --uid option.
+workers-1    | 
+workers-1    | User information: uid=0 euid=0 gid=0 egid=0
+workers-1    | 
+workers-1    |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+workers-1    |  
+workers-1    |  -------------- celery@17cdc474539b v5.6.3 (recovery)
+workers-1    | --- ***** ----- 
+workers-1    | -- ******* ---- Linux-6.17.0-1018-azure-x86_64-with-glibc2.41 2026-07-05 23:59:05
+workers-1    | - *** --- * --- 
+core-api-1   |     await app(scope, receive, sender)
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 136, in app
+core-api-1   |     response = await f(request)
+core-api-1   |                ^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 690, in app
+core-api-1   |     raw_response = await run_endpoint_function(
+core-api-1   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 346, in run_endpoint_function
+core-api-1   |     return await run_in_threadpool(dependant.call, **values)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+core-api-1   |     return await anyio.to_thread.run_sync(func)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+core-api-1   |     return await get_async_backend().run_sync_in_worker_thread(
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2596, in run_sync_in_worker_thread
+core-api-1   |     return await future
+core-api-1   |            ^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1029, in run
+core-api-1   |     result = context.run(func, *args)
+core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/apps/core-api/rpim_core_api/routers/brain.py", line 143, in search
+core-api-1   |     rows = session.execute(base.add_columns(distance.label("d")).order_by("d").limit(k)).all()
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/result.py", line 1433, in all
+core-api-1   |     return self._allrows()
+core-api-1   |            ^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/result.py", line 587, in _allrows
+core-api-1   |     rows = self._fetchall_impl()
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/result.py", line 2337, in _fetchall_impl
+core-api-1   |     return list(self.iterator)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 220, in chunks
+core-api-1   |     fetch = cursor._raw_all_rows()
+core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/result.py", line 580, in _raw_all_rows
+core-api-1   |     return [make_row(row) for row in rows]
+workers-1    | - ** ---------- [config]
+workers-1    | - ** ---------- .> app:         rpim:0x7fd4afb69e20
+workers-1    | - ** ---------- .> transport:   redis://redis:6379/0
+workers-1    | - ** ---------- .> results:     disabled://
+workers-1    | - *** --- * --- .> concurrency: 4 (prefork)
+workers-1    | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+workers-1    | --- ***** ----- 
+core-api-1   |             ^^^^^^^^^^^^^
+workers-1    |  -------------- [queues]
+workers-1    |                 .> rpim             exchange=rpim(direct) key=rpim
+workers-1    |                 
+workers-1    | 
 workers-1    | [tasks]
 workers-1    |   . rpim.ping
 workers-1    | 
-workers-1    | [2026-07-05 23:50:46,331: INFO/MainProcess] Connected to redis://redis:6379/0
-workers-1    | [2026-07-05 23:50:46,335: INFO/MainProcess] mingle: searching for neighbors
-workers-1    | [2026-07-05 23:50:47,344: INFO/MainProcess] mingle: all alone
-workers-1    | [2026-07-05 23:50:47,358: INFO/MainProcess] celery@18fa23f34c2c ready.
-core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
-core-api-1   |     run_migrations_online()
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
-core-api-1   |     engine = create_engine(_database_url())
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "<string>", line 2, in create_engine
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
-core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
-core-api-1   |            ^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
-core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
-core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
-core-api-1   |     import psycopg2
-core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
-core-api-1   | Traceback (most recent call last):
-core-api-1   |   File "/app/.venv/bin/alembic", line 10, in <module>
-core-api-1   |     sys.exit(main())
-core-api-1   |              ^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1047, in main
-core-api-1   |     CommandLine(prog=prog).main(argv=argv)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 1037, in main
-core-api-1   |     self.run_cmd(cfg, options)
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/config.py", line 971, in run_cmd
-core-api-1   |     fn(
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/command.py", line 490, in upgrade
-core-api-1   |     script.run_env()
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/script/base.py", line 556, in run_env
-core-api-1   |     util.load_python_file(self.dir, "env.py")
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
-core-api-1   |     module = load_module_py(module_id, path)
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
-core-api-1   |     spec.loader.exec_module(module)  # type: ignore
-core-api-1   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-core-api-1   |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 36, in <module>
-core-api-1   |     run_migrations_online()
-core-api-1   |   File "/app/apps/core-api/migrations/env.py", line 26, in run_migrations_online
-core-api-1   |     engine = create_engine(_database_url())
-core-api-1   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "<string>", line 2, in create_engine
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
-core-api-1   |     return fn(*args, **kwargs)  # type: ignore[no-any-return]
-core-api-1   |            ^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/engine/create.py", line 617, in create_engine
-core-api-1   |     dbapi = dbapi_meth(**dbapi_args)
-core-api-1   |             ^^^^^^^^^^^^^^^^^^^^^^^^
-core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg2.py", line 697, in import_dbapi
-core-api-1   |     import psycopg2
-core-api-1   | ModuleNotFoundError: No module named 'psycopg2'
+workers-1    | [2026-07-05 23:59:05,171: INFO/MainProcess] Connected to redis://redis:6379/0
+workers-1    | [2026-07-05 23:59:05,174: INFO/MainProcess] mingle: searching for neighbors
+workers-1    | [2026-07-05 23:59:06,183: INFO/MainProcess] mingle: all alone
+workers-1    | [2026-07-05 23:59:06,202: INFO/MainProcess] celery@17cdc474539b ready.
+postgres-1   | 2026-07-05 23:58:54.899 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-05 23:58:54.901 UTC [66] LOG:  database system was shut down at 2026-07-05 23:58:54 UTC
+postgres-1   | 2026-07-05 23:58:54.906 UTC [1] LOG:  database system is ready to accept connections
+core-api-1   |   File "lib/sqlalchemy/cyextension/resultproxy.pyx", line 22, in sqlalchemy.cyextension.resultproxy.BaseRow.__init__
+core-api-1   |   File "lib/sqlalchemy/cyextension/resultproxy.pyx", line 79, in sqlalchemy.cyextension.resultproxy._apply_processors
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/pgvector/sqlalchemy/vector.py", line 33, in process
+core-api-1   |     return Vector._from_db(value)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/pgvector/vector.py", line 76, in _from_db
+core-api-1   |     return cls.from_text(value).to_numpy().astype(np.float32)
+core-api-1   |            ^^^^^^^^^^^^^^^^^^^^
+core-api-1   |   File "/app/.venv/lib/python3.12/site-packages/pgvector/vector.py", line 41, in from_text
+core-api-1   |     return cls([float(v) for v in value[1:-1].split(',')])
+core-api-1   |                                   ~~~~~^^^^^^
+core-api-1   | TypeError: 'float' object is not subscriptable
 ## us leg logs (tail)
+model-gateway-1  | INFO:     Started server process [9]
+model-gateway-1  | INFO:     Waiting for application startup.
+model-gateway-1  | INFO:     Application startup complete.
+model-gateway-1  | INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+model-gateway-1  | INFO:     127.0.0.1:37136 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     127.0.0.1:48384 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     172.19.0.5:35490 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     172.19.0.1:51504 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     172.19.0.1:51516 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     172.19.0.1:51522 - "POST /embed HTTP/1.1" 200 OK
+model-gateway-1  | INFO:     172.19.0.1:51538 - "POST /embed HTTP/1.1" 200 OK
+embeddings-1     | INFO:     Started server process [9]
+embeddings-1     | INFO:     Waiting for application startup.
+embeddings-1     | INFO:     Application startup complete.
+embeddings-1     | INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+embeddings-1     | INFO:     127.0.0.1:44052 - "GET /health HTTP/1.1" 200 OK
+embeddings-1     | INFO:     127.0.0.1:35884 - "GET /health HTTP/1.1" 200 OK
+redis-1          | 1:C 05 Jul 2026 23:59:26.471 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+redis-1          | 1:C 05 Jul 2026 23:59:26.471 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis-1          | 1:C 05 Jul 2026 23:59:26.471 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+redis-1          | 1:C 05 Jul 2026 23:59:26.471 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis-1          | 1:M 05 Jul 2026 23:59:26.471 * monotonic clock: POSIX clock_gettime
+redis-1          | 1:M 05 Jul 2026 23:59:26.472 * Running mode=standalone, port=6379.
+redis-1          | 1:M 05 Jul 2026 23:59:26.472 * Server initialized
+redis-1          | 1:M 05 Jul 2026 23:59:26.472 * Ready to accept connections tcp
+caddy-1          | {"level":"info","ts":1783295982.760383,"msg":"maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined"}
+caddy-1          | {"level":"info","ts":1783295982.760399,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":15089780736,"previous":9223372036854775807}
+caddy-1          | {"level":"info","ts":1783295982.760403,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+caddy-1          | {"level":"info","ts":1783295982.7604053,"msg":"adapted config to JSON","adapter":"caddyfile"}
+caddy-1          | {"level":"info","ts":1783295982.7610505,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//localhost:2019","//[::1]:2019","//127.0.0.1:2019"]}
+caddy-1          | {"level":"warn","ts":1783295982.7611704,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv0","http_port":80}
+caddy-1          | {"level":"info","ts":1783295982.7612536,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x1159bbdee80"}
+caddy-1          | {"level":"warn","ts":1783295982.761322,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1          | {"level":"warn","ts":1783295982.761367,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1          | {"level":"info","ts":1783295982.7613752,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+caddy-1          | {"level":"info","ts":1783295982.762569,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+caddy-1          | {"level":"info","ts":1783295982.7625842,"msg":"serving initial configuration"}
+caddy-1          | {"level":"info","ts":1783295982.7633958,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
+caddy-1          | {"level":"info","ts":1783295982.763897,"logger":"tls","msg":"finished cleaning storage units"}
