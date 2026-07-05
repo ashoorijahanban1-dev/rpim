@@ -49,6 +49,9 @@ jobs:
     env:
       CORE_BIND: 0.0.0.0 # containers must reach legs via host gateway in CI
       GATEWAY_BIND: 0.0.0.0
+      # iran-leg core-api reaches the us-leg gateway across the host boundary,
+      # standing in for the WireGuard tunnel (ADR 0004):
+      GATEWAY_URL: http://host.docker.internal:8080
     steps:
       - uses: actions/checkout@v4
       - run: make env-init
@@ -56,6 +59,9 @@ jobs:
       - run: make up-us
       - run: bash scripts/crossleg-healthcheck.sh local
       - run: bash scripts/crossleg-healthcheck.sh crossleg-ci
+      # M2 acceptance end-to-end: register → upload → pgvector search <2s,
+      # embeddings fetched through the real cross-leg gateway hop.
+      - run: bash scripts/smoke-e2e.sh
       - name: Logs on failure
         if: failure()
         run: |
