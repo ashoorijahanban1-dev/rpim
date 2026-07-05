@@ -19,11 +19,23 @@ REPO_URL="${REPO_URL:-https://github.com/ashoorijahanban1-dev/rpim}"
 BRANCH="${BRANCH:-main}"
 
 api() {
+	# Prints the response body on stdout; on HTTP >= 400 prints the body to
+	# stderr too (Coolify's validation messages live there) and returns 1.
 	local method="$1" path="$2"
 	shift 2
-	curl -fsS -X "$method" "$COOLIFY_URL/api/v1$path" \
+	local out code body
+	out=$(curl -sS -X "$method" "$COOLIFY_URL/api/v1$path" \
 		-H "Authorization: Bearer $COOLIFY_TOKEN" \
-		-H "Content-Type: application/json" "$@"
+		-H "Content-Type: application/json" \
+		-w $'\n%{http_code}' "$@")
+	code="${out##*$'\n'}"
+	body="${out%$'\n'*}"
+	if [ "${code:-0}" -ge 400 ] 2>/dev/null; then
+		echo "!! API $method $path -> HTTP $code" >&2
+		echo "!! $body" >&2
+		return 1
+	fi
+	printf '%s' "$body"
 }
 
 jqpy() { python3 -c "import sys,json;$1"; }
@@ -38,8 +50,12 @@ d=json.load(sys.stdin)
 m=[p for p in d if p.get('name')=='rpim']
 print(m[0]['uuid'] if m else '')")
 if [ -z "$PROJECT_UUID" ]; then
-	PROJECT_UUID=$(api POST /projects -d '{"name":"rpim","description":"RPIM — dual-leg (interim: both legs on US server)"}' |
-		jqpy "print(json.load(sys.stdin)['uuid'])")
+	RESP=$(api POST /projects -d '{"name":"rpim"}') || {
+		echo "project creation failed — full projects list for diagnosis:" >&2
+		api GET /projects >&2 || true
+		exit 1
+	}
+	PROJECT_UUID=$(printf '%s' "$RESP" | jqpy "print(json.load(sys.stdin)['uuid'])")
 	echo "→ project created: $PROJECT_UUID"
 else
 	echo "→ project exists: $PROJECT_UUID"
@@ -90,14 +106,23 @@ provision_leg() { # name compose_path env...
 	local uuid created=0
 	uuid=$(find_app "$name")
 	if [ -z "$uuid" ]; then
-		uuid=$(create_app "$name" "$compose")
+		uuid=$(create_app "$name" "$compose") || {
+			echo "!! creating $name failed — aborting" >&2
+			exit 1
+		}
+		[ -n "$uuid" ] || {
+			echo "!! empty uuid returned for $name — aborting" >&2
+			exit 1
+		}
 		created=1
 		echo "→ $name created: $uuid"
 	else
 		echo "→ $name exists: $uuid (envs untouched)"
 	fi
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
-	api GET "/deploy?uuid=$uuid" >/dev/null && echo "→ $name deploy triggered"
+	api GET "/deploy?uuid=$uuid" >/dev/null &&
+		echo "→ $name deploy triggered" ||
+		echo "!! deploy trigger failed for $name (see error above)" >&2
 	echo "$uuid"
 }
 
