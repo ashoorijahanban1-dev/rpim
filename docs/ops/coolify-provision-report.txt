@@ -1,0 +1,10 @@
+# Coolify provisioning report — 2026-07-05T21:01:27Z — commit 8827d928deeaa43941001eb82645c9531384a4ea
+→ Coolify 4.1.2
+→ server: s88qql7wkilyfabk80aa6zfb
+→ project created: xkqhgfj6sshtle6m7jv5mb52
+
+Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):
+  iran-leg: uj6u0a274fksaah42ahcgoxu
+  us-leg:   g121hff560aj748anak0uf6f
+Watch deployments in the Coolify UI, or: GET /api/v1/applications/{uuid}
+exit_code=0
