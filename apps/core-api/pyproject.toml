@@ -1,0 +1,23 @@
+[project]
+name = "rpim-core-api"
+version = "0.1.0"
+description = "RPIM Core API — iran leg (dashboard backend, approval queue, tenants)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic-settings>=2.4",
+    "rpim-shared",
+    "alembic>=1.13",
+    "sqlalchemy>=2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rpim_core_api"]
+
+[tool.uv.sources]
+rpim-shared = { workspace = true }

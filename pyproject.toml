@@ -5,6 +5,9 @@ description = "RPIM — Realistic Persian Intelligent Marketer (monorepo root)"
 requires-python = ">=3.12"
 dependencies = [
     "rpim-shared",
+    "rpim-core-api",
+    "rpim-model-gateway",
+    "rpim-workers",
 ]
 
 [tool.uv]
@@ -12,6 +15,9 @@ package = false
 
 [tool.uv.sources]
 rpim-shared = { workspace = true }
+rpim-core-api = { workspace = true }
+rpim-model-gateway = { workspace = true }
+rpim-workers = { workspace = true }
 
 [tool.uv.workspace]
 members = ["apps/*", "packages/*"]
@@ -34,3 +40,6 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rpim_shared", "rpim_core_api", "rpim_model_gateway", "rpim_workers"]
