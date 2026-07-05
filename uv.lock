@@ -860,6 +860,7 @@ dependencies = [
     { name = "bcrypt" },
     { name = "email-validator" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic-settings" },
     { name = "pyjwt" },
@@ -874,6 +875,7 @@ requires-dist = [
     { name = "bcrypt", specifier = ">=4.2" },
     { name = "email-validator", specifier = ">=2.2" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", specifier = ">=0.27" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "pyjwt", specifier = ">=2.9" },
@@ -889,6 +891,7 @@ source = { editable = "apps/model-gateway" }
 dependencies = [
     { name = "fastapi" },
     { name = "pydantic-settings" },
+    { name = "redis" },
     { name = "rpim-shared" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -897,6 +900,7 @@ dependencies = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pydantic-settings", specifier = ">=2.4" },
+    { name = "redis", specifier = ">=5.0" },
     { name = "rpim-shared", editable = "packages/shared" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
 ]

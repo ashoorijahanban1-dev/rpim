@@ -48,3 +48,14 @@ class InterviewOut(BaseModel):
 
 class CompleteOut(BaseModel):
     status: str
+
+
+class SourceIn(BaseModel):
+    title: str = Field(min_length=1, max_length=500)
+    kind: str = "upload"
+    text: str
+
+
+class SourceOut(BaseModel):
+    source_id: str
+    chunks: int
