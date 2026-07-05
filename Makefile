@@ -2,8 +2,12 @@
 # Legs: iran (user-facing) / us (model gateway). Coolify is the deploy path on
 # real servers; the `local` compose profile adds our own Caddy for local dev + CI.
 
-COMPOSE_IRAN = docker compose -f infra/docker-compose.iran.yml -p rpim-iran --profile local
-COMPOSE_US   = docker compose -f infra/docker-compose.us.yml -p rpim-us --profile local
+# --env-file feeds compose ${VAR} interpolation locally (Coolify UI does the
+# same in production); the wildcard keeps commands working pre-env-init.
+ENVFILE_IRAN = $(if $(wildcard .env.iran),--env-file .env.iran,)
+ENVFILE_US   = $(if $(wildcard .env.us),--env-file .env.us,)
+COMPOSE_IRAN = docker compose $(ENVFILE_IRAN) -f infra/docker-compose.iran.yml -p rpim-iran --profile local
+COMPOSE_US   = docker compose $(ENVFILE_US) -f infra/docker-compose.us.yml -p rpim-us --profile local
 
 .PHONY: env-init up-iran up-us down-iran down-us test lint fmt healthcheck
 

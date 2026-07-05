@@ -30,6 +30,9 @@ services:
         required: false
     environment:
       REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
+      # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      CORE_API_URL: ${CORE_API_URL:-http://10.66.0.1:8000}
     ports:
       - "${GATEWAY_BIND:-127.0.0.1}:8080:8080"
     extra_hosts:

@@ -52,6 +52,12 @@ services:
         required: false
     environment:
       REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
+      # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
+      DATABASE_URL: ${DATABASE_URL:-}
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      GATEWAY_URL: ${GATEWAY_URL:-http://10.66.0.2:8080}
     ports:
       # local: loopback · real server: CORE_BIND=10.66.0.1 (WireGuard IP) · CI: 0.0.0.0
       - "${CORE_BIND:-127.0.0.1}:8000:8000"
@@ -107,6 +113,11 @@ services:
     env_file:
       - path: ../.env.iran
         required: false
+    environment:
+      # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
+      POSTGRES_USER: ${POSTGRES_USER:-rpim}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-rpim}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
