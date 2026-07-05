@@ -1,0 +1,36 @@
+[project]
+name = "rpim"
+version = "0.1.0"
+description = "RPIM — Realistic Persian Intelligent Marketer (monorepo root)"
+requires-python = ">=3.12"
+dependencies = [
+    "rpim-shared",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+rpim-shared = { workspace = true }
+
+[tool.uv.workspace]
+members = ["apps/*", "packages/*"]
+exclude = ["apps/dashboard"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.27",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["apps", "packages"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

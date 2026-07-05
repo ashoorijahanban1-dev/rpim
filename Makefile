@@ -1,0 +1,54 @@
+# RPIM monorepo — canonical commands (CLAUDE.md §Commands)
+# Legs: iran (user-facing) / us (model gateway). Coolify is the deploy path on
+# real servers; the `local` compose profile adds our own Caddy for local dev + CI.
+
+COMPOSE_IRAN = docker compose -f infra/docker-compose.iran.yml -p rpim-iran --profile local
+COMPOSE_US   = docker compose -f infra/docker-compose.us.yml -p rpim-us --profile local
+
+.PHONY: env-init up-iran up-us down-iran down-us test lint fmt healthcheck
+
+## Generate gitignored .env.iran / .env.us from the committed examples.
+## Secret-shaped fields are FILLED with `openssl rand -hex 32`, never left blank.
+env-init:
+	@for leg in iran us; do \
+		if [ -f .env.$$leg ]; then echo ".env.$$leg exists — leaving untouched"; continue; fi; \
+		cp .env.$$leg.example .env.$$leg; \
+		for var in APP_SECRET_KEY JWT_SECRET INTERNAL_TOKEN POSTGRES_PASSWORD; do \
+			if grep -q "^$$var=" .env.$$leg; then \
+				val=$$(openssl rand -hex 32); \
+				sed -i "s|^$$var=.*|$$var=$$val|" .env.$$leg; \
+			fi; \
+		done; \
+		sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=rpim|" .env.$$leg; \
+		sed -i "s|^POSTGRES_DB=.*|POSTGRES_DB=rpim|" .env.$$leg; \
+		echo "generated .env.$$leg"; \
+	done
+
+up-iran: env-init
+	$(COMPOSE_IRAN) up -d --build --wait
+
+up-us: env-init
+	$(COMPOSE_US) up -d --build --wait
+
+down-iran:
+	$(COMPOSE_IRAN) down
+
+down-us:
+	$(COMPOSE_US) down
+
+## Fast + docker-free: the PostToolUse hook runs this after every file edit.
+test:
+	@uv run pytest
+
+lint:
+	@uv run ruff check .
+	@if [ -f apps/dashboard/package.json ] && [ -d apps/dashboard/node_modules ]; then \
+		cd apps/dashboard && npm run lint --silent; \
+	fi
+
+fmt:
+	@uv run ruff format .
+	@uv run ruff check --fix .
+
+healthcheck:
+	@bash scripts/crossleg-healthcheck.sh $${MODE:-local}
