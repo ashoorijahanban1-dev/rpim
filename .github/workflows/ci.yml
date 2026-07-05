@@ -46,6 +46,8 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     needs: [python, dashboard, compose]
+    permissions:
+      contents: write # failure report commits back to the repo (Claude sessions cannot read Actions logs)
     env:
       CORE_BIND: 0.0.0.0 # containers must reach legs via host gateway in CI
       GATEWAY_BIND: 0.0.0.0
@@ -62,11 +64,23 @@ jobs:
       # M2 acceptance end-to-end: register → upload → pgvector search <2s,
       # embeddings fetched through the real cross-leg gateway hop.
       - run: bash scripts/smoke-e2e.sh
-      - name: Logs on failure
+      - name: Publish failure report to repo
         if: failure()
         run: |
-          docker compose -f docker-compose.iran.yml -p rpim-iran --profile local logs --tail 80
-          docker compose -f docker-compose.us.yml -p rpim-us --profile local logs --tail 80
+          mkdir -p docs/ops
+          {
+            echo "# CI smoke FAILURE — $(date -u +%FT%TZ) — commit $GITHUB_SHA"
+            echo "## iran leg logs (tail)"
+            docker compose -f docker-compose.iran.yml -p rpim-iran --profile local logs --tail 120 2>&1 || true
+            echo "## us leg logs (tail)"
+            docker compose -f docker-compose.us.yml -p rpim-us --profile local logs --tail 120 2>&1 || true
+          } > docs/ops/ci-failure-report.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ops/ci-failure-report.txt
+          git commit -m "chore(ops): ci smoke failure report [skip ci]" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push || echo "report push failed (non-fatal)"
       - name: Teardown
         if: always()
         run: make down-iran && make down-us

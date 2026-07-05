@@ -1,7 +1,10 @@
 import hashlib
+import io
 import math
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -41,19 +44,14 @@ def _cosine(a: list[float], b: list[float]) -> float:
     return dot / (na * nb)
 
 
-@router.post("/sources", response_model=SourceOut, status_code=201)
-def create_source(
-    body: SourceIn,
-    identity: Identity = Depends(get_identity),
-    session: Session = Depends(get_session),
-) -> SourceOut:
-    pieces = chunk_text(body.text)
+def _ingest(session: Session, identity: Identity, title: str, kind: str, text: str) -> SourceOut:
+    pieces = chunk_text(text)
     if not pieces:
         raise HTTPException(status_code=422, detail="empty text")
 
     # Idempotent across retries (tunnel drops mid-request): identical content
     # for the same tenant returns the existing source — no re-embed, no dupes.
-    content_hash = hashlib.sha256(body.text.strip().encode("utf-8")).hexdigest()
+    content_hash = hashlib.sha256(text.strip().encode("utf-8")).hexdigest()
     existing_out = _existing_source(session, identity.tenant_id, content_hash)
     if existing_out is not None:
         return existing_out
@@ -61,8 +59,8 @@ def create_source(
     vectors = embed_texts(pieces, tenant_id=identity.tenant_id)
     source = BrainSource(
         tenant_id=identity.tenant_id,
-        title=body.title,
-        kind=body.kind,
+        title=title,
+        kind=kind,
         content_hash=content_hash,
     )
     session.add(source)
@@ -88,6 +86,37 @@ def create_source(
             return existing_out
         raise
     return SourceOut(source_id=source.id, chunks=len(pieces))
+
+
+@router.post("/sources", response_model=SourceOut, status_code=201)
+def create_source(
+    body: SourceIn,
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> SourceOut:
+    return _ingest(session, identity, title=body.title, kind=body.kind, text=body.text)
+
+
+@router.post("/sources/pdf", response_model=SourceOut, status_code=201)
+def create_source_pdf(
+    file: UploadFile = File(...),
+    title: str = Form(min_length=1, max_length=500),
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> SourceOut:
+    raw = file.file.read()
+    try:
+        reader = PdfReader(io.BytesIO(raw))
+        text = "\n\n".join(
+            stripped
+            for page in reader.pages
+            if (stripped := (page.extract_text() or "").strip())
+        )
+    except PdfReadError as exc:
+        raise HTTPException(status_code=422, detail="invalid PDF") from exc
+    if not text.strip():
+        raise HTTPException(status_code=422, detail="no extractable text in PDF")
+    return _ingest(session, identity, title=title, kind="pdf", text=text)
 
 
 @router.get("/search")

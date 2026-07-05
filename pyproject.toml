@@ -48,4 +48,11 @@ known-first-party = ["rpim_shared", "rpim_core_api", "rpim_model_gateway", "rpim
 
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's dependency-injection idiom is intentional, not a B008 bug.
-extend-immutable-calls = ["fastapi.Depends", "fastapi.security.HTTPBearer"]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.security.HTTPBearer",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Query",
+    "fastapi.Header",
+]
