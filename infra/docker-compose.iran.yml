@@ -1,0 +1,132 @@
+# IRAN leg — user-facing (blueprint §2). Deploys via Coolify on the real
+# server (Coolify's proxy owns 80/443 there); the `local` profile adds our own
+# Caddy for local dev + CI only. No secret literals — env_file only (rule 4).
+name: rpim-iran
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["local"]
+    ports:
+      - "${IRAN_HTTP_PORT:-8001}:80"
+    volumes:
+      - ./caddy/Caddyfile.iran:/etc/caddy/Caddyfile:ro
+    depends_on:
+      core-api:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: apps/dashboard/Dockerfile
+    env_file:
+      - path: ../.env.iran
+        required: false
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  core-api:
+    build:
+      context: ..
+      dockerfile: apps/core-api/Dockerfile
+    env_file:
+      - path: ../.env.iran
+        required: false
+    environment:
+      REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
+    ports:
+      # local: loopback · real server: CORE_BIND=10.66.0.1 (WireGuard IP) · CI: 0.0.0.0
+      - "${CORE_BIND:-127.0.0.1}:8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).status==200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  workers:
+    build:
+      context: ..
+      dockerfile: apps/workers/Dockerfile
+    env_file:
+      - path: ../.env.iran
+        required: false
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    # Celery has no HTTP; `inspect ping` is the approved /health equivalent
+    # (docs/decisions/). Nothing depends_on workers being healthy.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "uv run --no-sync celery -A rpim_workers.celery_app inspect ping -t 5 | grep -q pong",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    env_file:
+      - path: ../.env.iran
+        required: false
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    # No host port published — tenant DB never leaves the internal network.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-rpim} -d $${POSTGRES_DB:-rpim}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

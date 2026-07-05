@@ -1,0 +1,14 @@
+.git
+.venv
+**/__pycache__
+**/node_modules
+**/.next
+.env
+.env.*
+!.env.*.example
+docs
+infra/wireguard
+.claude
+.github
+.pytest_cache
+.ruff_cache

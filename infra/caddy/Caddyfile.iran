@@ -1,0 +1,15 @@
+# Local/CI ingress for the iran leg. On the real server Coolify's proxy owns
+# ingress; this file is used only under the compose `local` profile.
+:80 {
+	handle /health {
+		reverse_proxy core-api:8000
+	}
+
+	handle_path /api/* {
+		reverse_proxy core-api:8000
+	}
+
+	handle {
+		reverse_proxy dashboard:3000
+	}
+}

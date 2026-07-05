@@ -1,0 +1,5 @@
+# Local/CI ingress for the us leg (loopback only — the gateway is never
+# public; see docs/decisions/ on ports & exposure).
+:80 {
+	reverse_proxy model-gateway:8080
+}

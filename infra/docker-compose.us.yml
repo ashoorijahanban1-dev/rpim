@@ -1,0 +1,61 @@
+# US leg — model gateway + (later: crawlers, renderer, embeddings; M2+).
+# Deploys via Coolify on the real server. The model gateway is NEVER public:
+# it binds to GATEWAY_BIND (loopback locally, the WireGuard IP 10.66.0.2 on
+# the server) so only the iran leg reaches it through the tunnel.
+name: rpim-us
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["local"]
+    ports:
+      - "127.0.0.1:${US_HTTP_PORT:-8002}:80"
+    volumes:
+      - ./caddy/Caddyfile.us:/etc/caddy/Caddyfile:ro
+    depends_on:
+      model-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  model-gateway:
+    build:
+      context: ..
+      dockerfile: apps/model-gateway/Dockerfile
+    env_file:
+      - path: ../.env.us
+        required: false
+    environment:
+      REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
+    ports:
+      - "${GATEWAY_BIND:-127.0.0.1}:8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3).status==200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

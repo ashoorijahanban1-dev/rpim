@@ -21,8 +21,16 @@ env-init:
 		done; \
 		sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=rpim|" .env.$$leg; \
 		sed -i "s|^POSTGRES_DB=.*|POSTGRES_DB=rpim|" .env.$$leg; \
+		if grep -q "^POSTGRES_PASSWORD=" .env.$$leg && grep -q "^DATABASE_URL=" .env.$$leg; then \
+			pw=$$(sed -n 's/^POSTGRES_PASSWORD=//p' .env.$$leg); \
+			sed -i "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://rpim:$$pw@postgres:5432/rpim|" .env.$$leg; \
+		fi; \
 		echo "generated .env.$$leg"; \
-	done
+	done; \
+	if [ -f .env.iran ] && [ -f .env.us ]; then \
+		tok=$$(sed -n 's/^INTERNAL_TOKEN=//p' .env.iran); \
+		if [ -n "$$tok" ]; then sed -i "s|^INTERNAL_TOKEN=.*|INTERNAL_TOKEN=$$tok|" .env.us; fi; \
+	fi
 
 up-iran: env-init
 	$(COMPOSE_IRAN) up -d --build --wait

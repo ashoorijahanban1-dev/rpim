@@ -1,0 +1,14 @@
+# WireGuard stub — IRAN leg (10.66.0.1). Copy to /etc/wireguard/wg0.conf on
+# the server and replace every <PLACEHOLDER>. Real keys NEVER enter this repo
+# (CLAUDE.md rule 4). Generate with: wg genkey | tee privatekey | wg pubkey
+[Interface]
+Address = 10.66.0.1/24
+PrivateKey = <IRAN_WG_PRIVATE_KEY>
+ListenPort = 51820
+
+[Peer]
+# US leg
+PublicKey = <US_WG_PUBLIC_KEY>
+AllowedIPs = 10.66.0.2/32
+Endpoint = <US_SERVER_IP>:51820
+PersistentKeepalive = 25
