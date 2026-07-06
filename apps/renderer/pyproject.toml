@@ -5,6 +5,7 @@ description = "RPIM Template Renderer — us leg (fake-mode core in M8; real Chr
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
     "jinja2>=3.1",
     "rpim-shared",
 ]
