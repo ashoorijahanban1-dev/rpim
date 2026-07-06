@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.measurement import clicks as clicks_client
 from rpim_core_api.measurement import ledger_client
 from rpim_core_api.models import ContentDraft, PublishJob
 
@@ -48,6 +49,13 @@ def monthly_report(
             camp["sent"] += 1
             by_channel[job.channel] += 1
 
+    # Clicks are keyed by utm_campaign; only THIS tenant's campaigns are
+    # surfaced (rule 6) — foreign campaign codes in the counter never leak in.
+    click_counts = clicks_client.fetch_clicks_by_campaign(month)
+    for camp in campaigns.values():
+        camp["clicks"] = int(click_counts.get(camp["campaign_code"], 0))
+    clicks_by_campaign = {c["campaign_code"]: c["clicks"] for c in campaigns.values()}
+
     entries = ledger_client.fetch_entries(identity.tenant_id)
     by_provider: dict[str, float] = defaultdict(float)
     for entry in entries:
@@ -68,6 +76,10 @@ def monthly_report(
             "by_channel": dict(by_channel),
         },
         "campaigns": sorted(campaigns.values(), key=lambda c: c["campaign_code"]),
+        "clicks": {
+            "total": sum(clicks_by_campaign.values()),
+            "by_campaign": clicks_by_campaign,
+        },
         "costs": {
             "total_usd": total_usd,
             "by_provider": {k: round(v, 6) for k, v in by_provider.items()},
