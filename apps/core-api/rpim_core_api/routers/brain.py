@@ -5,7 +5,7 @@ import math
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
-from sqlalchemy import select
+from sqlalchemy import Float, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -139,7 +139,10 @@ def search(
 
     if session.get_bind().dialect.name == "postgresql":
         # pgvector ANN path (<2s acceptance target; HNSW index, ADR 0011).
-        distance = BrainChunk.embedding.op("<=>")(query_vector)
+        # Explicit Float return type — otherwise SQLAlchemy inherits the
+        # vector column type and runs the vector result-processor on the
+        # scalar distance (TypeError: 'float' is not subscriptable).
+        distance = BrainChunk.embedding.op("<=>", return_type=Float)(query_vector)
         rows = session.execute(base.add_columns(distance.label("d")).order_by("d").limit(k)).all()
         results = [
             {
