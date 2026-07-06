@@ -5,6 +5,7 @@ from rpim_core_api.routers import (
     brain,
     brand_profile,
     content,
+    export,
     onboarding,
     publish,
     reports,
@@ -22,6 +23,7 @@ app.include_router(qa_router)
 app.include_router(gov_router)
 app.include_router(publish.router)
 app.include_router(reports.router)
+app.include_router(export.router)
 
 
 @app.get("/health", response_model=HealthStatus)
