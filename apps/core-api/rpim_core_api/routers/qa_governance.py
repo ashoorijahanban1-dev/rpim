@@ -1,3 +1,4 @@
+import hmac
 import os
 
 from fastapi import APIRouter, Depends, Header, HTTPException
@@ -52,6 +53,24 @@ class SilenceIn(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
+class NationalEventIn(BaseModel):
+    event_type: str = Field(min_length=1, max_length=120)
+    active: bool
+    reason: str = Field(min_length=1, max_length=500)
+
+
+def _require_internal_token(x_internal_token: str | None) -> None:
+    # Ops trust boundary: internal token, not tenant auth (same as /kill).
+    # Constant-time comparison — no remote timing oracle on the token.
+    expected = os.environ.get("INTERNAL_TOKEN", "")
+    if (
+        not expected
+        or x_internal_token is None
+        or not hmac.compare_digest(x_internal_token, expected)
+    ):
+        raise HTTPException(status_code=401, detail="invalid internal token")
+
+
 @gov_router.get("/status")
 def governance_status(
     identity: Identity = Depends(get_identity),
@@ -79,8 +98,56 @@ def set_kill(
     session: Session = Depends(get_session),
 ) -> dict:
     # Global kill switch is an OPS action: internal token, not tenant auth.
-    expected = os.environ.get("INTERNAL_TOKEN", "")
-    if not expected or x_internal_token != expected:
-        raise HTTPException(status_code=401, detail="invalid internal token")
+    _require_internal_token(x_internal_token)
     set_flag(session, GLOBAL_SCOPE, "kill", body.active, body.reason)
-    return {"kill": body.active}
+    # scope confirms the flag applied system-wide, not per-tenant (M10).
+    return {"kill": body.active, "scope": GLOBAL_SCOPE}
+
+
+@gov_router.get("/global/status")
+def global_governance_status(
+    x_internal_token: str | None = Header(default=None),
+    session: Session = Depends(get_session),
+) -> dict:
+    # Operators verify kill/silence state without impersonating a tenant.
+    _require_internal_token(x_internal_token)
+    return get_flags(session, GLOBAL_SCOPE)
+
+
+@gov_router.post("/global/silence")
+def set_global_silence(
+    body: SilenceIn,
+    x_internal_token: str | None = Header(default=None),
+    session: Session = Depends(get_session),
+) -> dict:
+    # The ONLY resume path for national-event silence: an explicit operator
+    # action (manual-only resume, rule 7).
+    _require_internal_token(x_internal_token)
+    set_flag(session, GLOBAL_SCOPE, "silence", body.active, body.reason)
+    return {"silence": body.active, "scope": GLOBAL_SCOPE}
+
+
+@gov_router.post("/national-event")
+def national_event(
+    body: NationalEventIn,
+    x_internal_token: str | None = Header(default=None),
+    session: Session = Depends(get_session),
+) -> dict:
+    # National-event feed → global silence AUTO-SETS (all tenants halt).
+    _require_internal_token(x_internal_token)
+    if not body.active:
+        # A feed must never lift silence: a compromised or glitchy feed
+        # cannot re-enable publishing. Resume is manual-only (rule 7) via
+        # POST /governance/global/silence.
+        raise HTTPException(
+            status_code=409,
+            detail="feed-driven resume rejected: silence resume is manual-only",
+        )
+    set_flag(
+        session,
+        GLOBAL_SCOPE,
+        "silence",
+        True,
+        f"national-event:{body.event_type} — {body.reason}",
+    )
+    return {"silence": True, "scope": GLOBAL_SCOPE, "event_type": body.event_type}
