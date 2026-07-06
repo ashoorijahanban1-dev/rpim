@@ -126,6 +126,31 @@ class GovernanceFlag(Base):
     )
 
 
+class PublishJob(Base):
+    """Publish-queue entry. Compiled ONLY from approved/edited drafts and only
+    with full metadata + campaign code (constitution rule 3); the text is
+    frozen at compile time so what was approved is exactly what ships.
+    Dispatch is idempotent and resumable — a transient channel failure leaves
+    the job 'queued' with attempts incremented, never lost."""
+
+    __tablename__ = "publish_jobs"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    draft_id: Mapped[str] = mapped_column(ForeignKey("content_drafts.id"), index=True)
+    channel: Mapped[str] = mapped_column(String(16))  # telegram | bale | eitaa
+    chat_id: Mapped[str] = mapped_column(String(128))
+    campaign_code: Mapped[str] = mapped_column(String(120))
+    utm: Mapped[dict] = mapped_column(JSON, default=dict)
+    text: Mapped[str] = mapped_column(String(8000))
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True)  # queued|sent
+    attempts: Mapped[int] = mapped_column(default=0)
+    scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class OnboardingInterview(Base):
     __tablename__ = "onboarding_interviews"
 

@@ -1,6 +1,5 @@
-from typing import Literal
-
 import re
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
