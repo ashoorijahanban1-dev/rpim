@@ -1,0 +1,27 @@
+# T2 eval report — 2026-07-06T20:07:05Z — commit 390c8a80f40b790ff00aa68b4be5aad65c7f0d72
+# candidates: gemini:gemini-2.0-flash,deepseek:deepseek-chat · judge: gemini:gemini-2.5-pro
+# ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)
+[
+  {
+    "candidate": "gemini:gemini-2.0-flash",
+    "ok": 0,
+    "errors": 50,
+    "mean_score": null,
+    "scored": 0,
+    "mean_latency_s": null,
+    "tokens_in": 0,
+    "tokens_out": 0,
+    "est_cost_usd": 0.0
+  },
+  {
+    "candidate": "deepseek:deepseek-chat",
+    "ok": 0,
+    "errors": 50,
+    "mean_score": null,
+    "scored": 0,
+    "mean_latency_s": null,
+    "tokens_in": 0,
+    "tokens_out": 0,
+    "est_cost_usd": 0.0
+  }
+]
