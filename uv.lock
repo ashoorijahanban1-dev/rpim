@@ -8,6 +8,7 @@ members = [
     "rpim-core-api",
     "rpim-embeddings",
     "rpim-model-gateway",
+    "rpim-renderer",
     "rpim-shared",
     "rpim-workers",
 ]
@@ -1379,6 +1380,7 @@ dependencies = [
     { name = "rpim-core-api" },
     { name = "rpim-embeddings" },
     { name = "rpim-model-gateway" },
+    { name = "rpim-renderer" },
     { name = "rpim-shared" },
     { name = "rpim-workers" },
 ]
@@ -1395,6 +1397,7 @@ requires-dist = [
     { name = "rpim-core-api", editable = "apps/core-api" },
     { name = "rpim-embeddings", editable = "apps/embeddings" },
     { name = "rpim-model-gateway", editable = "apps/model-gateway" },
+    { name = "rpim-renderer", editable = "apps/renderer" },
     { name = "rpim-shared", editable = "packages/shared" },
     { name = "rpim-workers", editable = "apps/workers" },
 ]
@@ -1492,6 +1495,23 @@ requires-dist = [
     { name = "redis", specifier = ">=5.0" },
     { name = "rpim-shared", editable = "packages/shared" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
+]
+
+[[package]]
+name = "rpim-renderer"
+version = "0.1.0"
+source = { editable = "apps/renderer" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "jinja2" },
+    { name = "rpim-shared" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "jinja2", specifier = ">=3.1" },
+    { name = "rpim-shared", editable = "packages/shared" },
 ]
 
 [[package]]

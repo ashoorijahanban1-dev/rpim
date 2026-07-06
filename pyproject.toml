@@ -9,6 +9,7 @@ dependencies = [
     "rpim-model-gateway",
     "rpim-workers",
     "rpim-embeddings",
+    "rpim-renderer",
 ]
 
 [tool.uv]
@@ -20,6 +21,7 @@ rpim-core-api = { workspace = true }
 rpim-model-gateway = { workspace = true }
 rpim-workers = { workspace = true }
 rpim-embeddings = { workspace = true }
+rpim-renderer = { workspace = true }
 
 [tool.uv.workspace]
 members = ["apps/*", "packages/*"]
@@ -44,7 +46,7 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["rpim_shared", "rpim_core_api", "rpim_model_gateway", "rpim_workers"]
+known-first-party = ["rpim_shared", "rpim_core_api", "rpim_model_gateway", "rpim_workers", "rpim_renderer"]
 
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's dependency-injection idiom is intentional, not a B008 bug.
