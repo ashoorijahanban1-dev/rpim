@@ -159,8 +159,11 @@ def test_m7b_telegram_live_routes_via_gateway(monkeypatch):
         f"telegram must route to gateway url {expected_url!r}, "
         f"got {captured.get('url')!r}"
     )
-    assert captured.get("payload") == {"chat_id": "789", "text": "سلام"}, (
-        f"telegram payload must be {{chat_id, text}}, got {captured.get('payload')!r}"
+    # request_id == job_id: the cross-leg idempotency key (rule 8) — a tunnel
+    # drop after telegram accepted the send must not double-post on retry.
+    assert captured.get("payload") == {"chat_id": "789", "text": "سلام", "request_id": "job3"}, (
+        f"telegram payload must be {{chat_id, text, request_id}}, "
+        f"got {captured.get('payload')!r}"
     )
     assert captured.get("headers", {}).get("X-Internal-Token") == internal_token, (
         f"X-Internal-Token header must equal INTERNAL_TOKEN env value; "
