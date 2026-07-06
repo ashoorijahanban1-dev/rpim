@@ -1,4 +1,4 @@
-# ADR 0025 — gateway telegram-photo passthrough
+# ADR 0027 — gateway telegram-photo passthrough
 
 **Status:** accepted (completes live image posts for telegram)
 
