@@ -5,7 +5,7 @@ description = "RPIM Core API — iran leg (dashboard backend, approval queue, te
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
-    "uvicorn[standard]>=0.30",
+    "uvicorn[standard]>=0.50.2",
     "pydantic-settings>=2.4",
     "rpim-shared",
     "alembic>=1.13",
