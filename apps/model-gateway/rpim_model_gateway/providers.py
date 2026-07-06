@@ -40,7 +40,10 @@ def _gemini_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) 
         body["generationConfig"] = {"maxOutputTokens": max_tokens}
     response = httpx.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        params={"key": key},
+        # Key travels in the official header, NEVER the URL — httpx exception
+        # strings embed the URL, so a query-param key would leak into error
+        # messages and result rows (rule 4).
+        headers={"x-goog-api-key": key},
         json=body,
         timeout=timeout,
     )
