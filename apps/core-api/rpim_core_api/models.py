@@ -145,6 +145,8 @@ class PublishJob(Base):
     # Landing link with UTM params compiled in (M9) — null when the post
     # carries no link.
     landing_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    # Render request for image posts ({template, size}) — null for text posts.
+    image_spec: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     text: Mapped[str] = mapped_column(String(8000))
     status: Mapped[str] = mapped_column(String(16), default="queued", index=True)  # queued|sent
     attempts: Mapped[int] = mapped_column(default=0)
