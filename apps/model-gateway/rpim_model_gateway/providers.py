@@ -30,7 +30,7 @@ def _fake_complete(
 
 
 def _gemini_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) -> dict:
-    key = os.environ.get("GEMINI_API_KEY", "")
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not key:
         raise ProviderError("GEMINI_API_KEY not set")
     body: dict = {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
@@ -59,7 +59,7 @@ def _gemini_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) 
 
 def _openai_compatible(base_url: str, api_key_env: str):
     def call(model, prompt, system=None, max_tokens=None, timeout=60.0) -> dict:
-        key = os.environ.get(api_key_env, "")
+        key = os.environ.get(api_key_env, "").strip()
         if not key:
             raise ProviderError(f"{api_key_env} not set")
         messages = ([{"role": "system", "content": system}] if system else []) + [
@@ -84,7 +84,7 @@ def _openai_compatible(base_url: str, api_key_env: str):
 
 
 def _anthropic_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) -> dict:
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not key:
         raise ProviderError("ANTHROPIC_API_KEY not set")
     body: dict = {

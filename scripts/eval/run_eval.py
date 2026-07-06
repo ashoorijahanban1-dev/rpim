@@ -105,6 +105,7 @@ def main() -> int:
         ok = errors = tokens_in = tokens_out = 0
         latency_total = 0.0
         scores: list[int] = []
+        error_kinds: dict[str, int] = {}
         for item in items:
             started = time.monotonic()
             try:
@@ -133,6 +134,10 @@ def main() -> int:
                 )
             except Exception as exc:  # noqa: BLE001 — record and continue
                 errors += 1
+                # Aggregate a short, key-free error signature so the committed
+                # summary is diagnosable without the runner-local row files.
+                kind = f"{type(exc).__name__}: {str(exc)[:120]}"
+                error_kinds[kind] = error_kinds.get(kind, 0) + 1
                 rows.append(
                     {"id": item["id"], "category": item["category"], "ok": False,
                      "error": f"{type(exc).__name__}: {exc}"}
@@ -154,6 +159,9 @@ def main() -> int:
                 "tokens_in": tokens_in,
                 "tokens_out": tokens_out,
                 "est_cost_usd": round(cost_usd(model, tokens_in, tokens_out), 4),
+                "top_errors": dict(
+                    sorted(error_kinds.items(), key=lambda kv: -kv[1])[:3]
+                ),
             }
         )
 
