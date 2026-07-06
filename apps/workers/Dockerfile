@@ -14,4 +14,4 @@ RUN uv sync --frozen --no-install-workspace --no-dev --package rpim-workers
 COPY apps/workers apps/workers
 RUN uv sync --frozen --no-dev --package rpim-workers
 
-CMD ["uv", "run", "--no-sync", "celery", "-A", "rpim_workers.celery_app", "worker", "--loglevel=INFO", "--queues=rpim"]
+CMD ["uv", "run", "--no-sync", "celery", "-A", "rpim_workers.celery_app", "worker", "-B", "--loglevel=INFO", "--queues=rpim"]

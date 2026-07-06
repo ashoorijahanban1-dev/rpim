@@ -1,11 +1,14 @@
 """Channel adapters for the publish engine.
 
 PUBLISH_MODE=fake (tests + CI) routes every send through the in-process
-_OUTBOX seam. Real adapters — Bale/Eitaa direct from the iran leg, Telegram
-via the us-leg gateway — land in M7 slice B, official APIs only (rule 5).
+_OUTBOX seam. Live mode (M7 slice B) uses official bot APIs only (rule 5):
+Bale and Eitaa directly from the iran leg, Telegram forwarded to the us-leg
+gateway — the iran leg never talks to api.telegram.org itself.
 """
 
 import os
+
+import httpx
 
 
 class ChannelSendError(Exception):
@@ -20,6 +23,23 @@ _OUTBOX: list[dict] = []
 _FAIL_NEXT: list[str] = []
 
 
+def _post_json(url: str, payload: dict, headers: dict | None = None) -> None:
+    try:
+        response = httpx.post(url, json=payload, headers=headers, timeout=30)
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        # Never echo the URL: bot-API URLs embed the token (rule 4).
+        raise ChannelSendError(f"channel endpoint failed: {type(exc).__name__}") from exc
+
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name, "")
+    if not value:
+        # Name the env var, never a value (rule 4).
+        raise ChannelSendError(f"missing credential: env var {name} is not set")
+    return value
+
+
 def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
     mode = os.environ.get("PUBLISH_MODE", "fake")
     if mode == "fake":
@@ -30,5 +50,26 @@ def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
             {"channel": channel, "chat_id": chat_id, "text": text, "job_id": job_id}
         )
         return
-    # Slice B wires the live adapters; failing loudly beats dropping silently.
-    raise ChannelSendError(f"no live adapter configured for channel {channel}")
+    if mode != "live":
+        # Explicit or nothing: a typo'd mode must not silently dry-run
+        # (false "sent") nor accidentally go live — fail loud, job stays queued.
+        raise ChannelSendError("PUBLISH_MODE must be 'fake' or 'live'")
+
+    payload = {"chat_id": chat_id, "text": text}
+    if channel == "bale":
+        token = _require_env("BALE_BOT_TOKEN")
+        _post_json(f"https://tapi.bale.ai/bot{token}/sendMessage", payload)
+    elif channel == "eitaa":
+        token = _require_env("EITAA_BOT_TOKEN")
+        _post_json(f"https://eitaayar.ir/api/{token}/sendMessage", payload)
+    elif channel == "telegram":
+        # Cross-leg: telegram is only reachable from the us leg (rule 5).
+        gateway = _require_env("GATEWAY_URL").rstrip("/")
+        internal = _require_env("INTERNAL_TOKEN")
+        _post_json(
+            f"{gateway}/publish/telegram",
+            payload,
+            headers={"X-Internal-Token": internal},
+        )
+    else:
+        raise ChannelSendError(f"unsupported channel {channel}")

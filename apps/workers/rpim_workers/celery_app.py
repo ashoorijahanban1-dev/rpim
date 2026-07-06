@@ -3,10 +3,12 @@ import os
 from celery import Celery
 
 # Broker URL comes from the environment; cross-leg jobs must be idempotent and
-# resumable (CLAUDE.md) — real task definitions land in M2+.
+# resumable (CLAUDE.md). include= makes the worker/beat import task modules
+# (and their beat_schedule registration) at startup.
 celery_app = Celery(
     "rpim",
     broker=os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
+    include=["rpim_workers.tasks"],
 )
 celery_app.conf.task_default_queue = "rpim"
 celery_app.conf.broker_connection_retry_on_startup = True
