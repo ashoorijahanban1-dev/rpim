@@ -41,12 +41,20 @@ def _require_env(name: str) -> str:
 
 
 def _post_photo(
-    url: str, chat_id: str, caption: str, image_png: bytes, headers: dict | None = None
+    url: str,
+    chat_id: str,
+    caption: str,
+    image_png: bytes,
+    headers: dict | None = None,
+    request_id: str | None = None,
 ) -> None:
+    data = {"chat_id": chat_id, "caption": caption}
+    if request_id:
+        data["request_id"] = request_id
     try:
         response = httpx.post(
             url,
-            data={"chat_id": chat_id, "caption": caption},
+            data=data,
             files={"photo": ("post.png", image_png, "image/png")},
             headers=headers,
             timeout=60,
@@ -88,12 +96,15 @@ def send_photo(channel: str, chat_id: str, caption: str, image_png: bytes, job_i
         # slice — until it exists this fails transiently and the job waits.
         gateway = _require_env("GATEWAY_URL").rstrip("/")
         internal = _require_env("INTERNAL_TOKEN")
+        # job_id doubles as the cross-leg idempotency key (rule 8): a tunnel
+        # drop after telegram accepted the send cannot double-post on retry.
         _post_photo(
             f"{gateway}/publish/telegram-photo",
             chat_id,
             caption,
             image_png,
             headers={"X-Internal-Token": internal},
+            request_id=job_id,
         )
     else:
         raise ChannelSendError(f"unsupported channel {channel}")
@@ -122,12 +133,13 @@ def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
         token = _require_env("EITAA_BOT_TOKEN")
         _post_json(f"https://eitaayar.ir/api/{token}/sendMessage", payload)
     elif channel == "telegram":
-        # Cross-leg: telegram is only reachable from the us leg (rule 5).
+        # Cross-leg: telegram is only reachable from the us leg (rule 5);
+        # job_id rides along as the idempotency key (rule 8).
         gateway = _require_env("GATEWAY_URL").rstrip("/")
         internal = _require_env("INTERNAL_TOKEN")
         _post_json(
             f"{gateway}/publish/telegram",
-            payload,
+            {**payload, "request_id": job_id},
             headers={"X-Internal-Token": internal},
         )
     else:

@@ -2,7 +2,7 @@ import os
 from typing import Literal
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from rpim_model_gateway import idempotency, telegram
@@ -154,6 +154,8 @@ def complete_text(body: CompleteIn, x_internal_token: str | None = Header(defaul
 class TelegramIn(BaseModel):
     chat_id: str = Field(min_length=1)
     text: str = Field(min_length=1)
+    # Cross-leg idempotency key (rule 8) — the iran leg sends its job_id.
+    request_id: str | None = Field(default=None, max_length=128)
 
 
 @app.post("/publish/telegram")
@@ -163,12 +165,50 @@ def publish_telegram(
     # Cross-leg seam (rule 5): the iran leg forwards telegram jobs here; only
     # this us-leg process talks to api.telegram.org.
     _require_internal(x_internal_token)
+    idem_key = f"tgpub:{body.request_id}" if body.request_id else None
+    if idem_key:
+        cached = idempotency.get(idem_key)
+        if cached is not None:
+            return cached
     try:
-        return telegram.send_telegram(body.chat_id, body.text)
+        result = telegram.send_telegram(body.chat_id, body.text)
     except telegram.TelegramNotConfigured as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except telegram.TelegramSendError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # Cache only AFTER a successful send: a failed send must stay retryable,
+    # a succeeded one must never double-post (rule 8).
+    if idem_key:
+        idempotency.put(idem_key, result)
+    return result
+
+
+@app.post("/publish/telegram-photo")
+async def publish_telegram_photo(
+    chat_id: str = Form(min_length=1),
+    caption: str = Form(default=""),
+    photo: UploadFile = File(),
+    request_id: str | None = Form(default=None),
+    x_internal_token: str | None = Header(default=None),
+) -> dict:
+    # Cross-leg multipart seam (rule 5): the iran leg forwards photo posts
+    # here; only this us-leg process talks to api.telegram.org.
+    _require_internal(x_internal_token)
+    idem_key = f"tgpub:{request_id}" if request_id else None
+    if idem_key:
+        cached = idempotency.get(idem_key)
+        if cached is not None:
+            return cached
+    image_png = await photo.read()
+    try:
+        result = telegram.send_telegram_photo(chat_id, caption, image_png)
+    except telegram.TelegramNotConfigured as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except telegram.TelegramSendError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    if idem_key:
+        idempotency.put(idem_key, result)
+    return result
 
 
 @app.get("/ledger/{tenant_id}")
