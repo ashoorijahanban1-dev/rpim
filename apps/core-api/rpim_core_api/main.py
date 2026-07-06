@@ -1,6 +1,14 @@
 from fastapi import FastAPI
 
-from rpim_core_api.routers import auth, brain, brand_profile, content, onboarding, publish
+from rpim_core_api.routers import (
+    auth,
+    brain,
+    brand_profile,
+    content,
+    onboarding,
+    publish,
+    reports,
+)
 from rpim_core_api.routers.qa_governance import gov_router, qa_router
 from rpim_shared import HealthStatus
 
@@ -13,6 +21,7 @@ app.include_router(content.router)
 app.include_router(qa_router)
 app.include_router(gov_router)
 app.include_router(publish.router)
+app.include_router(reports.router)
 
 
 @app.get("/health", response_model=HealthStatus)
