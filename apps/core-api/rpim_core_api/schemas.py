@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -68,3 +70,33 @@ class CrawlIn(BaseModel):
 
 class CrawlOut(SourceOut):
     pages: int
+
+
+class Brief(BaseModel):
+    goal: str = Field(min_length=1, max_length=500)
+    audience: str = Field(min_length=1, max_length=500)
+    channel: str = Field(min_length=1, max_length=100)
+    format: str = Field(min_length=1, max_length=100)
+    hook: str | None = None
+    cta: str | None = None
+
+
+class BriefIn(BaseModel):
+    brief: Brief
+
+
+class DraftOut(BaseModel):
+    draft_id: str
+    text: str
+    context_refs: list[str]
+    flag_unsourced: bool
+    status: str
+
+
+class EditIn(BaseModel):
+    edited_text: str = Field(min_length=1, max_length=8000)
+
+
+class RejectIn(BaseModel):
+    reason_code: Literal["tone", "fact", "sensitivity", "taste"]
+    note: str | None = None

@@ -6,13 +6,14 @@ from urllib.parse import urlparse
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
-from sqlalchemy import Float, select
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from rpim_core_api.brain import crawler
 from rpim_core_api.brain.chunking import chunk_text
 from rpim_core_api.brain.embed_client import embed_texts
+from rpim_core_api.brain.retrieval import search_chunks
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
 from rpim_core_api.models import BrainChunk, BrainSource
@@ -153,47 +154,4 @@ def search(
     session: Session = Depends(get_session),
 ) -> dict:
     query_vector = embed_texts([q], tenant_id=identity.tenant_id)[0]
-    # tenant_id scoping is absolute (rule 6) — filtered on both join sides.
-    base = (
-        select(BrainChunk, BrainSource.title)
-        .join(BrainSource, BrainChunk.source_id == BrainSource.id)
-        .where(
-            BrainChunk.tenant_id == identity.tenant_id,
-            BrainSource.tenant_id == identity.tenant_id,
-        )
-    )
-
-    if session.get_bind().dialect.name == "postgresql":
-        # pgvector ANN path (<2s acceptance target; HNSW index, ADR 0011).
-        # Explicit Float return type — otherwise SQLAlchemy inherits the
-        # vector column type and runs the vector result-processor on the
-        # scalar distance (TypeError: 'float' is not subscriptable).
-        distance = BrainChunk.embedding.op("<=>", return_type=Float)(query_vector)
-        rows = session.execute(base.add_columns(distance.label("d")).order_by("d").limit(k)).all()
-        results = [
-            {
-                "text": chunk.text,
-                "source_id": chunk.source_id,
-                "source_title": title,
-                "score": 1.0 - float(dist),
-            }
-            for chunk, title, dist in rows
-        ]
-        return {"results": results}
-
-    # sqlite fallback (tests): python-side cosine over the tenant's chunks.
-    rows = session.execute(base).all()
-    scored = sorted(
-        (
-            {
-                "text": chunk.text,
-                "source_id": chunk.source_id,
-                "source_title": title,
-                "score": _cosine(query_vector, chunk.embedding),
-            }
-            for chunk, title in rows
-        ),
-        key=lambda r: r["score"],
-        reverse=True,
-    )
-    return {"results": scored[:k]}
+    return {"results": search_chunks(session, identity.tenant_id, query_vector, k)}
