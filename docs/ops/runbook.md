@@ -89,6 +89,8 @@
 | JWT_SECRET | env لگ ایران | چرخش = خروج همهٔ کاربران؛ در ساعت کم‌ترافیک |
 | توکن‌های بات (بله/ایتا/تلگرام) | env لگ مربوطه | از BotFather/سرویس مربوطه توکن نو بگیرید، env را عوض و redeploy کنید |
 | COOLIFY_TOKEN | GitHub Secrets | فقط برای job دیپلوی CI؛ از پنل Coolify باطل و نو کنید |
+| SMSIR_API_KEY | env لگ ایران (Coolify) | از پنل SMS.ir کلید نو بگیرید، env را عوض و redeploy کنید (ADR 0028) |
+| CLOUDFLARE_API_TOKEN | GitHub Secrets یا env در Coolify | فقط scope حداقلی DNS؛ راهنما: docs/ops/cloudflare-ssl.md |
 | GitHub PAT | فقط موقت | نباید هیچ PAT دائمی فعال بماند |
 
 ## قطع تونل (WireGuard)

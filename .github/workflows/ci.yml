@@ -100,7 +100,9 @@ jobs:
     needs: [smoke]
     if: github.ref == 'refs/heads/main'
     env:
-      COOLIFY_URL: http://rpim.ir:8000
+      # Repo variable wins once the panel has TLS (docs/ops/cloudflare-ssl.md);
+      # rotate COOLIFY_TOKEN right after switching to https.
+      COOLIFY_URL: ${{ vars.COOLIFY_URL || 'http://rpim.ir:8000' }}
       COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
     steps:
       - uses: actions/checkout@v4

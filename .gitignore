@@ -10,3 +10,7 @@ node_modules/
 dist/
 *.log
 .claude/settings.local.json
+# phase-0 eval outputs (model responses + run metadata) stay local
+scripts/eval/results/
+# encrypted backup artifacts never enter the repo
+infra/backup/*.enc
