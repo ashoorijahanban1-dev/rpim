@@ -5,7 +5,7 @@ import httpx
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-from rpim_model_gateway import idempotency
+from rpim_model_gateway import idempotency, telegram
 from rpim_model_gateway.ledger import entries_for, record
 from rpim_model_gateway.providers import PROVIDERS, cost_usd
 from rpim_shared import HealthStatus, fake_embed
@@ -149,6 +149,26 @@ def complete_text(body: CompleteIn, x_internal_token: str | None = Header(defaul
         return payload
 
     raise HTTPException(status_code=503, detail=f"all model links failed: {'; '.join(errors)}")
+
+
+class TelegramIn(BaseModel):
+    chat_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+
+
+@app.post("/publish/telegram")
+def publish_telegram(
+    body: TelegramIn, x_internal_token: str | None = Header(default=None)
+) -> dict:
+    # Cross-leg seam (rule 5): the iran leg forwards telegram jobs here; only
+    # this us-leg process talks to api.telegram.org.
+    _require_internal(x_internal_token)
+    try:
+        return telegram.send_telegram(body.chat_id, body.text)
+    except telegram.TelegramNotConfigured as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except telegram.TelegramSendError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @app.get("/ledger/{tenant_id}")
