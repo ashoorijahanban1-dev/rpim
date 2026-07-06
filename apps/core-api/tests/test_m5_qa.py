@@ -28,8 +28,10 @@ import secrets
 # INTERNAL_TOKEN must be set BEFORE any import of rpim_core_api.* (including
 # the lazy import inside the `client` fixture). Module-level code in test
 # files runs during pytest collection, which precedes fixture execution.
-_INTERNAL_TOKEN: str = secrets.token_hex(32)
-os.environ["INTERNAL_TOKEN"] = _INTERNAL_TOKEN
+# setdefault: several test modules share this token; whichever module the
+# collector imports first must win — a forced overwrite here would stale the
+# copies already captured by earlier-collected modules (m10/m11).
+_INTERNAL_TOKEN: str = os.environ.setdefault("INTERNAL_TOKEN", secrets.token_hex(32))
 
 # Fake modes: no network calls, no model-gateway required in CI.
 os.environ.setdefault("EMBED_MODE", "fake")

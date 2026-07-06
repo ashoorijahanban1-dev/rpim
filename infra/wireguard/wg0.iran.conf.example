@@ -1,4 +1,4 @@
-# SUSPENDED (ADR 0022): the Iran VPS is on hold — do not set this up now.
+# SUSPENDED (ADR 0025): the Iran VPS is on hold — do not set this up now.
 # Kept for the future re-split.
 # WireGuard stub — IRAN leg (10.66.0.1). Copy to /etc/wireguard/wg0.conf on
 # the server and replace every <PLACEHOLDER>. Real keys NEVER enter this repo

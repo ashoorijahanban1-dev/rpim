@@ -1,93 +1,125 @@
-# RPIM Operations Runbook (M10)
+# ران‌بوک عملیاتی RPIM
 
-Single-server topology per ADR 0022: both legs run as separate Coolify
-Docker Compose resources (`rpim-iran-leg`, `rpim-us-leg`) on the US server.
-All commands below assume shell access to that server unless noted.
-Secrets are env var NAMES only — values live in the Coolify UI (rule 4).
+راهنمای بحران و نگهداری برای اپراتور. دستورها روی سرور اجرا می‌شوند مگر خلافش گفته شود.
+هیچ مقدار محرمانه‌ای در این سند نیست — فقط «نام» متغیرها (قانون ۴ اساس‌نامه).
 
-## Kill switch
+**توپولوژی (ADR 0025):** سرور ایران معلق است — هر دو لگ به‌صورت دو resource جدا
+روی سرور آمریکا در Coolify اجرا می‌شوند. هرجا «سرور ایران» آمده یعنی «سروری که
+لگ ایران روی آن اجراست» (فعلاً همان سرور آمریکا).
 
-Stops ALL publish queues, all tenants, in under 5 seconds (rule 7). The halt
-check runs inside the publisher send path (`publisher/engine.py`), so jobs
-already queued stop too (rule 2).
+## کلید قطع (Kill Switch)
 
-Activate (ops action, internal token — never a tenant JWT):
+توقف همهٔ صف‌های انتشار برای همهٔ برندها در کمتر از ۵ ثانیه. چک داخل خود مسیر
+ارسال انجام می‌شود، پس جاب‌های در صف هم می‌ایستند.
 
-    curl -X POST "$CORE_API_URL/governance/kill" \
-      -H "X-Internal-Token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-      -d '{"active": true, "reason": "<why>"}'
+فعال‌سازی (مقدار توکن از env سرویس خوانده شود):
 
-Verify it is active system-wide:
+    curl -s -X POST http://127.0.0.1:18000/governance/kill \
+      -H "X-Internal-Token: $INTERNAL_TOKEN" \
+      -H "content-type: application/json" \
+      -d '{"active": true, "reason": "اضطرار"}'
 
-    curl "$CORE_API_URL/governance/global/status" -H "X-Internal-Token: $INTERNAL_TOKEN"
+راستی‌آزمایی وضعیت سراسری بدون نیاز به توکن برند:
 
-Resume is MANUAL-ONLY: repeat the call with `"active": false` once the
-incident is over. Nothing auto-releases the flag.
+    curl -s http://127.0.0.1:18000/governance/global/status \
+      -H "X-Internal-Token: $INTERNAL_TOKEN"
 
-## Silence mode
+آزادسازی: همان دستور فعال‌سازی با `"active": false`. **ازسرگیری فقط دستی است** —
+هیچ مسیری در کد به‌طور خودکار پرچم را برنمی‌دارد.
 
-A national-event feed signal auto-sets GLOBAL silence — every tenant's
-publishing halts:
+مانور دوره‌ای (محلی، بدون دست زدن به تولید): `make kill-drill` — تست زمان‌بندی
+سرتاسری فعال‌سازی→توقف را زیر ۵ ثانیه اثبات می‌کند.
 
-    curl -X POST "$CORE_API_URL/governance/national-event" \
-      -H "X-Internal-Token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-      -d '{"event_type": "national_mourning", "active": true, "reason": "<event>"}'
+## حالت سکوت (Silence Mode)
 
-The feed CANNOT lift silence — `active=false` on that endpoint is rejected
-(manual-only resume, rule 7). An operator resumes explicitly:
+سکوت برای یک برند خاص (مثلاً ایام عزای عمومی): از داشبورد یا:
 
-    curl -X POST "$CORE_API_URL/governance/global/silence" \
-      -H "X-Internal-Token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-      -d '{"active": false, "reason": "<operator sign-off>"}'
+    curl -s -X POST http://127.0.0.1:18000/governance/silence \
+      -H "Authorization: Bearer <توکن ورود همان برند>" \
+      -H "content-type: application/json" \
+      -d '{"active": true, "reason": "عزای عمومی"}'
 
-Per-tenant silence stays available to tenants via `POST /governance/silence`
-with their own JWT.
+**سکوت سراسری (همهٔ برندها):** سیگنال رویداد ملی از فید، پرچم سکوت سراسری را
+خودکار فعال می‌کند:
 
-## Backup
+    curl -s -X POST http://127.0.0.1:18000/governance/national-event \
+      -H "X-Internal-Token: $INTERNAL_TOKEN" \
+      -H "content-type: application/json" \
+      -d '{"event_type": "national_mourning", "active": true, "reason": "..."}'
 
-Nightly encrypted off-site dump via `scripts/backup/pg-backup.sh`. Required
-env: `DATABASE_URL`, `BACKUP_PASSPHRASE`, `BACKUP_REMOTE` (a mounted off-site
-directory or an rclone remote like `s3:bucket/rpim`). Artifacts are gpg
-AES256, timestamped `rpim-backup-YYYYMMDD_HHMMSS.sql.gpg`, never overwritten
-on re-run.
+فید **نمی‌تواند** سکوت را بردارد — `active=false` روی همین مسیر با 409 رد می‌شود
+(ازسرگیری فقط دستی). آزادسازی سراسری فقط با اقدام صریح اپراتور:
 
-Schedule it nightly on the server (host cron or a Coolify Scheduled Task):
+    curl -s -X POST http://127.0.0.1:18000/governance/global/silence \
+      -H "X-Internal-Token: $INTERNAL_TOKEN" \
+      -H "content-type: application/json" \
+      -d '{"active": false, "reason": "پایان رویداد — تأیید اپراتور"}'
 
-    0 3 * * * cd /path/to/rpim && DATABASE_URL=... BACKUP_PASSPHRASE=... BACKUP_REMOTE=... scripts/backup/pg-backup.sh
+سکوت تک-برند هم مثل کلید قطع فقط دستی و با همان فراخوان (`active: false`) آزاد می‌شود.
 
-Keep `BACKUP_PASSPHRASE` in the Coolify UI / a server-side secret store —
-losing it makes every artifact unrecoverable; leaking it defeats encryption.
+## بکاپ (Backup — شبانه، رمزنگاری‌شده)
 
-## Restore
+روی سرور:
 
-Drill on a CLEAN database (never production) with
-`scripts/backup/pg-restore-drill.sh`:
+    export BACKUP_PASSPHRASE=<عبارت عبور از پسورد-منیجر>
+    make backup        # → infra/backup/rpim-<زمان>.sql.enc
 
-    export DRILL_DB_PASSWORD="$(openssl rand -hex 16)"   # throwaway, never reused
-    docker run -d --name rpim-restore-drill -e POSTGRES_PASSWORD="$DRILL_DB_PASSWORD" -p 127.0.0.1:55432:5432 pgvector/pgvector:pg16
-    DATABASE_URL="postgresql://postgres:${DRILL_DB_PASSWORD}@127.0.0.1:55432/postgres" \
-      BACKUP_PASSPHRASE=... scripts/backup/pg-restore-drill.sh <artifact.sql.gpg>
-    # verify: psql "$DATABASE_URL" -c 'select count(*) from tenants;'
-    docker rm -f rpim-restore-drill
+- رمزنگاری: AES-256 با KDF امن؛ عبارت عبور فقط در env، هرگز کنار فایل بکاپ.
+- کرون پیشنهادی: هر شب ۰۳:۳۰ + انتقال فایل‌های `.enc` به مقصد خارج از سرور
+  (rclone یا scp به فضای ابری/سرور دوم). فایل رمزشده است؛ مقصد لازم نیست امن مطلق باشد.
+- عبارت عبور را در دو جای امنِ جدا نگه دارید — بدون آن بکاپ قابل بازیابی نیست.
 
-A wrong passphrase or corrupt artifact exits non-zero before psql sees any
-data. Rehearse this quarterly — a backup that has never been restored is not
-a backup.
+## بازیابی (Restore)
 
-## Deploy
+مانور بازیابی روی محیط تمیز — همان چیزی که CI در هر merge اجرا می‌کند:
 
-Production deploys go through Coolify (ADR 0007). CI's `deploy` job triggers
-redeploys of both legs after the smoke gate on `main`, using the
-`COOLIFY_TOKEN` GitHub secret and the resource UUIDs in
-`infra/coolify-uuids.conf`. Manual redeploy:
+    export BACKUP_PASSPHRASE=<همان عبارت عبور>
+    bash scripts/restore-verify.sh          # جدیدترین بکاپ
+    BACKUP_FILE=infra/backup/rpim-....sql.enc bash scripts/restore-verify.sh
 
-    curl "$COOLIFY_URL/api/v1/deploy?uuid=<resource-uuid>" -H "Authorization: Bearer $COOLIFY_TOKEN"
+اسکریپت یک کانتینر postgres تازه می‌سازد، بکاپ را رمزگشایی و بازیابی می‌کند و
+جدول نسخهٔ مهاجرت‌ها و جدول برندها را چک می‌کند. برای بازیابی واقعیِ تولید:
+همان رمزگشایی، ولی خروجی را به postgres اصلی بدهید و بعد `alembic upgrade head`.
 
-Re-provision from scratch (idempotent): run the "Coolify provision" GitHub
-Actions workflow, which executes `scripts/coolify-provision.sh` and commits a
-token-redacted report back to `docs/ops/`. Serve the Coolify panel over
-HTTPS before creating tokens.
+## چرخش توکن (Token Rotation)
 
-Rollback: redeploy the previous commit from the Coolify UI (each resource
-keeps its deployment history), or revert the commit on `main` and let CI
-redeploy.
+| توکن | کجا ست می‌شود | نکتهٔ چرخش |
+|---|---|---|
+| INTERNAL_TOKEN | env هر دو لگ (Coolify) | اول هر دو لگ را همزمان عوض کنید، بعد redeploy — ناهماهنگی یعنی توقف ارسال تلگرام و dispatch |
+| JWT_SECRET | env لگ ایران | چرخش = خروج همهٔ کاربران؛ در ساعت کم‌ترافیک |
+| توکن‌های بات (بله/ایتا/تلگرام) | env لگ مربوطه | از BotFather/سرویس مربوطه توکن نو بگیرید، env را عوض و redeploy کنید |
+| COOLIFY_TOKEN | GitHub Secrets | فقط برای job دیپلوی CI؛ از پنل Coolify باطل و نو کنید |
+| GitHub PAT | فقط موقت | نباید هیچ PAT دائمی فعال بماند |
+
+## قطع تونل (WireGuard)
+
+**معلق (ADR 0025):** تا وقتی هر دو لگ روی یک سرورند تونلی وجود ندارد و این بخش
+برای بازگشت احتمالی به دو سرور نگه داشته شده است.
+
+طراحی سیستم برای قطع تونل امن است: جاب‌ها `queued` می‌مانند، چیزی گم نمی‌شود و
+بعد از وصل شدن، dispatch بعدی (هر ۳۰ ثانیه) بدون دوباره‌فرستادن ادامه می‌دهد.
+
+عیب‌یابی (پس از بازگشت به دو سرور):
+
+    MODE=wg make healthcheck      # چک دوطرفه از روی سرورها
+    wg show                        # وضعیت تونل
+    docker compose logs workers    # روی لگ ایران — خطاهای dispatch
+
+اگر تونل بالا نمی‌آید: سرویس wireguard را ری‌استارت کنید؛ ارسال‌های بله/ایتا
+مستقل از تونل‌اند و فقط تلگرام و embeddings به لگ آمریکا وابسته‌اند.
+
+## دیپلوی (Deploy)
+
+- خودکار: هر merge به `main` بعد از سبز شدن تست‌ها و مانور بکاپ، از طریق CI
+  به Coolify فرمان redeploy می‌دهد (UUIDها از `infra/coolify-uuids.conf`).
+- دستی: پنل Coolify → اپ مربوطه → Redeploy. یا provision از صفر:
+  `bash scripts/coolify-provision.sh` (توکن پنل را از env می‌خواند).
+- رول‌بک: از تاریخچهٔ دیپلوی همان resource در پنل Coolify، یا revert کامیت
+  روی `main` تا CI دوباره دیپلوی کند.
+
+## چک‌لیست بحران
+
+1. انتشار اشتباه رفت؟ → کلید قطع، بعد بررسی صف در داشبورد، بعد آزادسازی دستی.
+2. سرور از دست رفت؟ → سرور نو + provision از صفر + بازیابی آخرین بکاپ.
+3. هزینهٔ مدل غیرعادی؟ → گزارش ماهانه (بخش هزینه‌ها) و env کلیدهای مدل را چک کنید.
+4. نشت توکن؟ → جدول چرخش توکن، از بالا به پایین، همین حالا.

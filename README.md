@@ -10,7 +10,7 @@ Two logical legs (blueprint §2): **iran** (dashboard, core-api,
 Postgres+pgvector, Redis, workers) and **us** (model-gateway, Redis).
 `docker-compose.{iran,us}.yml` are the deployable units.
 
-> **Topology note (ADR 0022):** the Iran VPS is suspended — both legs deploy
+> **Topology note (ADR 0025):** the Iran VPS is suspended — both legs deploy
 > as separate Coolify resources on the single US server. WireGuard setup and
 > the `wg` healthcheck mode are on hold; the two-leg architecture itself is
 > unchanged and the split can be restored without code changes.
@@ -36,7 +36,7 @@ Coolify is the deploy path on the real servers; its proxy owns 80/443, so the
 
 1. In Coolify create two **Docker Compose** resources from this repo
    (`scripts/coolify-provision.sh` does this idempotently) — both on the US
-   server while the Iran VPS is suspended (ADR 0022):
+   server while the Iran VPS is suspended (ADR 0025):
    - `rpim-iran-leg` → `docker-compose.iran.yml`
    - `rpim-us-leg` → `docker-compose.us.yml`
 2. Set environment variables in the Coolify UI (values live ONLY there —
@@ -46,7 +46,7 @@ Coolify is the deploy path on the real servers; its proxy owns 80/443, so the
    co-located leg. (Split topology, when restored: `CORE_BIND=10.66.0.1`,
    `GATEWAY_BIND=10.66.0.2` so the gateway is reachable **only** over
    WireGuard, never publicly.)
-3. ~~WireGuard~~ — suspended (ADR 0022). Stubs stay in `infra/wireguard/`
+3. ~~WireGuard~~ — suspended (ADR 0025). Stubs stay in `infra/wireguard/`
    for when the Iran VPS returns; do not set it up now.
 4. Auto-deploy from CI: add repo **secret** `COOLIFY_TOKEN` (create a
    least-privilege deploy token in Coolify — not root); resource UUIDs are
@@ -55,7 +55,7 @@ Coolify is the deploy path on the real servers; its proxy owns 80/443, so the
    ⚠️ Serve the Coolify panel over HTTPS before creating tokens.
 5. Verify: `make healthcheck` locally, or the CI `smoke` job (two-way
    `crossleg-ci` mode). The `wg` verification mode is suspended with the
-   tunnel (ADR 0022).
+   tunnel (ADR 0025).
 
 ## Non-negotiables (short form — full list in CLAUDE.md)
 

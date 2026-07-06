@@ -1,4 +1,4 @@
-# ADR 0022 — Iran VPS suspended; single-server topology is the supported deployment
+# ADR 0025 — Iran VPS suspended; single-server topology is the supported deployment
 
 **Status:** accepted (post-M9) — promotes the "interim: both legs on the US
 server" topology of ADR 0007 / commit 998495a from stopgap to the official

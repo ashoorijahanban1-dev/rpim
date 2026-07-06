@@ -11,7 +11,7 @@ Distribution → Measurement → back to Brain. Deployed on two legs:
 **Iran VPS** (user-facing: dashboard, core-api, Postgres, Bale/Eitaa, Zarinpal)
 and **US VPS** (model-gateway, bge-m3 embeddings, crawlers, template renderer,
 Telegram publisher). Legs talk over WireGuard via an idempotent job queue.
-**ADR 0022: the Iran VPS is suspended** — both legs run as separate Coolify
+**ADR 0025: the Iran VPS is suspended** — both legs run as separate Coolify
 resources on the single US server; WireGuard work is on hold. The logical
 two-leg split and the tunnel-drop resilience rules stay in force.
 

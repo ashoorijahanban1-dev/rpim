@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.models import PublishJob, Tenant
-from rpim_core_api.publisher import channels
+from rpim_core_api.publisher import channels, renderer_client
 from rpim_core_api.qa.governance import is_publishing_halted
 
 
@@ -52,7 +52,14 @@ def dispatch_due_jobs(session: Session) -> dict:
                 continue
             job.attempts += 1
             try:
-                channels.send(job.channel, job.chat_id, job.text, job.id)
+                if job.image_spec:
+                    # Render AFTER the halt check — silenced tenants get no
+                    # renders either; a failed render is transient like a
+                    # failed send (job stays queued).
+                    image_png = renderer_client.render_for_job(job)
+                    channels.send_photo(job.channel, job.chat_id, job.text, image_png, job.id)
+                else:
+                    channels.send(job.channel, job.chat_id, job.text, job.id)
             except channels.ChannelSendError as exc:
                 job.last_error = str(exc)[:500]
                 # Status stays 'queued': the job is never lost, only retried.
