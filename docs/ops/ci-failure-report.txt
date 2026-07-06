@@ -1,61 +1,54 @@
-# CI smoke FAILURE — 2026-07-06T06:45:24Z — commit 38c24131e81be4e8d289490d7f4c6bc9bbb93951
+# CI smoke FAILURE — 2026-07-06T16:02:58Z — commit 5655561e3aa4d54ecb3fc3be39439d7b31a28f8d
 ## iran leg logs (tail)
-workers-1   | /app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
-workers-1   | absolutely not recommended!
-workers-1   | 
-core-api-1  | INFO:     Started server process [15]
-core-api-1  | INFO:     Waiting for application startup.
-core-api-1  | INFO:     Application startup complete.
-core-api-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-core-api-1  | INFO:     127.0.0.1:53232 - "GET /health HTTP/1.1" 200 OK
-core-api-1  | INFO:     127.0.0.1:46564 - "GET /health HTTP/1.1" 200 OK
-core-api-1  | INFO:     172.18.0.7:59678 - "GET /health HTTP/1.1" 200 OK
-core-api-1  | INFO:     127.0.0.1:51004 - "GET /health HTTP/1.1" 200 OK
-core-api-1  | INFO:     172.18.0.7:46874 - "GET /health HTTP/1.1" 200 OK
+postgres-1  | The files belonging to this database system will be owned by user "postgres".
+postgres-1  | This user must also own the server process.
+postgres-1  | 
+postgres-1  | The database cluster will be initialized with locale "en_US.utf8".
 dashboard-1  |    ▲ Next.js 15.5.20
-core-api-1   | INFO:     172.18.0.6:48250 - "POST /publish/dispatch HTTP/1.1" 200 OK
-core-api-1   | INFO:     127.0.0.1:56400 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.7:51320 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     127.0.0.1:54342 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.7:35644 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     127.0.0.1:39654 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.7:53396 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.6:57166 - "POST /publish/dispatch HTTP/1.1" 200 OK
-core-api-1   | INFO:     127.0.0.1:46248 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.7:43316 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     127.0.0.1:34308 - "GET /health HTTP/1.1" 200 OK
-core-api-1   | INFO:     172.18.0.7:48586 - "GET /health HTTP/1.1" 200 OK
-redis-1     | 1:C 06 Jul 2026 06:43:52.401 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
-redis-1      | 1:C 06 Jul 2026 06:43:52.401 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-redis-1      | 1:C 06 Jul 2026 06:43:52.401 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
 dashboard-1  |    - Local:        http://localhost:3000
 dashboard-1  |    - Network:      http://0.0.0.0:3000
 dashboard-1  | 
+dashboard-1  |  ✓ Starting...
+dashboard-1  |  ✓ Ready in 144ms
+core-api-1   | INFO:     Started server process [17]
+core-api-1   | INFO:     Waiting for application startup.
+core-api-1   | INFO:     Application startup complete.
+core-api-1   | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+core-api-1   | INFO:     127.0.0.1:47094 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:51836 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:54414 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:38410 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:59996 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.5:35628 - "POST /publish/dispatch HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:39342 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:35776 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:37116 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:39834 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:47224 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.7:46662 - "GET /health HTTP/1.1" 200 OK
+core-api-1   | INFO:     172.18.0.5:32900 - "POST /publish/dispatch HTTP/1.1" 200 OK
+core-api-1   | INFO:     127.0.0.1:41304 - "GET /health HTTP/1.1" 200 OK
+workers-1    | /app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+workers-1    | absolutely not recommended!
+workers-1    | 
 workers-1    | Please specify a different user using the --uid option.
 workers-1    | 
-redis-1      | 1:C 06 Jul 2026 06:43:52.401 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
 workers-1    | User information: uid=0 euid=0 gid=0 egid=0
 workers-1    | 
 workers-1    |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
 workers-1    |  
-workers-1    |  -------------- celery@bbecaf1341a9 v5.6.3 (recovery)
-dashboard-1  |  ✓ Starting...
+workers-1    |  -------------- celery@6a0351cdc6cf v5.6.3 (recovery)
 workers-1    | --- ***** ----- 
-dashboard-1  |  ✓ Ready in 121ms
-workers-1    | -- ******* ---- Linux-6.17.0-1018-azure-x86_64-with-glibc2.41 2026-07-06 06:44:03
+workers-1    | -- ******* ---- Linux-6.17.0-1018-azure-x86_64-with-glibc2.41 2026-07-06 16:01:52
 workers-1    | - *** --- * --- 
 workers-1    | - ** ---------- [config]
-workers-1    | - ** ---------- .> app:         rpim:0x7f0056bd0d40
+workers-1    | - ** ---------- .> app:         rpim:0x7f76e59a13d0
 workers-1    | - ** ---------- .> transport:   redis://redis:6379/0
+core-api-1   | INFO:     172.18.0.7:49636 - "GET /health HTTP/1.1" 200 OK
 workers-1    | - ** ---------- .> results:     disabled://
 workers-1    | - *** --- * --- .> concurrency: 4 (prefork)
 workers-1    | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
-redis-1      | 1:M 06 Jul 2026 06:43:52.401 * monotonic clock: POSIX clock_gettime
-redis-1      | 1:M 06 Jul 2026 06:43:52.402 * Running mode=standalone, port=6379.
-redis-1      | 1:M 06 Jul 2026 06:43:52.402 * Server initialized
-redis-1      | 1:M 06 Jul 2026 06:43:52.402 * Ready to accept connections tcp
 workers-1    | --- ***** ----- 
-caddy-1      | {"level":"info","ts":1783320248.7235343,"msg":"maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined"}
 workers-1    |  -------------- [queues]
 workers-1    |                 .> rpim             exchange=rpim(direct) key=rpim
 workers-1    |                 
@@ -64,36 +57,33 @@ workers-1    | [tasks]
 workers-1    |   . rpim.ping
 workers-1    |   . rpim_workers.dispatch_publish_queue
 workers-1    | 
-workers-1    | [2026-07-06 06:44:03,865: INFO/Beat] beat: Starting...
-workers-1    | [2026-07-06 06:44:03,908: INFO/MainProcess] Connected to redis://redis:6379/0
-workers-1    | [2026-07-06 06:44:03,915: INFO/MainProcess] mingle: searching for neighbors
-workers-1    | [2026-07-06 06:44:04,924: INFO/MainProcess] mingle: all alone
-workers-1    | [2026-07-06 06:44:04,939: INFO/MainProcess] celery@bbecaf1341a9 ready.
-workers-1    | [2026-07-06 06:44:33,879: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
-workers-1    | [2026-07-06 06:44:33,885: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[7b708340-bade-4166-bf03-d7c3b34e7393] received
-workers-1    | [2026-07-06 06:44:34,088: INFO/ForkPoolWorker-2] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
-workers-1    | [2026-07-06 06:44:34,089: INFO/ForkPoolWorker-2] Task rpim_workers.dispatch_publish_queue[7b708340-bade-4166-bf03-d7c3b34e7393] succeeded in 0.20292045100001133s: {'sent': 0, 'blocked': 0, 'failed': 0}
-workers-1    | [2026-07-06 06:45:03,873: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
-workers-1    | [2026-07-06 06:45:03,875: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[7af5d034-ebc2-431e-8665-eb4a2c7f20fa] received
-workers-1    | [2026-07-06 06:45:03,887: INFO/ForkPoolWorker-2] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
-workers-1    | [2026-07-06 06:45:03,887: INFO/ForkPoolWorker-2] Task rpim_workers.dispatch_publish_queue[7af5d034-ebc2-431e-8665-eb4a2c7f20fa] succeeded in 0.012128592000010485s: {'sent': 0, 'blocked': 0, 'failed': 0}
-caddy-1      | {"level":"info","ts":1783320248.7235503,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":15093680947,"previous":9223372036854775807}
-caddy-1      | {"level":"info","ts":1783320248.723554,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
-caddy-1      | {"level":"info","ts":1783320248.7235558,"msg":"adapted config to JSON","adapter":"caddyfile"}
-caddy-1      | {"level":"info","ts":1783320248.724072,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//[::1]:2019","//127.0.0.1:2019","//localhost:2019"]}
-caddy-1      | {"level":"warn","ts":1783320248.7242155,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv0","http_port":80}
-caddy-1      | {"level":"info","ts":1783320248.7243762,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x45b1bc36280"}
-caddy-1      | {"level":"warn","ts":1783320248.7245665,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
-caddy-1      | {"level":"warn","ts":1783320248.7245789,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
-caddy-1      | {"level":"info","ts":1783320248.7245817,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
-caddy-1      | {"level":"info","ts":1783320248.7272387,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
-caddy-1      | {"level":"info","ts":1783320248.7272496,"msg":"serving initial configuration"}
-caddy-1      | {"level":"info","ts":1783320248.728435,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
-caddy-1      | {"level":"info","ts":1783320248.7302902,"logger":"tls","msg":"finished cleaning storage units"}
-postgres-1   | The files belonging to this database system will be owned by user "postgres".
-postgres-1   | This user must also own the server process.
-postgres-1   | 
-postgres-1   | The database cluster will be initialized with locale "en_US.utf8".
+workers-1    | [2026-07-06 16:01:52,874: INFO/MainProcess] Connected to redis://redis:6379/0
+workers-1    | [2026-07-06 16:01:52,880: INFO/MainProcess] mingle: searching for neighbors
+workers-1    | [2026-07-06 16:01:53,001: INFO/Beat] beat: Starting...
+workers-1    | [2026-07-06 16:01:53,893: INFO/MainProcess] mingle: all alone
+workers-1    | [2026-07-06 16:01:53,910: INFO/MainProcess] celery@6a0351cdc6cf ready.
+workers-1    | [2026-07-06 16:02:23,018: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+workers-1    | [2026-07-06 16:02:23,024: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[fa4aca59-8cfc-4595-b779-4283745eaab7] received
+workers-1    | [2026-07-06 16:02:23,242: INFO/ForkPoolWorker-5] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+workers-1    | [2026-07-06 16:02:23,243: INFO/ForkPoolWorker-5] Task rpim_workers.dispatch_publish_queue[fa4aca59-8cfc-4595-b779-4283745eaab7] succeeded in 0.21742964599999937s: {'sent': 0, 'blocked': 0, 'failed': 0}
+workers-1    | [2026-07-06 16:02:53,012: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+workers-1    | [2026-07-06 16:02:53,014: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[78d90e1c-5221-404b-b2ba-e6ee100d6f92] received
+workers-1    | [2026-07-06 16:02:53,026: INFO/ForkPoolWorker-5] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+workers-1    | [2026-07-06 16:02:53,026: INFO/ForkPoolWorker-5] Task rpim_workers.dispatch_publish_queue[78d90e1c-5221-404b-b2ba-e6ee100d6f92] succeeded in 0.01171607799997787s: {'sent': 0, 'blocked': 0, 'failed': 0}
+caddy-1      | {"level":"info","ts":1783353717.9758146,"msg":"maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined"}
+caddy-1      | {"level":"info","ts":1783353717.9758286,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":15093680947,"previous":9223372036854775807}
+caddy-1      | {"level":"info","ts":1783353717.975832,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+caddy-1      | {"level":"info","ts":1783353717.975834,"msg":"adapted config to JSON","adapter":"caddyfile"}
+caddy-1      | {"level":"info","ts":1783353717.9764175,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//localhost:2019","//[::1]:2019","//127.0.0.1:2019"]}
+caddy-1      | {"level":"warn","ts":1783353717.9765239,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv0","http_port":80}
+caddy-1      | {"level":"info","ts":1783353717.9766653,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x37db3ff2d100"}
+caddy-1      | {"level":"warn","ts":1783353717.9768965,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1      | {"level":"warn","ts":1783353717.9769628,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy-1      | {"level":"info","ts":1783353717.9769897,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+caddy-1      | {"level":"info","ts":1783353717.9779775,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+caddy-1      | {"level":"info","ts":1783353717.977987,"msg":"serving initial configuration"}
+caddy-1      | {"level":"info","ts":1783353717.9821846,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
+caddy-1      | {"level":"info","ts":1783353717.9829211,"logger":"tls","msg":"finished cleaning storage units"}
 postgres-1   | The default database encoding has accordingly been set to "UTF8".
 postgres-1   | The default text search configuration will be set to "english".
 postgres-1   | 
@@ -111,16 +101,16 @@ postgres-1   | performing post-bootstrap initialization ... ok
 postgres-1   | syncing data to disk ... ok
 postgres-1   | 
 postgres-1   | 
-postgres-1   | initdb: warning: enabling "trust" authentication for local connections
 postgres-1   | Success. You can now start the database server using:
-postgres-1   | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
 postgres-1   | 
 postgres-1   |     pg_ctl -D /var/lib/postgresql/data -l logfile start
 postgres-1   | 
-postgres-1   | waiting for server to start....2026-07-06 06:43:53.055 UTC [48] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
-postgres-1   | 2026-07-06 06:43:53.056 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-postgres-1   | 2026-07-06 06:43:53.059 UTC [51] LOG:  database system was shut down at 2026-07-06 06:43:52 UTC
-postgres-1   | 2026-07-06 06:43:53.065 UTC [48] LOG:  database system is ready to accept connections
+postgres-1   | initdb: warning: enabling "trust" authentication for local connections
+postgres-1   | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1   | waiting for server to start....2026-07-06 16:01:42.217 UTC [48] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-06 16:01:42.217 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-06 16:01:42.221 UTC [51] LOG:  database system was shut down at 2026-07-06 16:01:42 UTC
+postgres-1   | 2026-07-06 16:01:42.225 UTC [48] LOG:  database system is ready to accept connections
 postgres-1   |  done
 postgres-1   | server started
 postgres-1   | CREATE DATABASE
@@ -130,75 +120,168 @@ postgres-1   | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-i
 postgres-1   | CREATE EXTENSION
 postgres-1   | 
 postgres-1   | 
-postgres-1   | 2026-07-06 06:43:53.287 UTC [48] LOG:  received fast shutdown request
-postgres-1   | waiting for server to shut down....2026-07-06 06:43:53.288 UTC [48] LOG:  aborting any active transactions
-postgres-1   | 2026-07-06 06:43:53.289 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
-postgres-1   | 2026-07-06 06:43:53.291 UTC [49] LOG:  shutting down
-postgres-1   | 2026-07-06 06:43:53.291 UTC [49] LOG:  checkpoint starting: shutdown immediate
-postgres-1   | 2026-07-06 06:43:53.309 UTC [49] LOG:  checkpoint complete: wrote 948 buffers (5.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.013 s, sync=0.003 s, total=0.018 s; sync files=301, longest=0.002 s, average=0.001 s; distance=4638 kB, estimate=4638 kB; lsn=0/1971D40, redo lsn=0/1971D40
-postgres-1   | 2026-07-06 06:43:53.316 UTC [48] LOG:  database system is shut down
+postgres-1   | waiting for server to shut down...2026-07-06 16:01:42.447 UTC [48] LOG:  received fast shutdown request
+postgres-1   | .2026-07-06 16:01:42.447 UTC [48] LOG:  aborting any active transactions
+postgres-1   | 2026-07-06 16:01:42.449 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+postgres-1   | 2026-07-06 16:01:42.450 UTC [49] LOG:  shutting down
+postgres-1   | 2026-07-06 16:01:42.450 UTC [49] LOG:  checkpoint starting: shutdown immediate
+postgres-1   | 2026-07-06 16:01:42.468 UTC [49] LOG:  checkpoint complete: wrote 948 buffers (5.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.012 s, sync=0.004 s, total=0.018 s; sync files=301, longest=0.003 s, average=0.001 s; distance=4638 kB, estimate=4638 kB; lsn=0/1971D40, redo lsn=0/1971D40
+postgres-1   | 2026-07-06 16:01:42.474 UTC [48] LOG:  database system is shut down
 postgres-1   |  done
 postgres-1   | server stopped
 postgres-1   | 
 postgres-1   | PostgreSQL init process complete; ready for start up.
 postgres-1   | 
-postgres-1   | 2026-07-06 06:43:53.409 UTC [1] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
-postgres-1   | 2026-07-06 06:43:53.410 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-postgres-1   | 2026-07-06 06:43:53.410 UTC [1] LOG:  listening on IPv6 address "::", port 5432
-postgres-1   | 2026-07-06 06:43:53.411 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-postgres-1   | 2026-07-06 06:43:53.414 UTC [66] LOG:  database system was shut down at 2026-07-06 06:43:53 UTC
-postgres-1   | 2026-07-06 06:43:53.418 UTC [1] LOG:  database system is ready to accept connections
+postgres-1   | 2026-07-06 16:01:42.569 UTC [1] LOG:  starting PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+postgres-1   | 2026-07-06 16:01:42.569 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1   | 2026-07-06 16:01:42.569 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1   | 2026-07-06 16:01:42.575 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1   | 2026-07-06 16:01:42.578 UTC [66] LOG:  database system was shut down at 2026-07-06 16:01:42 UTC
+postgres-1   | 2026-07-06 16:01:42.582 UTC [1] LOG:  database system is ready to accept connections
+redis-1      | 1:C 06 Jul 2026 16:01:41.502 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+redis-1      | 1:C 06 Jul 2026 16:01:41.502 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis-1      | 1:C 06 Jul 2026 16:01:41.502 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+redis-1      | 1:C 06 Jul 2026 16:01:41.502 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis-1      | 1:M 06 Jul 2026 16:01:41.502 * monotonic clock: POSIX clock_gettime
+redis-1      | 1:M 06 Jul 2026 16:01:41.503 * Running mode=standalone, port=6379.
+redis-1      | 1:M 06 Jul 2026 16:01:41.504 * Server initialized
+redis-1      | 1:M 06 Jul 2026 16:01:41.504 * Ready to accept connections tcp
 ## us leg logs (tail)
+redis-1  | 1:C 06 Jul 2026 16:02:46.679 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+redis-1  | 1:C 06 Jul 2026 16:02:46.679 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis-1  | 1:C 06 Jul 2026 16:02:46.679 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+redis-1  | 1:C 06 Jul 2026 16:02:46.679 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+redis-1  | 1:M 06 Jul 2026 16:02:46.679 * monotonic clock: POSIX clock_gettime
+redis-1  | 1:M 06 Jul 2026 16:02:46.679 * Running mode=standalone, port=6379.
+redis-1  | 1:M 06 Jul 2026 16:02:46.680 * Server initialized
+redis-1  | 1:M 06 Jul 2026 16:02:46.680 * Ready to accept connections tcp
+renderer-1  | INFO:     Started server process [9]
+renderer-1  | INFO:     Waiting for application startup.
+renderer-1  | INFO:     Application startup complete.
+renderer-1  | INFO:     Uvicorn running on http://0.0.0.0:8091 (Press CTRL+C to quit)
+renderer-1  | INFO:     127.0.0.1:38310 - "GET /health HTTP/1.1" 200 OK
 embeddings-1  | INFO:     Started server process [9]
-embeddings-1     | INFO:     Waiting for application startup.
-embeddings-1     | INFO:     Application startup complete.
-embeddings-1     | INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-embeddings-1     | INFO:     127.0.0.1:53306 - "GET /health HTTP/1.1" 200 OK
-embeddings-1     | INFO:     127.0.0.1:59108 - "GET /health HTTP/1.1" 200 OK
-model-gateway-1  | INFO:     Started server process [9]
-model-gateway-1  | INFO:     Waiting for application startup.
-model-gateway-1  | INFO:     Application startup complete.
-model-gateway-1  | INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
-model-gateway-1  | INFO:     127.0.0.1:39090 - "GET /health HTTP/1.1" 200 OK
-caddy-1          | {"level":"info","ts":1783320314.0448587,"msg":"maxprocs: Leaving GOMAXPROCS=4: CPU quota undefined"}
-caddy-1          | {"level":"info","ts":1783320314.0448785,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":15093680947,"previous":9223372036854775807}
-caddy-1          | {"level":"info","ts":1783320314.0448818,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
-caddy-1          | {"level":"info","ts":1783320314.044884,"msg":"adapted config to JSON","adapter":"caddyfile"}
-caddy-1          | {"level":"info","ts":1783320314.0456085,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//localhost:2019","//[::1]:2019","//127.0.0.1:2019"]}
-caddy-1          | {"level":"warn","ts":1783320314.0457437,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv0","http_port":80}
-caddy-1          | {"level":"warn","ts":1783320314.0458672,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
-caddy-1          | {"level":"warn","ts":1783320314.0459805,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
-caddy-1          | {"level":"info","ts":1783320314.0459883,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
-caddy-1          | {"level":"info","ts":1783320314.0459094,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x2c9498df5700"}
-caddy-1          | {"level":"info","ts":1783320314.0479884,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
-model-gateway-1  | INFO:     127.0.0.1:52246 - "GET /health HTTP/1.1" 200 OK
-model-gateway-1  | INFO:     172.19.0.5:48618 - "GET /health HTTP/1.1" 200 OK
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-renderer-1       | error: Failed to spawn: `uvicorn`
-renderer-1       |   Caused by: No such file or directory (os error 2)
-caddy-1          | {"level":"info","ts":1783320314.048003,"msg":"serving initial configuration"}
-caddy-1          | {"level":"info","ts":1783320314.0491993,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
-caddy-1          | {"level":"info","ts":1783320314.0498652,"logger":"tls","msg":"finished cleaning storage units"}
-redis-1          | 1:C 06 Jul 2026 06:44:57.766 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
-redis-1          | 1:C 06 Jul 2026 06:44:57.766 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-redis-1          | 1:C 06 Jul 2026 06:44:57.766 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
-redis-1          | 1:C 06 Jul 2026 06:44:57.766 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-redis-1          | 1:M 06 Jul 2026 06:44:57.767 * monotonic clock: POSIX clock_gettime
-redis-1          | 1:M 06 Jul 2026 06:44:57.767 * Running mode=standalone, port=6379.
-redis-1          | 1:M 06 Jul 2026 06:44:57.768 * Server initialized
-redis-1          | 1:M 06 Jul 2026 06:44:57.768 * Ready to accept connections tcp
+embeddings-1  | INFO:     Waiting for application startup.
+embeddings-1  | INFO:     Application startup complete.
+embeddings-1  | INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+embeddings-1  | INFO:     127.0.0.1:43882 - "GET /health HTTP/1.1" 200 OK
+model-gateway-1  |     return ctx.invoke(self.callback, **ctx.params)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/click/core.py", line 907, in invoke
+model-gateway-1  |     return callback(*args, **kwargs)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/main.py", line 440, in main
+model-gateway-1  |     run(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/main.py", line 609, in run
+model-gateway-1  |     config.load_app()
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/config.py", line 427, in load_app
+model-gateway-1  |     return import_from_string(self.app)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/importer.py", line 19, in import_from_string
+model-gateway-1  |     module = importlib.import_module(module_str)
+model-gateway-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/usr/local/lib/python3.12/importlib/__init__.py", line 90, in import_module
+model-gateway-1  |     return _bootstrap._gcd_import(name[level:], package, level)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+model-gateway-1  |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+model-gateway-1  |   File "/app/apps/model-gateway/rpim_model_gateway/main.py", line 186, in <module>
+model-gateway-1  |     @app.post("/publish/telegram-photo")
+model-gateway-1  |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2953, in decorator
+model-gateway-1  |     self.add_api_route(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2888, in add_api_route
+model-gateway-1  |     route = route_class(
+model-gateway-1  |             ^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1178, in __init__
+model-gateway-1  |     _populate_api_route_state(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1088, in _populate_api_route_state
+model-gateway-1  |     ) = _build_dependant_with_parameterless_dependencies(
+model-gateway-1  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 845, in _build_dependant_with_parameterless_dependencies
+model-gateway-1  |     dependant = get_dependant(path=path, call=call, scope="function")
+model-gateway-1  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 311, in get_dependant
+model-gateway-1  |     param_details = analyze_param(
+model-gateway-1  |                     ^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 535, in analyze_param
+model-gateway-1  |     ensure_multipart_is_installed()
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 120, in ensure_multipart_is_installed
+model-gateway-1  |     raise RuntimeError(multipart_not_installed_error) from None
+model-gateway-1  | RuntimeError: Form data requires "python-multipart" to be installed. 
+model-gateway-1  | You can install "python-multipart" with: 
+model-gateway-1  | 
+model-gateway-1  | pip install python-multipart
+model-gateway-1  | 
+model-gateway-1  | Form data requires "python-multipart" to be installed. 
+model-gateway-1  | You can install "python-multipart" with: 
+model-gateway-1  | 
+model-gateway-1  | pip install python-multipart
+model-gateway-1  | 
+model-gateway-1  | Traceback (most recent call last):
+model-gateway-1  |   File "/app/.venv/bin/uvicorn", line 10, in <module>
+model-gateway-1  |     sys.exit(main())
+model-gateway-1  |              ^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/click/core.py", line 1569, in __call__
+model-gateway-1  |     return self.main(*args, **kwargs)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/click/core.py", line 1490, in main
+model-gateway-1  |     rv = self.invoke(ctx)
+model-gateway-1  |          ^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/click/core.py", line 1353, in invoke
+model-gateway-1  |     return ctx.invoke(self.callback, **ctx.params)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/click/core.py", line 907, in invoke
+model-gateway-1  |     return callback(*args, **kwargs)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/main.py", line 440, in main
+model-gateway-1  |     run(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/main.py", line 609, in run
+model-gateway-1  |     config.load_app()
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/config.py", line 427, in load_app
+model-gateway-1  |     return import_from_string(self.app)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/uvicorn/importer.py", line 19, in import_from_string
+model-gateway-1  |     module = importlib.import_module(module_str)
+model-gateway-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/usr/local/lib/python3.12/importlib/__init__.py", line 90, in import_module
+model-gateway-1  |     return _bootstrap._gcd_import(name[level:], package, level)
+model-gateway-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+model-gateway-1  |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+model-gateway-1  |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+model-gateway-1  |   File "/app/apps/model-gateway/rpim_model_gateway/main.py", line 186, in <module>
+model-gateway-1  |     @app.post("/publish/telegram-photo")
+model-gateway-1  |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2953, in decorator
+model-gateway-1  |     self.add_api_route(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2888, in add_api_route
+model-gateway-1  |     route = route_class(
+model-gateway-1  |             ^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1178, in __init__
+model-gateway-1  |     _populate_api_route_state(
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1088, in _populate_api_route_state
+model-gateway-1  |     ) = _build_dependant_with_parameterless_dependencies(
+model-gateway-1  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 845, in _build_dependant_with_parameterless_dependencies
+model-gateway-1  |     dependant = get_dependant(path=path, call=call, scope="function")
+model-gateway-1  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 311, in get_dependant
+model-gateway-1  |     param_details = analyze_param(
+model-gateway-1  |                     ^^^^^^^^^^^^^^
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 535, in analyze_param
+model-gateway-1  |     ensure_multipart_is_installed()
+model-gateway-1  |   File "/app/.venv/lib/python3.12/site-packages/fastapi/dependencies/utils.py", line 120, in ensure_multipart_is_installed
+model-gateway-1  |     raise RuntimeError(multipart_not_installed_error) from None
+model-gateway-1  | RuntimeError: Form data requires "python-multipart" to be installed. 
+model-gateway-1  | You can install "python-multipart" with: 
+model-gateway-1  | 
+model-gateway-1  | pip install python-multipart
+model-gateway-1  | 
