@@ -30,6 +30,8 @@ import sys
 import time
 from pathlib import Path
 
+import httpx
+
 from rpim_model_gateway.providers import PROVIDERS, cost_usd
 
 JUDGE_SYSTEM = (
@@ -43,6 +45,40 @@ JUDGE_TEMPLATE = (
     "پاسخ مدل:\n{output}\n\n"
     "با توجه به معیار، انجام دقیق وظیفه و کیفیت فارسی، نمرهٔ ۱ تا ۵ بده."
 )
+
+
+def _call_paced(
+    provider: str,
+    model: str,
+    prompt: str,
+    system: str | None,
+    max_tokens: int,
+) -> dict:
+    """One provider call with free-tier-friendly pacing and 429/5xx backoff.
+
+    EVAL_DELAY_S (default 4) sleeps before every call so sequential runs stay
+    under free-tier RPM limits; 429/5xx retries honor Retry-After when sent.
+    """
+    delay = float(os.environ.get("EVAL_DELAY_S", "4"))
+    if delay > 0:
+        time.sleep(delay)
+    backoff = 10.0
+    for attempt in range(5):
+        try:
+            return PROVIDERS[provider](model, prompt, system=system, max_tokens=max_tokens)
+        except httpx.HTTPStatusError as exc:
+            status = exc.response.status_code
+            if status not in (429, 500, 502, 503) or attempt == 4:
+                raise
+            retry_after = exc.response.headers.get("retry-after", "")
+            wait = float(retry_after) if retry_after.replace(".", "", 1).isdigit() else backoff
+            print(
+                f"[{provider}:{model}] HTTP {status} — retrying in {int(wait)}s",
+                file=sys.stderr,
+            )
+            time.sleep(min(wait, 120.0))
+            backoff *= 2
+    raise RuntimeError("unreachable")
 
 
 def _parse_target(spec: str) -> tuple[str, str]:
@@ -63,7 +99,7 @@ def _judge(spec: tuple[str, str] | None, item: dict, output: str) -> dict:
         prompt=item["prompt"], criteria=item["criteria"], output=output[:4000]
     )
     try:
-        raw = PROVIDERS[provider](model, prompt, system=JUDGE_SYSTEM, max_tokens=200)
+        raw = _call_paced(provider, model, prompt, system=JUDGE_SYSTEM, max_tokens=200)
         match = re.search(r"\{.*\}", raw["text"], re.DOTALL)
         data = json.loads(match.group(0)) if match else {}
         score = data.get("score")
@@ -109,8 +145,8 @@ def main() -> int:
         for item in items:
             started = time.monotonic()
             try:
-                reply = PROVIDERS[provider](
-                    model, item["prompt"], system=item.get("system"), max_tokens=1024
+                reply = _call_paced(
+                    provider, model, item["prompt"], system=item.get("system"), max_tokens=1024
                 )
                 elapsed = time.monotonic() - started
                 verdict = _judge(judge, item, reply["text"])

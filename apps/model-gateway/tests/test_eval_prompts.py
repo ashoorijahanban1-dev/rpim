@@ -72,6 +72,7 @@ def test_eval_runner_works_offline_via_fake_adapter(tmp_path: Path) -> None:
             "EVAL_CANDIDATES": "fake:echo",
             "EVAL_LIMIT": "3",
             "EVAL_RESULTS_DIR": str(tmp_path),
+            "EVAL_DELAY_S": "0",  # no pacing needed for the offline adapter
         }
     )
     env.pop("EVAL_JUDGE", None)

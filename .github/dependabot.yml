@@ -1,0 +1,20 @@
+# Weekly dependency updates (DevOps hygiene). PRs still pass the full CI
+# gauntlet (lint/tests/compose/smoke) before any merge — nothing lands green
+# without the same gates as human changes.
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "npm"
+    directory: "/apps/dashboard"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
