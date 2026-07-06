@@ -142,6 +142,9 @@ class PublishJob(Base):
     chat_id: Mapped[str] = mapped_column(String(128))
     campaign_code: Mapped[str] = mapped_column(String(120))
     utm: Mapped[dict] = mapped_column(JSON, default=dict)
+    # Landing link with UTM params compiled in (M9) — null when the post
+    # carries no link.
+    landing_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     text: Mapped[str] = mapped_column(String(8000))
     status: Mapped[str] = mapped_column(String(16), default="queued", index=True)  # queued|sent
     attempts: Mapped[int] = mapped_column(default=0)

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.measurement.utm import build_landing_url
 from rpim_core_api.models import ContentDraft, PublishJob
 from rpim_core_api.publisher.engine import dispatch_due_jobs
 
@@ -24,6 +25,7 @@ class PublishJobIn(BaseModel):
     chat_id: str = Field(min_length=1, max_length=128)
     campaign_code: str = Field(min_length=1, max_length=120)
     scheduled_at: datetime | None = None
+    landing_url: str | None = Field(default=None, max_length=900)
 
     @field_validator("campaign_code")
     @classmethod
@@ -33,6 +35,15 @@ class PublishJobIn(BaseModel):
         if not stripped:
             raise ValueError("campaign_code must not be blank")
         return stripped
+
+    @field_validator("landing_url")
+    @classmethod
+    def _landing_url_scheme(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        # Same rule the compiler enforces — reject early with a 422.
+        build_landing_url(value, {})
+        return value
 
 
 def _build_utm(channel: str, campaign_code: str) -> dict:
@@ -51,6 +62,7 @@ def _job_out(job: PublishJob) -> dict:
         "chat_id": job.chat_id,
         "campaign_code": job.campaign_code,
         "utm": job.utm,
+        "landing_url": job.landing_url,
         "status": job.status,
         "attempts": job.attempts,
         "scheduled_at": job.scheduled_at,
@@ -76,20 +88,28 @@ def create_job(
     if draft.status not in PUBLISHABLE_STATUSES:
         raise HTTPException(status_code=409, detail="draft is not approved for publishing")
 
+    utm = _build_utm(body.channel, body.campaign_code)
     job = PublishJob(
         tenant_id=identity.tenant_id,
         draft_id=draft.id,
         channel=body.channel,
         chat_id=body.chat_id,
         campaign_code=body.campaign_code,
-        utm=_build_utm(body.channel, body.campaign_code),
+        utm=utm,
+        # UTM params compiled into the landing link at job birth (M9).
+        landing_url=build_landing_url(body.landing_url, utm) if body.landing_url else None,
         # Frozen at compile time: what was approved is exactly what ships.
         text=draft.edited_text or draft.text,
         scheduled_at=body.scheduled_at,
     )
     session.add(job)
     session.commit()
-    return {"job_id": job.id, "status": job.status, "utm": job.utm}
+    return {
+        "job_id": job.id,
+        "status": job.status,
+        "utm": job.utm,
+        "landing_url": job.landing_url,
+    }
 
 
 @router.get("/jobs")
