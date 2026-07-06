@@ -1,4 +1,4 @@
-# T2 eval report — 2026-07-06T20:07:05Z — commit 390c8a80f40b790ff00aa68b4be5aad65c7f0d72
+# T2 eval report — 2026-07-06T20:27:11Z — commit 06a45526fa3c17b1980223f7d0e4d4e3b2f98df5
 # candidates: gemini:gemini-2.0-flash,deepseek:deepseek-chat · judge: gemini:gemini-2.5-pro
 # ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)
 [
@@ -11,7 +11,10 @@
     "mean_latency_s": null,
     "tokens_in": 0,
     "tokens_out": 0,
-    "est_cost_usd": 0.0
+    "est_cost_usd": 0.0,
+    "top_errors": {
+      "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:g": 50
+    }
   },
   {
     "candidate": "deepseek:deepseek-chat",
@@ -22,6 +25,9 @@
     "mean_latency_s": null,
     "tokens_in": 0,
     "tokens_out": 0,
-    "est_cost_usd": 0.0
+    "est_cost_usd": 0.0,
+    "top_errors": {
+      "HTTPStatusError: Client error '402 Payment Required' for url 'https://api.deepseek.com/chat/completions'\nFor more information check: http": 50
+    }
   }
 ]
