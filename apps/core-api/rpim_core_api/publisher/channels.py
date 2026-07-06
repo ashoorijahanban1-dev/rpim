@@ -40,6 +40,65 @@ def _require_env(name: str) -> str:
     return value
 
 
+def _post_photo(
+    url: str, chat_id: str, caption: str, image_png: bytes, headers: dict | None = None
+) -> None:
+    try:
+        response = httpx.post(
+            url,
+            data={"chat_id": chat_id, "caption": caption},
+            files={"photo": ("post.png", image_png, "image/png")},
+            headers=headers,
+            timeout=60,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        # Never echo the URL: bot-API URLs embed the token (rule 4).
+        raise ChannelSendError(f"channel endpoint failed: {type(exc).__name__}") from exc
+
+
+def send_photo(channel: str, chat_id: str, caption: str, image_png: bytes, job_id: str) -> None:
+    mode = os.environ.get("PUBLISH_MODE", "fake")
+    if mode == "fake":
+        if channel in _FAIL_NEXT:
+            _FAIL_NEXT.remove(channel)
+            raise ChannelSendError(f"injected transient failure for {channel}")
+        _OUTBOX.append(
+            {
+                "channel": channel,
+                "chat_id": chat_id,
+                "caption": caption,
+                "job_id": job_id,
+                "kind": "photo",
+                "image_size": len(image_png),
+            }
+        )
+        return
+    if mode != "live":
+        raise ChannelSendError("PUBLISH_MODE must be 'fake' or 'live'")
+
+    if channel == "bale":
+        token = _require_env("BALE_BOT_TOKEN")
+        _post_photo(f"https://tapi.bale.ai/bot{token}/sendPhoto", chat_id, caption, image_png)
+    elif channel == "eitaa":
+        token = _require_env("EITAA_BOT_TOKEN")
+        _post_photo(f"https://eitaayar.ir/api/{token}/sendFile", chat_id, caption, image_png)
+    elif channel == "telegram":
+        # Cross-leg multipart; the gateway photo passthrough is the follow-up
+        # slice — until it exists this fails transiently and the job waits.
+        gateway = _require_env("GATEWAY_URL").rstrip("/")
+        internal = _require_env("INTERNAL_TOKEN")
+        _post_photo(
+            f"{gateway}/publish/telegram-photo",
+            chat_id,
+            caption,
+            image_png,
+            headers={"X-Internal-Token": internal},
+        )
+    else:
+        raise ChannelSendError(f"unsupported channel {channel}")
+
+
 def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
     mode = os.environ.get("PUBLISH_MODE", "fake")
     if mode == "fake":

@@ -19,6 +19,11 @@ router = APIRouter(prefix="/publish", tags=["publish"])
 PUBLISHABLE_STATUSES = ("approved", "edited")
 
 
+class ImageSpecIn(BaseModel):
+    template: Literal["announce", "quote", "product"]
+    size: Literal["square", "story", "wide"]
+
+
 class PublishJobIn(BaseModel):
     draft_id: str
     channel: Literal["telegram", "bale", "eitaa"]
@@ -26,6 +31,7 @@ class PublishJobIn(BaseModel):
     campaign_code: str = Field(min_length=1, max_length=120)
     scheduled_at: datetime | None = None
     landing_url: str | None = Field(default=None, max_length=900)
+    image: ImageSpecIn | None = None
 
     @field_validator("campaign_code")
     @classmethod
@@ -63,6 +69,7 @@ def _job_out(job: PublishJob) -> dict:
         "campaign_code": job.campaign_code,
         "utm": job.utm,
         "landing_url": job.landing_url,
+        "image_spec": job.image_spec,
         "status": job.status,
         "attempts": job.attempts,
         "scheduled_at": job.scheduled_at,
@@ -98,6 +105,7 @@ def create_job(
         utm=utm,
         # UTM params compiled into the landing link at job birth (M9).
         landing_url=build_landing_url(body.landing_url, utm) if body.landing_url else None,
+        image_spec=body.image.model_dump() if body.image else None,
         # Frozen at compile time: what was approved is exactly what ships.
         text=draft.edited_text or draft.text,
         scheduled_at=body.scheduled_at,
@@ -109,6 +117,7 @@ def create_job(
         "status": job.status,
         "utm": job.utm,
         "landing_url": job.landing_url,
+        "image_spec": job.image_spec,
     }
 
 
