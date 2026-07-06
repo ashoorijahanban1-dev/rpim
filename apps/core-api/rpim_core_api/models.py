@@ -90,6 +90,7 @@ class ContentDraft(Base):
     edited_text: Mapped[str | None] = mapped_column(String(8000), nullable=True)
     flag_unsourced: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(16), default="draft")
+    qa: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -105,6 +106,24 @@ class ApprenticeEvent(Base):
     schema_version: Mapped[int] = mapped_column(default=1)
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class GovernanceFlag(Base):
+    """Silence mode + kill switch state (constitution rules 2 & 7).
+    scope is 'global' or a tenant_id; resume is MANUAL-ONLY by design —
+    nothing anywhere auto-releases these flags."""
+
+    __tablename__ = "governance_flags"
+    __table_args__ = (UniqueConstraint("scope", "kind"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    scope: Mapped[str] = mapped_column(String(64), index=True)  # "global" | tenant_id
+    kind: Mapped[str] = mapped_column(String(16))  # "silence" | "kill"
+    active: Mapped[bool] = mapped_column(Boolean, default=False)
+    reason: Mapped[str] = mapped_column(String(500), default="")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
 
 
 class OnboardingInterview(Base):
