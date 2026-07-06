@@ -57,3 +57,19 @@ button {
 button:disabled {
   opacity: 0.5;
 }
+
+select {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  margin-inline-start: 0.4rem;
+  border: 1px solid #8888;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+}
+
+section {
+  border: 1px solid #8884;
+  border-radius: 12px;
+  padding: 1rem;
+}

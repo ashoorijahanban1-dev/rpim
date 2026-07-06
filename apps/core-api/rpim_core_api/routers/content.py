@@ -1,3 +1,5 @@
+from typing import Literal
+
 import re
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -94,6 +96,37 @@ def create_draft(
     session.add(draft)
     session.commit()
     return _draft_out(draft)
+
+
+@router.get("/drafts")
+def list_drafts(
+    status: Literal["draft", "approved", "edited", "rejected"] | None = None,
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    query = (
+        select(ContentDraft)
+        .where(ContentDraft.tenant_id == identity.tenant_id)  # rule 6
+        .order_by(ContentDraft.created_at.desc(), ContentDraft.id.desc())
+        .limit(100)
+    )
+    if status is not None:
+        query = query.where(ContentDraft.status == status)
+    drafts = session.scalars(query).all()
+    return {
+        "drafts": [
+            {
+                "draft_id": d.id,
+                "text": d.text,
+                "status": d.status,
+                "flag_unsourced": d.flag_unsourced,
+                "created_at": d.created_at.isoformat(),
+                "brief": d.brief,
+                "qa": d.qa,
+            }
+            for d in drafts
+        ]
+    }
 
 
 @router.get("/drafts/{draft_id}", response_model=DraftOut)

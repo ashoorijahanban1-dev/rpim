@@ -145,6 +145,7 @@ export default function OnboardingPage() {
       <div>
         <button onClick={saveDraft}>{fa.onboarding.save_draft}</button>
         <button onClick={complete}>{fa.onboarding.complete}</button>
+        <button onClick={() => router.push("/queue")}>{fa.onboarding.go_queue}</button>
         <button
           onClick={() => {
             clearToken();
