@@ -88,6 +88,34 @@ services:
       retries: 10
       start_period: 120s # first real-model load is slow
 
+  renderer:
+    build:
+      context: .
+      dockerfile: apps/renderer/Dockerfile
+    env_file:
+      - path: ./.env.us
+        required: false
+    environment:
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
+      # fake = deterministic PNG (safe default); live = chromium screenshot
+      RENDER_MODE: ${RENDER_MODE:-fake}
+    ports:
+      # Never public: loopback locally, the WireGuard IP on the real server
+      - "${RENDERER_BIND:-127.0.0.1}:${RENDERER_PORT:-8091}:8091"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8091/health',timeout=3).status==200 else 1)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped

@@ -6,6 +6,7 @@ from typing import Literal
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from rpim_renderer import chromium
 from rpim_renderer.rendering import fake_png
 from rpim_renderer.templates import SIZES, html_for
 from rpim_shared import HealthStatus
@@ -59,14 +60,19 @@ def render(body: RenderIn, x_internal_token: str | None = Header(default=None)) 
     # identical requests stay byte-identical (idempotent cross-leg jobs).
     html = html_for(body.template, body.size, body.text.model_dump())
 
-    if mode != "fake":
-        # Chromium screenshot path is slice B; refuse loudly, never a false PNG.
-        raise HTTPException(
-            status_code=503,
-            detail="live rendering lands in M8 slice B — set RENDER_MODE=fake",
-        )
-    html_sha = hashlib.sha256(html.encode()).hexdigest()
-    image = fake_png(width, height, seed=f"{body.template}:{body.size}:{html_sha}")
+    if mode == "fake":
+        html_sha = hashlib.sha256(html.encode()).hexdigest()
+        image = fake_png(width, height, seed=f"{body.template}:{body.size}:{html_sha}")
+    elif mode == "live":
+        try:
+            # Module-attribute call so ops/tests can swap the backend.
+            image = chromium.screenshot_png(html, width, height)
+        except chromium.RenderUnavailable as exc:
+            # Refuse loudly — a fake PNG marked "live" would be a false success.
+            detail = f"live rendering unavailable: {exc}"
+            raise HTTPException(status_code=503, detail=detail) from exc
+    else:
+        raise HTTPException(status_code=503, detail="RENDER_MODE must be 'fake' or 'live'")
 
     return {
         "image_b64": base64.b64encode(image).decode("ascii"),

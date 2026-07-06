@@ -9,6 +9,10 @@ dependencies = [
     "rpim-shared",
 ]
 
+[project.optional-dependencies]
+# Chromium screenshot path (RENDER_MODE=live); CI/tests run fake mode without it.
+live = ["playwright>=1.40"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
