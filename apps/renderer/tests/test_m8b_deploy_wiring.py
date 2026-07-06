@@ -20,7 +20,8 @@ from pathlib import Path
 
 import yaml
 
-_REPO_ROOT = Path("/home/user/beewaz")
+# Derived from this file's location — CI checkouts live at a different path.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 _RENDERER_DOCKERFILE = _REPO_ROOT / "apps" / "renderer" / "Dockerfile"
 _COMPOSE_US = _REPO_ROOT / "docker-compose.us.yml"
 _ENV_US_EXAMPLE = _REPO_ROOT / ".env.us.example"
