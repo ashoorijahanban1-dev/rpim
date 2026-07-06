@@ -1,6 +1,7 @@
 import hashlib
 import io
 import math
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pypdf import PdfReader
@@ -9,12 +10,13 @@ from sqlalchemy import Float, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from rpim_core_api.brain import crawler
 from rpim_core_api.brain.chunking import chunk_text
 from rpim_core_api.brain.embed_client import embed_texts
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
 from rpim_core_api.models import BrainChunk, BrainSource
-from rpim_core_api.schemas import SourceIn, SourceOut
+from rpim_core_api.schemas import CrawlIn, CrawlOut, SourceIn, SourceOut
 
 router = APIRouter(prefix="/brain", tags=["brain"])
 
@@ -95,6 +97,30 @@ def create_source(
     session: Session = Depends(get_session),
 ) -> SourceOut:
     return _ingest(session, identity, title=body.title, kind=body.kind, text=body.text)
+
+
+@router.post("/sources/crawl", response_model=CrawlOut, status_code=201)
+def create_source_crawl(
+    body: CrawlIn,
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> CrawlOut:
+    try:
+        crawler.validate_public_http_url(body.url)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    text, pages = crawler.crawl_site(body.url, body.max_pages)
+    if not text.strip():
+        raise HTTPException(status_code=422, detail="no extractable text found on the site")
+    out = _ingest(
+        session,
+        identity,
+        title=urlparse(body.url).netloc or body.url,
+        kind="crawl",
+        text=text,
+    )
+    return CrawlOut(source_id=out.source_id, chunks=out.chunks, pages=pages)
 
 
 @router.post("/sources/pdf", response_model=SourceOut, status_code=201)

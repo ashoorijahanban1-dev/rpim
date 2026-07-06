@@ -59,3 +59,12 @@ class SourceIn(BaseModel):
 class SourceOut(BaseModel):
     source_id: str
     chunks: int
+
+
+class CrawlIn(BaseModel):
+    url: str = Field(min_length=1, max_length=2000)
+    max_pages: int = Field(default=5, ge=1, le=10)
+
+
+class CrawlOut(SourceOut):
+    pages: int
