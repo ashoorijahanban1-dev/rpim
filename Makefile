@@ -64,3 +64,10 @@ fmt:
 
 healthcheck:
 	@bash scripts/crossleg-healthcheck.sh $${MODE:-local}
+
+## M10 ops (docs/ops/runbook.md): encrypted backup + kill-switch drill.
+backup:
+	@bash scripts/backup.sh
+
+kill-drill:
+	@uv run pytest apps/core-api/tests/test_m10_kill_drill.py -q

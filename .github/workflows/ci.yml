@@ -64,6 +64,13 @@ jobs:
       # M2 acceptance end-to-end: register → upload → pgvector search <2s,
       # embeddings fetched through the real cross-leg gateway hop.
       - run: bash scripts/smoke-e2e.sh
+      # M10 acceptance: encrypted backup + restore verified on a CLEAN
+      # postgres container, every merge — recoverability proven, not assumed.
+      - name: Backup + clean-restore drill (M10)
+        run: |
+          export BACKUP_PASSPHRASE="$(openssl rand -hex 24)"
+          bash scripts/backup.sh
+          bash scripts/restore-verify.sh
       - name: Publish failure report to repo
         if: failure()
         run: |
