@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPIM — دفترچه راهنمای کاربری</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root{
+    --paper:#F6F4EF; --surface:#FFFFFF; --surface-2:#EFEBE2;
+    --ink:#181D1C; --ink-2:#6B6F66; --line:#E2DCCE; --hairline:#D8CFBA;
+    --gold:#A8863C; --gold-deep:#8F6F2A; --gold-bg:#A8863C14;
+    --ok:#3E7C58; --ok-bg:#3E7C5814; --warn:#A97A22; --warn-bg:#A97A2214;
+    --stop:#A4453C; --stop-bg:#A4453C12;
+    --mono:"SFMono-Regular",ui-monospace,Consolas,monospace;
+    --sans:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0C1211; --surface:#131A19; --surface-2:#1A2321;
+      --ink:#ECEAE2; --ink-2:#98A099; --line:#243029; --hairline:#33402F;
+      --gold:#C9A96A; --gold-deep:#E0C186; --gold-bg:#C9A96A1a;
+      --ok:#6FB98B; --ok-bg:#6FB98B1a; --warn:#D9AC5C; --warn-bg:#D9AC5C1a;
+      --stop:#D98078; --stop-bg:#D9807818;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:2}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--gold-deep)}
+  header.hero{
+    border-bottom:1px solid var(--hairline);
+    background:linear-gradient(180deg, var(--gold-bg), transparent 70%);
+    padding:60px 0 36px;
+  }
+  .stamp{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    border:1.5px solid var(--gold);color:var(--gold-deep);padding:4px 14px;border-radius:99px;margin-bottom:20px}
+  h1{font-size:42px;line-height:1.25;margin:0 0 4px;font-weight:800}
+  h1 .tick{color:var(--gold)}
+  .sub{color:var(--ink-2);max-width:640px;margin:10px 0 0;font-size:16px}
+  .meta{display:flex;gap:24px;flex-wrap:wrap;margin-top:24px;font-size:12.5px;color:var(--ink-2)}
+  .meta b{color:var(--ink)}
+  nav.toc{display:flex;flex-wrap:wrap;gap:8px;padding:22px 0 8px;border-bottom:1px solid var(--line)}
+  nav.toc a{font-size:12.5px;text-decoration:none;color:var(--ink);background:var(--surface);
+    border:1px solid var(--line);padding:5px 14px;border-radius:99px}
+  nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--gold);color:var(--gold-deep)}
+  section{margin-top:60px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;color:var(--gold-deep);font-weight:700}
+  h2{font-size:26px;margin:6px 0 12px;font-weight:800;text-wrap:balance}
+  h3{font-size:17.5px;margin:26px 0 8px;font-weight:700}
+  p{margin:10px 0;max-width:70ch}
+  .lead{font-size:16.5px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:16px 0}
+  .card.gold{border-right:4px solid var(--gold);background:var(--gold-bg)}
+  .card.okbox{border-right:4px solid var(--ok);background:var(--ok-bg)}
+  .card.warnbox{border-right:4px solid var(--warn);background:var(--warn-bg)}
+  .card.stopbox{border-right:4px solid var(--stop);background:var(--stop-bg)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;background:var(--surface);font-size:14px}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  th,td{padding:9px 14px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--surface-2);font-size:12.5px;letter-spacing:.4px;color:var(--ink-2)}
+  tr:last-child td{border-bottom:0}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:6px;padding:1px 7px;direction:ltr;unicode-bidi:embed}
+  pre{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;
+    overflow-x:auto;direction:ltr;text-align:left;font-family:var(--mono);font-size:12.5px;line-height:1.8}
+  ol,ul{padding-inline-start:22px}
+  li{margin-bottom:6px}
+  .steps li{margin-bottom:10px}
+  .kbd{display:inline-block;background:var(--surface);border:1px solid var(--hairline);border-bottom-width:2px;
+    border-radius:6px;font-size:12px;padding:0 8px}
+  .gold-rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:26px 0;opacity:.6}
+  footer{margin-top:80px;border-top:1px solid var(--line);padding-top:18px;font-size:12.5px;color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <span class="stamp">USER GUIDE · نسخهٔ ۱</span>
+  <h1>RPIM <span class="tick">◆</span> دفترچه راهنمای کاربری</h1>
+  <p class="sub">راهنمای کامل صاحب برند و اپراتور — از ساخت حساب تا انتشار زمان‌بندی‌شده، گزارش کلیک‌ها و خروجی کامل داده. هیچ‌چیز بدون تاییدِ شما منتشر نمی‌شود.</p>
+  <div class="meta">
+    <span>داشبورد: <b>app.rpim.ir</b></span>
+    <span>API: <b>api.rpim.ir</b></span>
+    <span>وضعیت محصول: <b>MVP کامل (M0–M10)</b></span>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#glance">در یک نگاه</a>
+  <a href="#quick">شروع سریع</a>
+  <a href="#account">حساب</a>
+  <a href="#onboarding">آنبوردینگ</a>
+  <a href="#brain">مغز برند</a>
+  <a href="#brief">بریف</a>
+  <a href="#queue">صف تایید</a>
+  <a href="#publish">انتشار</a>
+  <a href="#reports">گزارش‌ها</a>
+  <a href="#export">خروجی داده</a>
+  <a href="#safety">ایمنی</a>
+  <a href="#ops">اپراتور</a>
+  <a href="#faq">عیب‌یابی</a>
+  <a href="#glossary">واژه‌نامه</a>
+</nav>
+
+<section id="glance">
+  <div class="eyebrow">۰۱ — OVERVIEW</div>
+  <h2>سیستم در یک نگاه</h2>
+  <p class="lead">RPIM یک بازاریاب هوشمند عامل‌محور برای برندهای فارسی‌زبان است که یک <b>حلقهٔ بسته</b> را می‌گرداند:</p>
+  <div class="card gold">
+    مغز برند (دانش شما) ← تولید محتوا ← کنترل کیفیت ← <b>تایید انسانی شما</b> ← انتشار زمان‌بندی‌شده در پیام‌رسان‌ها ← اندازه‌گیری کلیک و هزینه ← یادگیری از رفتار شما
+  </div>
+  <ul>
+    <li><b>هیچ‌چیز بدون تایید انسان منتشر نمی‌شود.</b> هر محتوا از صف تایید می‌گذرد.</li>
+    <li><b>هر ادعا باید منبع داشته باشد.</b> متن‌های بی‌منبع پرچم می‌خورند.</li>
+    <li><b>داده مال شماست.</b> با یک کلیک همه‌چیز را می‌برید.</li>
+  </ul>
+</section>
+
+<section id="quick">
+  <div class="eyebrow">۰۲ — QUICK START</div>
+  <h2>شروع سریع — ده دقیقهٔ اول</h2>
+  <ol class="steps">
+    <li><b>ثبت‌نام</b> در <code>/register</code> — نام برند + ایمیل + رمز (حداقل ۸ نویسه)</li>
+    <li><b>مصاحبهٔ آنبوردینگ</b> را کامل کنید و «تایید نهایی و ساخت پروفایل برند» را بزنید</li>
+    <li>به <b>مغز برند</b> خوراک بدهید: متن معرفی، صفحهٔ سایت، کاتالوگ PDF</li>
+    <li>اولین <b>بریف</b> را بسازید — سیستم پیش‌نویس تولید می‌کند</li>
+    <li>در <b>صف تایید</b>: «بررسی کیفیت» ← ویرایش در صورت نیاز ← «تایید»</li>
+    <li><b>جاب انتشار</b> بسازید (کانال + چت + کد کمپین) — حداکثر ۳۰ ثانیه بعد ارسال می‌شود</li>
+    <li>آخر ماه <b>گزارش ماهانه</b> را ببینید: پست‌ها، کلیک‌ها، هزینهٔ مدل</li>
+  </ol>
+</section>
+
+<section id="account">
+  <div class="eyebrow">۰۳ — ACCOUNT</div>
+  <h2>حساب و ورود</h2>
+  <p>با ثبت‌نام، «برند» (tenant) شما ساخته می‌شود؛ دادهٔ هر برند از برندهای دیگر کاملاً ایزوله است. اگر توکن منقضی شود خودکار به صفحهٔ ورود برمی‌گردید. خطای «email already registered» یعنی این ایمیل حساب دارد — وارد شوید.</p>
+</section>
+
+<section id="onboarding">
+  <div class="eyebrow">۰۴ — ONBOARDING</div>
+  <h2>مصاحبهٔ آنبوردینگ و پروفایل برند</h2>
+  <p class="lead">کیفیت همهٔ محتواهای آینده به کیفیت همین پاسخ‌ها بسته است.</p>
+  <div class="tblwrap"><table>
+    <tr><th>فیلد</th><th>چه بنویسید</th></tr>
+    <tr><td><b>لحن برند</b></td><td>چند جمله: رسمی/صمیمی؟ شوخ/جدی؟ با مثال</td></tr>
+    <tr><td><b>پرسوناها</b></td><td>هر مخاطب هدف در یک خط («مدیر فروش ۳۰-۴۵ ساله»)</td></tr>
+    <tr><td><b>واژه‌نامه</b></td><td>هر خط یک «اصطلاح: توضیح» — واژه‌های اختصاصی برند</td></tr>
+    <tr><td><b>ادعاهای مجاز</b></td><td>هر خط یک ادعای مستند</td></tr>
+    <tr><td><b>ادعاهای ممنوع</b></td><td>چیزهایی که هرگز نباید گفته شود</td></tr>
+    <tr><td><b>خطوط قرمز</b></td><td>موضوعات ممنوعه (سیاست، رقیب خاص، …)</td></tr>
+  </table></div>
+  <p>«ذخیره پیش‌نویس» یعنی بعداً ادامه می‌دهید؛ «تایید نهایی» پروفایل برند را می‌سازد. بعد از تکمیل هم می‌شود ویرایش و دوباره نهایی کرد.</p>
+</section>
+
+<section id="brain">
+  <div class="eyebrow">۰۵ — BRAND BRAIN</div>
+  <h2>مغز برند</h2>
+  <p>هرچه اینجا بریزید، خوراک تولید محتوا و راستی‌آزمایی ادعاهاست. سه راه ورود:</p>
+  <ul>
+    <li><b>متن مستقیم</b> — عنوان + متن (معرفی، لیست قیمت، سؤالات متداول…)</li>
+    <li><b>کرال سایت</b> — آدرس صفحه + حداکثر تعداد صفحه (۱ تا ۱۰)</li>
+    <li><b>PDF</b> — آپلود کاتالوگ و بروشور</li>
+  </ul>
+  <div class="card warnbox">قیمت‌ها و اعداد مهم را حتماً وارد مغز کنید — عددی که در مغز نباشد، در محتوا «⚠️ عدد بدون منبع» می‌خورد.</div>
+  <p>آپلود تکراری همان سند دوباره پردازش نمی‌شود؛ «جستجوی مغز برند» همان بازیابی‌ای است که موقع تولید محتوا هم رخ می‌دهد (۵ قطعهٔ مرتبط).</p>
+</section>
+
+<section id="brief">
+  <div class="eyebrow">۰۶ — BRIEF</div>
+  <h2>تولید محتوا — بریف</h2>
+  <div class="tblwrap"><table>
+    <tr><th>فیلد</th><th>مثال</th></tr>
+    <tr><td>هدف</td><td>«معرفی طعم جدید»</td></tr>
+    <tr><td>مخاطب</td><td>«جوانان ۱۸-۲۵»</td></tr>
+    <tr><td>کانال</td><td>telegram / bale / eitaa</td></tr>
+    <tr><td>قالب</td><td>«پست متنی کوتاه»</td></tr>
+    <tr><td>قلاب <small>(اختیاری)</small></td><td>جملهٔ شروع پیشنهادی</td></tr>
+    <tr><td>فراخوان <small>(اختیاری)</small></td><td>«همین حالا سفارش بده»</td></tr>
+  </table></div>
+  <p>با ثبت بریف: ۵ قطعهٔ مرتبط از مغز برداشته می‌شود ← با لحن و خطوط قرمز پروفایل، پیش‌نویس ساخته می‌شود ← به صف تایید می‌رود.</p>
+</section>
+
+<section id="queue">
+  <div class="eyebrow">۰۷ — APPROVAL QUEUE</div>
+  <h2>صف تایید — قلب سیستم</h2>
+  <ul>
+    <li><b>«بررسی کیفیت»</b> — تطبیق ادعاها با مغز برند، حساسیت‌ها، مشخصات کانال. پرچم <b>هشدار</b> فقط اطلاع می‌دهد؛ پرچم <b>مسدود</b> یعنی «⛔ بازبینی انسانی الزامی» — اول با ویرایش رفعش کنید.</li>
+    <li><b>«⚠️ عدد بدون منبع»</b> — عدد را اصلاح کنید یا سندش را به مغز اضافه کنید.</li>
+    <li><b>ویرایش</b> در همان کارت + «ذخیره نسخه ویرایش‌شده»</li>
+    <li><b>تایید</b> ← آمادهٔ انتشار · <b>رد</b> با دلیل (لحن / واقعیت / حساسیت / سلیقه) + یادداشت</li>
+  </ul>
+  <div class="card gold">🧠 <b>چرا دلیلِ رد مهم است؟</b> هر تایید، ویرایش و ردِ شما به‌عنوان «سیگنال یادگیری» (لاگ شاگرد) ثبت می‌شود — پایهٔ شخصی‌سازی مدل روی سلیقهٔ برند شما. باارزش‌ترین دادهٔ سیستم همین است.</div>
+  <p><b>چرخهٔ وضعیت:</b> پیش‌نویس ← (ویرایش) ویرایش‌شده ← تاییدشده ← ارسال‌شده · یا: ردشده</p>
+</section>
+
+<section id="publish">
+  <div class="eyebrow">۰۸ — PUBLISH</div>
+  <h2>انتشار</h2>
+  <p>فقط پیش‌نویس‌های <b>تاییدشده یا ویرایش‌شده</b> قابل انتشارند. ساخت جاب (فعلاً از API؛ فرم داشبورد در راه است):</p>
+  <pre>POST https://api.rpim.ir/publish/jobs
+{
+  "draft_id": "...",
+  "channel": "telegram",                     // یا bale / eitaa
+  "chat_id": "@yourchannel",
+  "campaign_code": "yalda1404",              // اجباری
+  "scheduled_at": "2026-07-10T18:00:00Z",    // اختیاری
+  "landing_url": "https://shop.example.com", // اختیاری — UTM خودکار
+  "image": {"template": "announce", "size": "square"}  // اختیاری
+}</pre>
+  <ul>
+    <li><b>کد کمپین اجباری است</b> — کلید اتصال پست به کلیک در گزارش‌ها.</li>
+    <li><b>متن در لحظهٔ ساخت جاب منجمد می‌شود</b> — دقیقاً همان چیزی که تایید کردید ارسال می‌شود.</li>
+    <li><b>UTM خودکار:</b> utm_source=کانال · utm_medium=social · utm_campaign=کد کمپین</li>
+    <li><b>پست تصویری:</b> قالب‌های announce / quote / product در سایزهای square / story / wide با فونت فارسی</li>
+    <li><b>موتور ارسال هر ۳۰ ثانیه</b> جاب‌های سررسید را می‌فرستد؛ خطای موقت یعنی ماندن در صف و تلاش دوباره — نه گم می‌شود، نه دوبار می‌رود.</li>
+  </ul>
+  <div class="card warnbox">⚙️ تا وقتی اپراتور <code>PUBLISH_MODE=live</code> را ست نکرده، ارسال‌ها «خشک» اجرا می‌شوند و جایی واقعاً پست نمی‌رود. برای انتشار واقعی، توکن بات هر کانال هم باید در env سرور باشد.</div>
+</section>
+
+<section id="reports">
+  <div class="eyebrow">۰۹ — REPORTS</div>
+  <h2>گزارش ماهانه</h2>
+  <p>ماه را به شکل <code>YYYY-MM</code> وارد کنید:</p>
+  <ul>
+    <li><b>پیش‌نویس‌ها:</b> ساخته / تایید / ویرایش / رد</li>
+    <li><b>انتشار:</b> در صف، ارسال‌شده، تفکیک هر کانال</li>
+    <li><b>کمپین‌ها:</b> به‌ازای هر کد: جاب، ارسال موفق، <b>کلیک</b></li>
+    <li><b>هزینهٔ مدل‌ها:</b> مجموع دلاری + تفکیک هر ارائه‌دهنده</li>
+  </ul>
+  <p>مسیر «پست ← کلیک ← صفحهٔ فرود» با همان کد کمپین سرتاسر قابل ردیابی است.</p>
+</section>
+
+<section id="export">
+  <div class="eyebrow">۱۰ — EXPORT</div>
+  <h2>خروجی کامل داده‌ها</h2>
+  <p>صفحهٔ «خروجی کامل داده‌ها» ← «دانلود همه داده‌ها» ← یک فایل JSON شامل: پروفایل برند، پاسخ‌های آنبوردینگ، اسناد و قطعات مغز، پیش‌نویس‌ها با نتایج کیفیت، لاگ کامل یادگیری، و جاب‌های انتشار.</p>
+  <div class="card okbox"><b>دادهٔ شما، بدون قید و شرط، مال شماست.</b></div>
+</section>
+
+<section id="safety">
+  <div class="eyebrow">۱۱ — SAFETY</div>
+  <h2>ایمنی و کنترل انتشار</h2>
+  <h3>سکوت برند (دست شما)</h3>
+  <pre>POST /governance/silence   {"active": true, "reason": "..."}</pre>
+  <p>جاب‌های در صف هم می‌ایستند — چک داخل خودِ موتور ارسال است. <b>ازسرگیری فقط دستی است</b> (همان فراخوان با <code>active:false</code>).</p>
+  <h3>کنترل‌های سراسری (فقط اپراتور)</h3>
+  <ul>
+    <li><b>رویداد ملی:</b> سیگنال فید، سکوتِ همهٔ برندها را خودکار فعال می‌کند؛ فید نمی‌تواند بردارد — فقط اپراتور.</li>
+    <li><b>کلید قطع:</b> توقف همهٔ صف‌های انتشار در کمتر از ۵ ثانیه.</li>
+  </ul>
+</section>
+
+<section id="ops">
+  <div class="eyebrow">۱۲ — OPERATIONS</div>
+  <h2>راهنمای اپراتور</h2>
+  <div class="tblwrap"><table>
+    <tr><th>موضوع</th><th>سند</th></tr>
+    <tr><td>بحران، کیل‌سوییچ، سکوت، بکاپ/بازیابی، چرخش توکن، دیپلوی</td><td><code>docs/ops/runbook.md</code></td></tr>
+    <tr><td>Cloudflare، گواهی SSL، دامنه‌ها</td><td><code>docs/ops/cloudflare-ssl.md</code></td></tr>
+    <tr><td>ایوال انتخاب مدل T2</td><td><code>scripts/eval/README.md</code></td></tr>
+    <tr><td>تصمیم‌های معماری</td><td><code>docs/decisions/</code> (ADR 0001+)</td></tr>
+  </table></div>
+  <p>نام‌های env پرتکرار (مقدارها فقط در پنل Coolify): <code>PUBLISH_MODE</code> · <code>TELEGRAM_BOT_TOKEN</code> / <code>BALE_BOT_TOKEN</code> / <code>EITAA_BOT_TOKEN</code> · <code>MODEL_T1</code> / <code>MODEL_T2</code> · <code>BACKUP_PASSPHRASE</code> · <code>INTERNAL_TOKEN</code></p>
+  <p>CI/CD: هر merge به <code>main</code> بعد از لینت، ۳۶۰+ تست، تست دود تمام-پشته و مانور بکاپ/بازیابی، خودکار دیپلوی می‌شود.</p>
+</section>
+
+<section id="faq">
+  <div class="eyebrow">۱۳ — TROUBLESHOOTING</div>
+  <h2>عیب‌یابی متداول</h2>
+  <div class="tblwrap"><table>
+    <tr><th>علامت</th><th>علت محتمل</th><th>راه‌حل</th></tr>
+    <tr><td>«⚠️ عدد بدون منبع»</td><td>عددی در متن هست که در مغز نیست</td><td>سندش را به مغز اضافه یا عدد را ویرایش کنید</td></tr>
+    <tr><td>«⛔ بازبینی انسانی الزامی»</td><td>چک کیفیت مورد مسدودکننده دیده</td><td>دلایل را بخوانید، ویرایش و دوباره بررسی کنید</td></tr>
+    <tr><td>جاب ارسال نمی‌شود</td><td>سکوت فعال / PUBLISH_MODE=fake / زمان‌بندی آینده</td><td><code>GET /governance/status</code> و وضعیت env را چک کنید</td></tr>
+    <tr><td>جاب queued با attempts بالا</td><td>خطای موقت کانال (توکن بات؟ شبکه؟)</td><td>توکن و دسترسی کانال را چک کنید؛ خودش دوباره تلاش می‌کند</td></tr>
+    <tr><td>ساخت پیش‌نویس 503 می‌دهد</td><td>MODEL_T2 هنوز ست نشده</td><td>اپراتور: نتیجهٔ ایوال را در MODEL_T2 بگذارد</td></tr>
+    <tr><td>محتوا به برند نمی‌خورد</td><td>مغز کم‌خوراک یا پروفایل ناقص</td><td>مغز را تقویت کنید؛ با ویرایش و ردِ دلیل‌دار یاد بدهید</td></tr>
+    <tr><td>گزارش ماه خالی است</td><td>فعالیتی نبوده یا فرمت ماه اشتباه است</td><td><code>YYYY-MM</code> (مثلاً 2026-07)</td></tr>
+  </table></div>
+</section>
+
+<section id="glossary">
+  <div class="eyebrow">۱۴ — GLOSSARY</div>
+  <h2>واژه‌نامه</h2>
+  <div class="tblwrap"><table>
+    <tr><th>اصطلاح</th><th>یعنی</th></tr>
+    <tr><td><b>برند / tenant</b></td><td>فضای ایزولهٔ شما؛ هیچ برندی دادهٔ دیگری را نمی‌بیند</td></tr>
+    <tr><td><b>مغز برند</b></td><td>پایگاه دانشی که محتوا از آن تغذیه و ادعاها با آن سنجیده می‌شود</td></tr>
+    <tr><td><b>بریف</b></td><td>سفارش محتوا: هدف + مخاطب + کانال + قالب</td></tr>
+    <tr><td><b>صف تایید</b></td><td>دروازه‌ای که هیچ محتوایی بدون آن منتشر نمی‌شود</td></tr>
+    <tr><td><b>جاب انتشار</b></td><td>متنِ منجمد + کانال + مقصد + کد کمپین + UTM</td></tr>
+    <tr><td><b>کد کمپین</b></td><td>برچسب اجباری هر انتشار؛ کلید اتصال پست به کلیک</td></tr>
+    <tr><td><b>لاگ شاگرد (A0)</b></td><td>ثبت تایید/ویرایش/ردها برای یادگیری آیندهٔ سیستم</td></tr>
+    <tr><td><b>حالت سکوت</b></td><td>توقف انتشار با ازسرگیری فقط-دستی</td></tr>
+    <tr><td><b>کلید قطع</b></td><td>توقف اضطراری همه‌چیز در کمتر از ۵ ثانیه</td></tr>
+  </table></div>
+</section>
+
+<footer>
+  RPIM ◆ دفترچه راهنمای کاربری — نسخهٔ متنی: <code>docs/RPIM-User-Guide.md</code> · بلوپرینت: <code>docs/RPIM-Blueprint-Web.html</code>
+</footer>
+
+</div>
+</body>
+</html>
