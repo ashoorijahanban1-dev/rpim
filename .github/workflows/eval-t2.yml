@@ -4,8 +4,10 @@ name: eval-t2
 # provider keys never enter a Claude session or the repo (rule 4) — they live
 # in GitHub Actions Secrets: GEMINI_API_KEY / DEEPSEEK_API_KEY /
 # ANTHROPIC_API_KEY (only those named in candidates/judge are required).
-# Full model outputs stay on the runner; ONLY the sanitized ranked summary is
-# committed back to docs/ops/eval-t2-report.txt for the session to read.
+# Committed back for the session to read (no secrets in either):
+#   docs/ops/eval-t2-report.txt      — ranked summary
+#   docs/ops/eval-t2-results/*.jsonl — per-model outputs, so a human (or the
+#     session) can judge when no LLM judge is configured
 on:
   workflow_dispatch:
     inputs:
@@ -17,6 +19,10 @@ on:
         description: "EVAL_JUDGE — provider:model; clear this field to skip auto-judging"
         default: "gemini:gemini-2.5-pro"
         type: string
+      delay:
+        description: "EVAL_DELAY_S — seconds between calls (free tiers need 4+)"
+        default: "4"
+        type: string
 
 permissions:
   contents: write
@@ -26,13 +32,15 @@ concurrency: eval-t2
 jobs:
   eval:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       EVAL_CANDIDATES: ${{ inputs.candidates }}
       EVAL_JUDGE: ${{ inputs.judge }}
+      EVAL_DELAY_S: ${{ inputs.delay }}
+      EVAL_RESULTS_DIR: eval-results
     steps:
       - uses: actions/checkout@v4
 
@@ -60,17 +68,19 @@ jobs:
         run: |
           uv run python scripts/eval/run_eval.py > ranked-summary.json
 
-      - name: Commit sanitized report
+      - name: Commit report + per-model outputs
         run: |
-          mkdir -p docs/ops
+          mkdir -p docs/ops/eval-t2-results
+          rm -f docs/ops/eval-t2-results/*.jsonl docs/ops/eval-t2-results/summary.json
+          cp eval-results/*.jsonl eval-results/summary.json docs/ops/eval-t2-results/ 2>/dev/null || true
           {
             echo "# T2 eval report — $(date -u +%Y-%m-%dT%H:%M:%SZ) — commit $GITHUB_SHA"
-            echo "# candidates: $EVAL_CANDIDATES · judge: ${EVAL_JUDGE:-none}"
+            echo "# candidates: $EVAL_CANDIDATES · judge: ${EVAL_JUDGE:-none} · delay: ${EVAL_DELAY_S}s"
             echo "# ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)"
             cat ranked-summary.json
           } > docs/ops/eval-t2-report.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/ops/eval-t2-report.txt
-          git commit -m "chore(ops): T2 eval report [skip ci]" || echo "no changes to commit"
+          git add docs/ops/eval-t2-report.txt docs/ops/eval-t2-results
+          git commit -m "chore(ops): T2 eval report + outputs [skip ci]" || echo "no changes to commit"
           git push
