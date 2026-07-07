@@ -137,39 +137,45 @@ def main() -> int:
     summary: list[dict] = []
     for provider, model in candidates:
         out_path = results_dir / f"{provider}-{model}".replace("/", "_")
-        rows: list[dict] = []
         ok = errors = tokens_in = tokens_out = 0
         latency_total = 0.0
         scores: list[int] = []
         error_kinds: dict[str, int] = {}
         aborted_after: int | None = None
-        # Circuit breaker: a hard-quota candidate (429 even after backoff on
-        # every early call) must not grind the whole run into the job timeout.
+        consecutive_errors = 0
+        # Circuit breaker: N failures IN A ROW (quota dead from the start OR
+        # dying mid-run) aborts the candidate instead of grinding retries
+        # into the job timeout.
         fuse = int(os.environ.get("EVAL_FUSE", "6"))
-        for idx, item in enumerate(items):
-            if fuse and ok == 0 and errors >= fuse:
-                aborted_after = errors
-                print(
-                    f"[{provider}:{model}] fuse blown — first {errors} calls all "
-                    f"failed; skipping the remaining {len(items) - idx} prompts",
-                    file=sys.stderr,
-                )
-                break
-            started = time.monotonic()
-            try:
-                reply = _call_paced(
-                    provider, model, item["prompt"], system=item.get("system"), max_tokens=1024
-                )
-                elapsed = time.monotonic() - started
-                verdict = _judge(judge, item, reply["text"])
-                if verdict["score"] is not None:
-                    scores.append(verdict["score"])
-                ok += 1
-                tokens_in += reply["tokens_in"]
-                tokens_out += reply["tokens_out"]
-                latency_total += elapsed
-                rows.append(
-                    {
+        # Rows stream to disk as they complete — a job timeout loses at most
+        # the in-flight call, not the whole candidate.
+        with open(f"{out_path}.jsonl", "w", encoding="utf-8") as sink:
+            for idx, item in enumerate(items):
+                if fuse and consecutive_errors >= fuse:
+                    aborted_after = idx
+                    print(
+                        f"[{provider}:{model}] fuse blown — {consecutive_errors} "
+                        f"consecutive failures; skipping the remaining "
+                        f"{len(items) - idx} prompts",
+                        file=sys.stderr,
+                    )
+                    break
+                started = time.monotonic()
+                try:
+                    reply = _call_paced(
+                        provider, model, item["prompt"],
+                        system=item.get("system"), max_tokens=1024,
+                    )
+                    elapsed = time.monotonic() - started
+                    verdict = _judge(judge, item, reply["text"])
+                    if verdict["score"] is not None:
+                        scores.append(verdict["score"])
+                    ok += 1
+                    consecutive_errors = 0
+                    tokens_in += reply["tokens_in"]
+                    tokens_out += reply["tokens_out"]
+                    latency_total += elapsed
+                    row = {
                         "id": item["id"],
                         "category": item["category"],
                         "ok": True,
@@ -179,22 +185,20 @@ def main() -> int:
                         "output": reply["text"],
                         **verdict,
                     }
-                )
-            except Exception as exc:  # noqa: BLE001 — record and continue
-                errors += 1
-                # Aggregate a short, key-free error signature so the committed
-                # summary is diagnosable without the runner-local row files.
-                kind = f"{type(exc).__name__}: {str(exc)[:120]}"
-                error_kinds[kind] = error_kinds.get(kind, 0) + 1
-                rows.append(
-                    {"id": item["id"], "category": item["category"], "ok": False,
-                     "error": f"{type(exc).__name__}: {exc}"}
-                )
-            print(f"[{provider}:{model}] {item['id']} done", file=sys.stderr)
-
-        with open(f"{out_path}.jsonl", "w", encoding="utf-8") as f:
-            for row in rows:
-                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+                except Exception as exc:  # noqa: BLE001 — record and continue
+                    errors += 1
+                    consecutive_errors += 1
+                    # Aggregate a short, key-free error signature so the committed
+                    # summary is diagnosable without the runner-local row files.
+                    kind = f"{type(exc).__name__}: {str(exc)[:120]}"
+                    error_kinds[kind] = error_kinds.get(kind, 0) + 1
+                    row = {
+                        "id": item["id"], "category": item["category"], "ok": False,
+                        "error": f"{type(exc).__name__}: {exc}",
+                    }
+                sink.write(json.dumps(row, ensure_ascii=False) + "\n")
+                sink.flush()
+                print(f"[{provider}:{model}] {item['id']} done", file=sys.stderr)
 
         summary.append(
             {
