@@ -41,7 +41,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
+    <main className="auth-card">
+      <div className="logo">
+        <b>{fa.nav.logo}</b> <span className="tick">◆</span>
+        <small>{fa.nav.subtitle}</small>
+      </div>
+      <div className="gold-rule" aria-hidden="true" />
       <h1>{fa.auth.login_title}</h1>
       <form onSubmit={submit}>
         <label>
@@ -65,11 +70,11 @@ export default function LoginPage() {
           />
         </label>
         {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={busy}>
+        <button type="submit" className="btn primary block" disabled={busy}>
           {fa.auth.login_cta}
         </button>
       </form>
-      <p>
+      <p className="auth-alt">
         <Link href="/register">{fa.auth.no_account}</Link>
       </p>
     </main>
