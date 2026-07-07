@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import fa from "@/locales/fa.json";
+import ClientShell from "@/components/ClientShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fa" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <ClientShell>{children}</ClientShell>
+      </body>
     </html>
   );
 }

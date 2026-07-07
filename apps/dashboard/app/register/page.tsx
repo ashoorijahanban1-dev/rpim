@@ -42,7 +42,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <main>
+    <main className="auth-card">
+      <div className="logo">
+        <b>{fa.nav.logo}</b> <span className="tick">◆</span>
+        <small>{fa.nav.subtitle}</small>
+      </div>
+      <div className="gold-rule" aria-hidden="true" />
       <h1>{fa.auth.register_title}</h1>
       <form onSubmit={submit}>
         <label>
@@ -76,11 +81,11 @@ export default function RegisterPage() {
           />
         </label>
         {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={busy}>
+        <button type="submit" className="btn primary block" disabled={busy}>
           {fa.auth.register_cta}
         </button>
       </form>
-      <p>
+      <p className="auth-alt">
         <Link href="/login">{fa.auth.have_account}</Link>
       </p>
     </main>

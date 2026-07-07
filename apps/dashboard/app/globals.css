@@ -1,6 +1,72 @@
+/* ────────────────────────────────────────────────────────────────────────
+   RPIM design tokens — porcelain/ivory + antique gold (light),
+   emerald + gold (dark). Source of truth: approved mockup (slice 1).
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Vazirmatn variable font, bundled locally (no network at runtime).
+   SIL OFL 1.1 — see public/fonts/OFL.txt (Vazirmatn Project Authors). */
+@font-face {
+  font-family: "Vazirmatn";
+  src:
+    url("/fonts/Vazirmatn-Var.woff2") format("woff2-variations"),
+    url("/fonts/Vazirmatn-Var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
+
+  /* porcelain-luxury (light) */
+  --ground: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #efebe2;
+  --ink: #181d1c;
+  --ink-2: #6b6f66;
+  --line: #e2dcce;
+  --hairline: #d8cfba;
+  --gold: #a8863c;
+  --gold-strong: #8f6f2a;
+  --gold-soft: #f1e8d2;
+  --gold-ink: #ffffff;
+  --ok: #3e7c58;
+  --ok-soft: #e2efe6;
+  --warn: #a97a22;
+  --warn-soft: #f6ecd6;
+  --danger: #a4453c;
+  --danger-soft: #f5e3e0;
+  --radius: 14px;
+  --shadow: 0 2px 6px rgba(24, 29, 28, 0.06), 0 12px 32px rgba(24, 29, 28, 0.07);
+  --shadow-soft: 0 1px 2px rgba(24, 29, 28, 0.05);
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* emerald-luxury (dark) */
+    --ground: #0c1211;
+    --surface: #131a19;
+    --surface-2: #1a2321;
+    --ink: #eceae2;
+    --ink-2: #98a099;
+    --line: #243029;
+    --hairline: #33402f;
+    --gold: #c9a96a;
+    --gold-strong: #e0c186;
+    --gold-soft: #2a2a1e;
+    --gold-ink: #141109;
+    --ok: #6fb98b;
+    --ok-soft: #1b2f24;
+    --warn: #d9ac5c;
+    --warn-soft: #332918;
+    --danger: #d98078;
+    --danger-soft: #382220;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.35);
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ── base ─────────────────────────────────────────────────────────────── */
 
 * {
   box-sizing: border-box;
@@ -8,25 +74,74 @@
 
 body {
   margin: 0;
-  /* فونت سیستمی؛ بدون وابستگی شبکه در build (بدون next/font/google) */
+  background: var(--ground);
+  color: var(--ink);
+  /* وزیرمتن باندل‌شده محلی؛ fallback سیستمی */
   font-family: Vazirmatn, Tahoma, "Segoe UI", system-ui, sans-serif;
-  line-height: 1.9;
+  font-size: 15px;
+  line-height: 1.95;
 }
 
 main {
-  max-width: 640px;
+  width: 100%;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 3rem 1.25rem;
+  padding: 20px 16px 56px;
 }
 
-form,
+h1 {
+  font-size: 24px;
+  margin: 2px 0 0;
+  letter-spacing: 0.2px;
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  letter-spacing: 0.3px;
+}
+
+a {
+  color: var(--gold-strong);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+[role="alert"] {
+  color: var(--danger);
+}
+
+[role="status"] {
+  color: var(--ok);
+}
+
+/* legacy pages (onboarding / reports / …) use bare <section> as cards */
 section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-soft);
+  margin-block: 1.25rem;
+}
+
+form {
   margin-block: 1.25rem;
 }
 
 label {
   display: block;
   margin-block: 0.75rem;
+  font-size: 13.5px;
+  color: var(--ink-2);
 }
 
 input,
@@ -34,42 +149,560 @@ textarea {
   display: block;
   width: 100%;
   margin-top: 0.35rem;
-  padding: 0.55rem 0.7rem;
+  padding: 0.55rem 0.8rem;
   font: inherit;
-  border: 1px solid #8888;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--ground);
 }
 
-button {
-  font: inherit;
-  padding: 0.55rem 1.2rem;
-  margin-inline-end: 0.5rem;
-  margin-top: 0.75rem;
-  border: 1px solid #8888;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.5;
+textarea {
+  min-height: 88px;
+  font-size: 14.5px;
+  resize: vertical;
 }
 
 select {
   font: inherit;
-  padding: 0.45rem 0.6rem;
-  margin-inline-start: 0.4rem;
-  border: 1px solid #8888;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
 }
 
-section {
-  border: 1px solid #8884;
-  border-radius: 12px;
-  padding: 1rem;
+button {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 9px 20px;
+  margin-inline-end: 0.5rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+button:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── buttons (component class; also usable on <Link>) ─────────────────── */
+
+.btn {
+  display: inline-block;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 11px;
+  padding: 9px 20px;
+  margin: 0;
+  font: inherit;
+  font-size: 13.5px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.btn:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+.btn.primary {
+  background: linear-gradient(180deg, var(--gold), var(--gold-strong));
+  border-color: transparent;
+  color: var(--gold-ink);
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--gold) 35%, transparent);
+}
+
+.btn.primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn.ghost-danger {
+  color: var(--danger);
+  border-color: var(--danger-soft);
+}
+
+.btn.block {
+  display: block;
+  width: 100%;
+}
+
+/* ── app shell ────────────────────────────────────────────────────────── */
+
+.shell {
+  min-height: 100dvh;
+}
+
+.shell-content {
+  min-width: 0;
+}
+
+.sidebar {
+  background: var(--surface-2);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--gold) 7%, transparent),
+    transparent 220px
+  );
+  border-block-end: 1px solid var(--hairline);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+}
+
+.logo {
+  padding: 0 12px 6px;
+}
+
+.logo b {
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.logo .tick {
+  color: var(--gold);
+  font-size: 22px;
+}
+
+.logo small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  letter-spacing: 2px;
+  margin-top: -2px;
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin: 10px 12px 16px;
+  opacity: 0.7;
+}
+
+.sidebar .gold-rule {
+  display: none; /* موبایل: سایدبار افقی است */
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.side-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease;
+}
+
+.side-nav a:hover {
+  background: var(--surface);
+}
+
+.side-nav a.active {
+  background: var(--surface);
+  border-color: var(--hairline);
+  box-shadow: var(--shadow-soft), inset 3px 0 0 var(--gold);
+  font-weight: 700;
+}
+
+.sys {
+  padding: 0 12px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  margin-inline-end: 7px;
+  box-shadow: 0 0 0 3px var(--ok-soft);
+}
+
+@media (min-width: 900px) {
+  .shell {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 26px 16px 18px;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--hairline);
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .sidebar .gold-rule {
+    display: block;
+  }
+
+  .side-nav {
+    flex-direction: column;
+  }
+
+  .side-nav a {
+    padding: 10px 14px;
+  }
+
+  .sys {
+    margin-top: auto;
+    padding: 14px 12px 0;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .shell-content main {
+    padding: 28px 34px 64px;
+  }
+}
+
+/* ── page header ──────────────────────────────────────────────────────── */
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.page-header p {
+  margin: 2px 0 0;
+  color: var(--ink-2);
+  font-size: 13.5px;
+}
+
+.crumb {
+  font-size: 11.5px;
+  letter-spacing: 2px;
+  color: var(--gold-strong);
+  font-weight: 700;
+}
+
+/* ── stat tiles ───────────────────────────────────────────────────────── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px 13px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+}
+
+.stat .k {
+  font-size: 12px;
+  color: var(--ink-2);
+  letter-spacing: 0.5px;
+}
+
+.stat .v {
+  font-size: 32px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  letter-spacing: 0.5px;
+}
+
+.stat .d {
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+/* ── queue ────────────────────────────────────────────────────────────── */
+
+.qhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.qhead h2 {
+  margin: 0;
+}
+
+.qhead .rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--hairline), transparent);
+}
+
+.queue {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  margin: 0;
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -1px;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 99px;
+}
+
+.card.blocked::before {
+  background: var(--danger);
+}
+
+.card.warned::before {
+  background: var(--warn);
+}
+
+.card.ready::before {
+  background: var(--ok);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-bottom: 9px;
+}
+
+.chip {
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 1px 11px;
+  line-height: 1.9;
+}
+
+.chip.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.chip.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.chip.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.chip.plain {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.card p.text {
+  margin: 0 0 12px;
+  max-width: 65ch;
+  font-size: 15px;
+}
+
+.qa-box {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 15px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.qa-box[role="alert"] {
+  color: var(--ink-2);
+}
+
+.qa-box b {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+}
+
+.actions .sep {
+  flex: 1;
+}
+
+.actions button,
+.actions select,
+.actions input {
+  margin: 0;
+}
+
+.actions input {
+  display: inline-block;
+  width: auto;
+  flex: 1 1 130px;
+  font-size: 13px;
+  padding: 7px 12px;
+}
+
+.card textarea {
+  background: var(--ground);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+
+.card textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.empty-state {
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--ink-2);
+  margin: 0;
+  box-shadow: none;
+}
+
+.empty-state p {
+  margin: 0 0 16px;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+/* ── auth / landing (outside the shell) ───────────────────────────────── */
+
+.auth-ground {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 20px 12px;
+}
+
+main.auth-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 30px 26px 26px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card .logo {
+  padding: 0 0 6px;
+}
+
+.auth-card .gold-rule {
+  margin: 10px 0 16px;
+}
+
+.auth-card h1 {
+  font-size: 19px;
+}
+
+.auth-card form {
+  margin-block: 1rem 0.5rem;
+}
+
+.auth-card .actions {
+  margin-top: 16px;
+}
+
+.auth-alt {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+}
+
+.status-line {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
