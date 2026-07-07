@@ -16,8 +16,10 @@ on:
         default: "gemini:gemini-2.0-flash,deepseek:deepseek-chat"
         type: string
       judge:
-        description: "EVAL_JUDGE — provider:model; clear this field to skip auto-judging"
-        default: "gemini:gemini-2.5-pro"
+        # default is EMPTY on purpose: the API substitutes defaults for blank
+        # inputs, so a non-empty default made judge-less dispatches impossible.
+        description: "EVAL_JUDGE — provider:model; empty = no auto-judge"
+        default: ""
         type: string
       delay:
         description: "EVAL_DELAY_S — seconds between calls (free tiers need 4+)"
@@ -74,7 +76,7 @@ jobs:
         if: always()
         run: |
           mkdir -p docs/ops/eval-t2-results
-          rm -f docs/ops/eval-t2-results/*.jsonl docs/ops/eval-t2-results/summary.json
+          rm -f docs/ops/eval-t2-results/summary.json
           cp eval-results/*.jsonl eval-results/summary.json docs/ops/eval-t2-results/ 2>/dev/null || true
           [ -f ranked-summary.json ] || echo "[]" > ranked-summary.json
           {
