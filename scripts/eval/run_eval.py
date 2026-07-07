@@ -142,7 +142,19 @@ def main() -> int:
         latency_total = 0.0
         scores: list[int] = []
         error_kinds: dict[str, int] = {}
-        for item in items:
+        aborted_after: int | None = None
+        # Circuit breaker: a hard-quota candidate (429 even after backoff on
+        # every early call) must not grind the whole run into the job timeout.
+        fuse = int(os.environ.get("EVAL_FUSE", "6"))
+        for idx, item in enumerate(items):
+            if fuse and ok == 0 and errors >= fuse:
+                aborted_after = errors
+                print(
+                    f"[{provider}:{model}] fuse blown — first {errors} calls all "
+                    f"failed; skipping the remaining {len(items) - idx} prompts",
+                    file=sys.stderr,
+                )
+                break
             started = time.monotonic()
             try:
                 reply = _call_paced(
@@ -195,6 +207,7 @@ def main() -> int:
                 "tokens_in": tokens_in,
                 "tokens_out": tokens_out,
                 "est_cost_usd": round(cost_usd(model, tokens_in, tokens_out), 4),
+                "aborted_after": aborted_after,
                 "top_errors": dict(
                     sorted(error_kinds.items(), key=lambda kv: -kv[1])[:3]
                 ),
