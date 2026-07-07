@@ -1,33 +1,3 @@
-# T2 eval report — 2026-07-06T20:27:11Z — commit 06a45526fa3c17b1980223f7d0e4d4e3b2f98df5
-# candidates: gemini:gemini-2.0-flash,deepseek:deepseek-chat · judge: gemini:gemini-2.5-pro
+# T2 eval report — 2026-07-07T15:10:49Z — commit 95557356de96fe143179413543e3245292051405 — job status: cancelled
+# candidates: gemini:gemini-2.0-flash,gemini:gemini-2.5-flash · judge: gemini:gemini-2.5-pro · delay: 8s
 # ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)
-[
-  {
-    "candidate": "gemini:gemini-2.0-flash",
-    "ok": 0,
-    "errors": 50,
-    "mean_score": null,
-    "scored": 0,
-    "mean_latency_s": null,
-    "tokens_in": 0,
-    "tokens_out": 0,
-    "est_cost_usd": 0.0,
-    "top_errors": {
-      "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:g": 50
-    }
-  },
-  {
-    "candidate": "deepseek:deepseek-chat",
-    "ok": 0,
-    "errors": 50,
-    "mean_score": null,
-    "scored": 0,
-    "mean_latency_s": null,
-    "tokens_in": 0,
-    "tokens_out": 0,
-    "est_cost_usd": 0.0,
-    "top_errors": {
-      "HTTPStatusError: Client error '402 Payment Required' for url 'https://api.deepseek.com/chat/completions'\nFor more information check: http": 50
-    }
-  }
-]
