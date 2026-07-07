@@ -69,12 +69,16 @@ jobs:
           uv run python scripts/eval/run_eval.py > ranked-summary.json
 
       - name: Commit report + per-model outputs
+        # always(): a job timeout must still ship whatever was produced —
+        # losing 2h of paced calls to a missing report happened once already.
+        if: always()
         run: |
           mkdir -p docs/ops/eval-t2-results
           rm -f docs/ops/eval-t2-results/*.jsonl docs/ops/eval-t2-results/summary.json
           cp eval-results/*.jsonl eval-results/summary.json docs/ops/eval-t2-results/ 2>/dev/null || true
+          [ -f ranked-summary.json ] || echo "[]" > ranked-summary.json
           {
-            echo "# T2 eval report — $(date -u +%Y-%m-%dT%H:%M:%SZ) — commit $GITHUB_SHA"
+            echo "# T2 eval report — $(date -u +%Y-%m-%dT%H:%M:%SZ) — commit $GITHUB_SHA — job status: ${{ job.status }}"
             echo "# candidates: $EVAL_CANDIDATES · judge: ${EVAL_JUDGE:-none} · delay: ${EVAL_DELAY_S}s"
             echo "# ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)"
             cat ranked-summary.json
