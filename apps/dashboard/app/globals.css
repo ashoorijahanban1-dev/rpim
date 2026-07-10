@@ -173,6 +173,16 @@ select {
   color: var(--ink);
 }
 
+/* form selects (inside a field label) align with text inputs */
+label > select {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.8rem;
+  font-size: 14.5px;
+  background: var(--ground);
+}
+
 button {
   font: inherit;
   font-size: 13.5px;
