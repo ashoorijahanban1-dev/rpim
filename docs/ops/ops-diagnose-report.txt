@@ -1,5 +1,4 @@
 # ops-diagnose report — purged
-# The report generated at 2026-07-10T21:4x by run a2ad146 contained resolved
-# secret values from the Coolify-generated compose (rule-4 incident, see ADR
-# 0029 fourth amendment). Content removed; secrets rotated; the next diagnose
-# run writes a redacted report here.
+# A prior report contained resolved secret values from the Coolify-generated
+# compose (rule-4 incident, ADR 0029 fourth amendment). Content removed;
+# secrets rotated; the next diagnose run writes a redacted report here.
