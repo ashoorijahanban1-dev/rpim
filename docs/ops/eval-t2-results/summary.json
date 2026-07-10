@@ -1,6 +1,3 @@
-# T2 eval report — 2026-07-10T12:30:43Z — commit 8897658dcf309a6937bc1f7c5d4c13910451f8d0 — job status: success
-# candidates: gemini:gemini-2.0-flash,gemini:gemini-2.5-flash · judge: none · delay: 8s
-# ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)
 [
   {
     "candidate": "gemini:gemini-2.0-flash",
