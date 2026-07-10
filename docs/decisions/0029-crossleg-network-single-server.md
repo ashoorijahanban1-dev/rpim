@@ -65,3 +65,15 @@ overrides the compose-file default `${GATEWAY_URL:-…}`. Fixes:
   allowlist of known non-secret names prints, with URL userinfo scrubbed
   even from those (rule 4; a denylist misses names like
   `ZARINPAL_MERCHANT_ID`).
+
+**Third amendment — the second half of the root cause.** After the env fix
+the failure changed shape (HTTP 500 after 1s instead of the 15s timeout):
+core-api now dialed the right name but could not RESOLVE it. The first
+amendment's assumption that "Coolify already attaches every service of both
+resources to its predefined `coolify` network" is false: for compose
+resources that attachment is gated behind the per-resource **"Connect To
+Predefined Network"** flag (`connect_to_docker_network`), which defaults to
+OFF — each stack stays isolated in its own generated network. The provision
+script now sets `connect_to_docker_network: true` at creation AND
+correctively on every run (then redeploys), and `ops-diagnose` prints the
+flag so the attachment is verifiable remotely.

@@ -86,6 +86,7 @@ create_app() { # name compose_path -> uuid
       \"git_branch\": \"$BRANCH\",
       \"build_pack\": \"dockercompose\",
       \"docker_compose_location\": \"$compose\",
+      \"connect_to_docker_network\": true,
       \"instant_deploy\": false
     }" | jqpy "print(json.load(sys.stdin)['uuid'])"
 }
@@ -134,6 +135,13 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 			echo "→ $name compose location set to $compose" >&2 ||
 			echo "!! failed to update compose location for $name" >&2
 	fi
+	# Corrective for BOTH new and existing apps: compose resources are NOT
+	# attached to Coolify's predefined network by default — the per-resource
+	# "Connect To Predefined Network" flag must be on, or cross-leg
+	# container-name DNS fails instantly (ADR 0029, third amendment).
+	api PATCH "/applications/$uuid" -d '{"connect_to_docker_network": true}' >/dev/null &&
+		echo "→ $name connected to predefined docker network" >&2 ||
+		echo "!! failed to set connect_to_docker_network for $name" >&2
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
 	# Corrective overrides apply to EXISTING apps too (host-port collisions on
 	# the server: Coolify panel owns 8000, Traefik owns 8080). The cross-leg
