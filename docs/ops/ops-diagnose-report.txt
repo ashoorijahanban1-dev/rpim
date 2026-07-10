@@ -1,0 +1,105 @@
+# ops-diagnose report — 2026-07-10T20:31:34Z — commit c4a229bf9657fb5d4a3af616a582f684922c2095
+# ops-diagnose — read-only — Coolify 4.1.2
+
+===== rpim-iran-leg (uj6u0a274fksaah42ahcgoxu) =====
+--- application ---
+name: rpim-iran-leg
+status: running:healthy
+git_branch: main
+git_commit_sha: HEAD
+docker_compose_location: /docker-compose.iran.yml
+last_online_at: 2026-07-10 20:31:06
+updated_at: 2026-07-10T20:31:06.000000Z
+--- envs (redacted by default; only allowlisted names print values) ---
+APP_ENV=production
+APP_ENV=production
+APP_SECRET_KEY=[redacted]
+APP_SECRET_KEY=[redacted]
+CORE_BIND=127.0.0.1
+CORE_BIND=127.0.0.1
+CORE_PORT=18000
+CORE_PORT=18000
+DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim
+DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim
+DEEPSEEK_API_KEY=[redacted]
+DEEPSEEK_API_KEY=[redacted]
+GATEWAY_URL=http://rpim-model-gateway:8080
+GATEWAY_URL=http://10.66.0.2:8080
+GEMINI_API_KEY=[redacted]
+GEMINI_API_KEY=[redacted]
+INTERNAL_TOKEN=[redacted]
+INTERNAL_TOKEN=[redacted]
+JWT_SECRET=[redacted]
+JWT_SECRET=[redacted]
+POSTGRES_DB=rpim
+POSTGRES_DB=rpim
+POSTGRES_PASSWORD=[redacted]
+POSTGRES_PASSWORD=[redacted]
+POSTGRES_USER=rpim
+POSTGRES_USER=rpim
+RENDERER_URL=http://rpim-renderer:8091
+RENDERER_URL=http://renderer:8091
+SERVICE_FQDN_CORE_API=[redacted]
+SERVICE_FQDN_CORE_API=[redacted]
+SERVICE_FQDN_DASHBOARD=[redacted]
+SERVICE_FQDN_DASHBOARD=[redacted]
+SERVICE_URL_CORE_API=[redacted]
+SERVICE_URL_CORE_API=[redacted]
+SERVICE_URL_DASHBOARD=[redacted]
+SERVICE_URL_DASHBOARD=[redacted]
+--- container logs tail (best-effort) ---
+INFO:     Started server process [19]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:60976 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44428 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42776 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.3.6:55598 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58136 - "GET /health HTTP/1.1" 200 OK
+
+===== rpim-us-leg (g121hff560aj748anak0uf6f) =====
+--- application ---
+name: rpim-us-leg
+status: running:healthy
+git_branch: main
+git_commit_sha: HEAD
+docker_compose_location: /docker-compose.us.yml
+last_online_at: 2026-07-10 20:31:06
+updated_at: 2026-07-10T20:31:06.000000Z
+--- envs (redacted by default; only allowlisted names print values) ---
+APP_ENV=production
+APP_ENV=production
+CORE_API_URL=http://rpim-core-api:8000
+CORE_API_URL=http://10.66.0.1:8000
+DEEPSEEK_API_KEY=[redacted]
+DEEPSEEK_API_KEY=[redacted]
+EMBEDDINGS_INSTALL_MODEL=[redacted]
+EMBEDDINGS_INSTALL_MODEL=[redacted]
+EMBEDDING_BACKEND=[redacted]
+EMBEDDING_BACKEND=[redacted]
+EMBEDDING_DEVICE=[redacted]
+EMBEDDING_DEVICE=[redacted]
+EMBEDDING_MODEL=[redacted]
+EMBEDDING_MODEL=[redacted]
+GATEWAY_BIND=127.0.0.1
+GATEWAY_BIND=127.0.0.1
+GATEWAY_PORT=18080
+GATEWAY_PORT=18080
+GEMINI_API_KEY=[redacted]
+GEMINI_API_KEY=[redacted]
+INTERNAL_TOKEN=[redacted]
+INTERNAL_TOKEN=[redacted]
+RENDER_MODE=fake
+RENDER_MODE=fake
+--- container logs tail (best-effort) ---
+INFO:     Started server process [9]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     127.0.0.1:40958 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
+
+# end of report
+exit_code=0
