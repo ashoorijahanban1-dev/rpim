@@ -1,4 +1,4 @@
-# ops-diagnose report — 2026-07-10T20:31:34Z — commit c4a229bf9657fb5d4a3af616a582f684922c2095
+# ops-diagnose report — 2026-07-10T21:36:49Z — commit 4e8ce3450ef67e6b3f2915de770062c27044d569
 # ops-diagnose — read-only — Coolify 4.1.2
 
 ===== rpim-iran-leg (uj6u0a274fksaah42ahcgoxu) =====
@@ -8,55 +8,69 @@ status: running:healthy
 git_branch: main
 git_commit_sha: HEAD
 docker_compose_location: /docker-compose.iran.yml
-last_online_at: 2026-07-10 20:31:06
-updated_at: 2026-07-10T20:31:06.000000Z
+last_online_at: 2026-07-10 21:34:28
+updated_at: 2026-07-10T21:34:28.000000Z
 --- envs (redacted by default; only allowlisted names print values) ---
-APP_ENV=production
-APP_ENV=production
-APP_SECRET_KEY=[redacted]
-APP_SECRET_KEY=[redacted]
-CORE_BIND=127.0.0.1
-CORE_BIND=127.0.0.1
-CORE_PORT=18000
-CORE_PORT=18000
-DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim
-DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim
-DEEPSEEK_API_KEY=[redacted]
-DEEPSEEK_API_KEY=[redacted]
-GATEWAY_URL=http://rpim-model-gateway:8080
-GATEWAY_URL=http://10.66.0.2:8080
-GEMINI_API_KEY=[redacted]
-GEMINI_API_KEY=[redacted]
-INTERNAL_TOKEN=[redacted]
-INTERNAL_TOKEN=[redacted]
-JWT_SECRET=[redacted]
-JWT_SECRET=[redacted]
-POSTGRES_DB=rpim
-POSTGRES_DB=rpim
-POSTGRES_PASSWORD=[redacted]
-POSTGRES_PASSWORD=[redacted]
-POSTGRES_USER=rpim
-POSTGRES_USER=rpim
-RENDERER_URL=http://rpim-renderer:8091
-RENDERER_URL=http://renderer:8091
-SERVICE_FQDN_CORE_API=[redacted]
-SERVICE_FQDN_CORE_API=[redacted]
-SERVICE_FQDN_DASHBOARD=[redacted]
-SERVICE_FQDN_DASHBOARD=[redacted]
-SERVICE_URL_CORE_API=[redacted]
-SERVICE_URL_CORE_API=[redacted]
-SERVICE_URL_DASHBOARD=[redacted]
-SERVICE_URL_DASHBOARD=[redacted]
+  File "<string>", line 20
+    suffix = f"  # {,.join(flags)}" if flags else ""
+                    ^
+SyntaxError: f-string: expecting a valid expression after '{'
+scripts/ops-diagnose.sh: line 35: printf: write error: Broken pipe
+(envs fetch failed)
 --- container logs tail (best-effort) ---
-INFO:     Started server process [19]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:60976 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44428 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42776 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.3.6:55598 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58136 - "GET /health HTTP/1.1" 200 OK
+/app/.venv/lib/python3.12/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+absolutely not recommended!
+
+Please specify a different user using the --uid option.
+
+User information: uid=0 euid=0 gid=0 egid=0
+
+  warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+ 
+ -------------- celery@48e3503bbdce v5.6.3 (recovery)
+--- ***** ----- 
+-- ******* ---- Linux-7.0.0-14-generic-x86_64-with-glibc2.41 2026-07-10 21:34:16
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rpim:0x7838cdad6180
+- ** ---------- .> transport:   redis://redis:6379/0
+- ** ---------- .> results:     disabled://
+- *** --- * --- .> concurrency: 6 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> rpim             exchange=rpim(direct) key=rpim
+                
+
+[tasks]
+  . rpim.ping
+  . rpim_workers.dispatch_publish_queue
+
+[2026-07-10 21:34:16,193: INFO/Beat] beat: Starting...
+[2026-07-10 21:34:16,582: INFO/MainProcess] Connected to redis://redis:6379/0
+[2026-07-10 21:34:16,594: INFO/MainProcess] mingle: searching for neighbors
+[2026-07-10 21:34:17,614: INFO/MainProcess] mingle: all alone
+[2026-07-10 21:34:17,655: INFO/MainProcess] celery@48e3503bbdce ready.
+[2026-07-10 21:34:46,218: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+[2026-07-10 21:34:46,230: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[1ab24d61-67b8-4d6b-a405-16289700c377] received
+[2026-07-10 21:34:46,628: INFO/ForkPoolWorker-4] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+[2026-07-10 21:34:46,630: INFO/ForkPoolWorker-4] Task rpim_workers.dispatch_publish_queue[1ab24d61-67b8-4d6b-a405-16289700c377] succeeded in 0.3975592749193311s: {'sent': 0, 'blocked': 0, 'failed': 0}
+[2026-07-10 21:35:16,208: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+[2026-07-10 21:35:16,213: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[ee041328-6746-40d9-9430-947f262cccd8] received
+[2026-07-10 21:35:16,244: INFO/ForkPoolWorker-4] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+[2026-07-10 21:35:16,244: INFO/ForkPoolWorker-4] Task rpim_workers.dispatch_publish_queue[ee041328-6746-40d9-9430-947f262cccd8] succeeded in 0.03086371801327914s: {'sent': 0, 'blocked': 0, 'failed': 0}
+[2026-07-10 21:35:46,208: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+[2026-07-10 21:35:46,211: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[cc21233f-e3b4-4641-aefe-281fe732db8e] received
+[2026-07-10 21:35:46,259: INFO/ForkPoolWorker-4] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+[2026-07-10 21:35:46,259: INFO/ForkPoolWorker-4] Task rpim_workers.dispatch_publish_queue[cc21233f-e3b4-4641-aefe-281fe732db8e] succeeded in 0.04610588797368109s: {'sent': 0, 'blocked': 0, 'failed': 0}
+[2026-07-10 21:36:16,208: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+[2026-07-10 21:36:16,211: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[66e43c57-4db9-4016-897c-285fb79c42ea] received
+[2026-07-10 21:36:16,270: INFO/ForkPoolWorker-4] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+[2026-07-10 21:36:16,271: INFO/ForkPoolWorker-4] Task rpim_workers.dispatch_publish_queue[66e43c57-4db9-4016-897c-285fb79c42ea] succeeded in 0.05833354406058788s: {'sent': 0, 'blocked': 0, 'failed': 0}
+[2026-07-10 21:36:46,208: INFO/Beat] Scheduler: Sending due task dispatch-publish-queue (rpim_workers.dispatch_publish_queue)
+[2026-07-10 21:36:46,211: INFO/MainProcess] Task rpim_workers.dispatch_publish_queue[64dcd21a-53fc-4735-a294-a36f5329d853] received
+[2026-07-10 21:36:46,243: INFO/ForkPoolWorker-4] HTTP Request: POST http://core-api:8000/publish/dispatch "HTTP/1.1 200 OK"
+[2026-07-10 21:36:46,243: INFO/ForkPoolWorker-4] Task rpim_workers.dispatch_publish_queue[64dcd21a-53fc-4735-a294-a36f5329d853] succeeded in 0.03151821391656995s: {'sent': 0, 'blocked': 0, 'failed': 0}
 
 ===== rpim-us-leg (g121hff560aj748anak0uf6f) =====
 --- application ---
@@ -65,41 +79,35 @@ status: running:healthy
 git_branch: main
 git_commit_sha: HEAD
 docker_compose_location: /docker-compose.us.yml
-last_online_at: 2026-07-10 20:31:06
-updated_at: 2026-07-10T20:31:06.000000Z
+last_online_at: 2026-07-10 21:34:28
+updated_at: 2026-07-10T21:34:28.000000Z
 --- envs (redacted by default; only allowlisted names print values) ---
-APP_ENV=production
-APP_ENV=production
-CORE_API_URL=http://rpim-core-api:8000
-CORE_API_URL=http://10.66.0.1:8000
-DEEPSEEK_API_KEY=[redacted]
-DEEPSEEK_API_KEY=[redacted]
-EMBEDDINGS_INSTALL_MODEL=[redacted]
-EMBEDDINGS_INSTALL_MODEL=[redacted]
-EMBEDDING_BACKEND=[redacted]
-EMBEDDING_BACKEND=[redacted]
-EMBEDDING_DEVICE=[redacted]
-EMBEDDING_DEVICE=[redacted]
-EMBEDDING_MODEL=[redacted]
-EMBEDDING_MODEL=[redacted]
-GATEWAY_BIND=127.0.0.1
-GATEWAY_BIND=127.0.0.1
-GATEWAY_PORT=18080
-GATEWAY_PORT=18080
-GEMINI_API_KEY=[redacted]
-GEMINI_API_KEY=[redacted]
-INTERNAL_TOKEN=[redacted]
-INTERNAL_TOKEN=[redacted]
-RENDER_MODE=fake
-RENDER_MODE=fake
+  File "<string>", line 20
+    suffix = f"  # {,.join(flags)}" if flags else ""
+                    ^
+SyntaxError: f-string: expecting a valid expression after '{'
+scripts/ops-diagnose.sh: line 35: printf: write error: Broken pipe
+(envs fetch failed)
 --- container logs tail (best-effort) ---
-INFO:     Started server process [9]
+INFO:     Started server process [10]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
-INFO:     127.0.0.1:40958 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46692 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56082 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32950 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46670 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57908 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46080 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56820 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47010 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44658 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42886 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56732 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52082 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34484 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34334 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49266 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59588 - "GET /health HTTP/1.1" 200 OK
 
 # end of report
 exit_code=0
