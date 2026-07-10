@@ -67,7 +67,6 @@ services:
       - "${CORE_BIND:-127.0.0.1}:${CORE_PORT:-8000}:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks: [default, crossleg]
     depends_on:
       postgres:
         condition: service_healthy
@@ -151,11 +150,3 @@ services:
 volumes:
   pgdata:
 
-networks:
-  default: {}
-  # Shared with the us-leg compose project on the single server (ADR 0029).
-  crossleg:
-    # The coolify network pre-exists on every Coolify server (the proxy
-    # rides it), so no manual creation step and no deploy ordering.
-    name: coolify
-    external: true
