@@ -44,6 +44,8 @@ services:
       start_period: 15s
 
   core-api:
+    # Deterministic DNS name on the shared coolify network (ADR 0029).
+    container_name: rpim-core-api
     build:
       context: .
       dockerfile: apps/core-api/Dockerfile
@@ -59,8 +61,8 @@ services:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
       # single-server (ADR 0025/0029): the legs meet on the shared
       # rpim-crossleg network; WireGuard IPs return via env when re-split.
-      GATEWAY_URL: ${GATEWAY_URL:-http://model-gateway:8080}
-      RENDERER_URL: ${RENDERER_URL:-http://renderer:8091}
+      GATEWAY_URL: ${GATEWAY_URL:-http://rpim-model-gateway:8080}
+      RENDERER_URL: ${RENDERER_URL:-http://rpim-renderer:8091}
     ports:
       # local: loopback · real server: CORE_BIND=10.66.0.1 (WireGuard IP) · CI: 0.0.0.0
       # CORE_PORT dodges host collisions (Coolify panel owns 8000 on the US server)
