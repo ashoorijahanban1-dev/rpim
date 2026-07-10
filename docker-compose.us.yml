@@ -22,6 +22,9 @@ services:
       retries: 5
 
   model-gateway:
+    # Deterministic DNS name on the shared coolify network (ADR 0029) —
+    # Coolify suffixes default container names with the resource uuid.
+    container_name: rpim-model-gateway
     build:
       context: .
       dockerfile: apps/model-gateway/Dockerfile
@@ -33,7 +36,7 @@ services:
       # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
       # single-server (ADR 0025/0029): shared rpim-crossleg network.
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
+      CORE_API_URL: ${CORE_API_URL:-http://rpim-core-api:8000}
       EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fake}
       EMBEDDINGS_URL: http://embeddings:8090
     ports:
@@ -90,6 +93,7 @@ services:
       start_period: 120s # first real-model load is slow
 
   renderer:
+    container_name: rpim-renderer
     build:
       context: .
       dockerfile: apps/renderer/Dockerfile
