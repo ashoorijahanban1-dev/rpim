@@ -135,5 +135,7 @@ networks:
   default: {}
   # Shared with the iran-leg compose project on the single server (ADR 0029).
   crossleg:
-    name: rpim-crossleg
+    # The coolify network pre-exists on every Coolify server (the proxy
+    # rides it), so no manual creation step and no deploy ordering.
+    name: coolify
     external: true

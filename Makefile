@@ -37,7 +37,7 @@ env-init:
 	fi
 
 crossleg-net:
-	@docker network create rpim-crossleg 2>/dev/null || true
+	@docker network create coolify 2>/dev/null || true
 
 up-iran: crossleg-net env-init
 	$(COMPOSE_IRAN) up -d --build --wait
