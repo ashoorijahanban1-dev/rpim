@@ -41,14 +41,21 @@ dump_app() { # label uuid
 	echo "===== $label ($uuid) ====="
 
 	echo "--- application ---"
+	# connect_to_docker_network is PATCH-only (absent from the GET schema);
+	# the generated docker_compose is the ground truth for what actually
+	# deploys — networks, aliases and container names included. It contains
+	# env NAMES and ${VAR:-default} placeholders, never secret values.
 	api GET "/applications/$uuid" | python3 -c '
 import json, sys
 d = json.load(sys.stdin)
 for k in ("name", "status", "git_branch", "git_commit_sha",
-          "docker_compose_location", "connect_to_docker_network",
-          "last_online_at", "updated_at"):
+          "docker_compose_location", "custom_network_aliases",
+          "compose_parsing_version", "last_online_at", "updated_at"):
     if k in d:
         print(f"{k}: {d[k]}")
+compose = d.get("docker_compose") or ""
+print("--- generated docker_compose (Coolify-parsed, truncated) ---")
+print(str(compose)[:10000])
 ' || echo "(application fetch failed)"
 
 	echo "--- envs (redacted by default; only allowlisted names print values) ---"
@@ -69,9 +76,10 @@ for e in sorted(rows, key=lambda e: e.get("key", "")):
     else:
         v = "[redacted]"
     # The API returns production AND preview/build variants of each key —
-    # label them so conflicting values are attributable.
+    # label them so conflicting values are attributable. NOTE: this whole
+    # program lives inside a bash single-quoted string, so no single quotes.
     flags = [f for f in ("is_preview", "is_build_time") if e.get(f)]
-    suffix = f"  # {','.join(flags)}" if flags else ""
+    suffix = ("  # " + ",".join(flags)) if flags else ""
     print(f"{k}={v}{suffix}")
 ' || echo "(envs fetch failed)"
 
