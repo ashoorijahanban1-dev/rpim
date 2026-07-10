@@ -20,7 +20,7 @@ def embed_texts(texts: list[str], tenant_id: str | None = None) -> list[list[flo
         f"{gateway.rstrip('/')}/embed",
         json={"texts": texts, "tenant_id": tenant_id},
         headers={"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")},
-        timeout=60,
+        timeout=15,  # fail fast — a dead cross-leg path must not hang requests for a minute
     )
     response.raise_for_status()
     return response.json()["vectors"]

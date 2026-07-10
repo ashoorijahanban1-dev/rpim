@@ -32,7 +32,8 @@ services:
       REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
       # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      CORE_API_URL: ${CORE_API_URL:-http://10.66.0.1:8000}
+      # single-server (ADR 0025/0029): shared rpim-crossleg network.
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fake}
       EMBEDDINGS_URL: http://embeddings:8090
     ports:
@@ -40,6 +41,7 @@ services:
       - "${GATEWAY_BIND:-127.0.0.1}:${GATEWAY_PORT:-8080}:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks: [default, crossleg]
     depends_on:
       redis:
         condition: service_healthy
@@ -102,6 +104,7 @@ services:
     ports:
       # Never public: loopback locally, the WireGuard IP on the real server
       - "${RENDERER_BIND:-127.0.0.1}:${RENDERER_PORT:-8091}:8091"
+    networks: [default, crossleg]
     restart: unless-stopped
     healthcheck:
       test:
@@ -127,3 +130,10 @@ services:
 
 volumes:
   model-cache:
+
+networks:
+  default: {}
+  # Shared with the iran-leg compose project on the single server (ADR 0029).
+  crossleg:
+    name: rpim-crossleg
+    external: true
