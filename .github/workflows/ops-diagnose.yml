@@ -63,9 +63,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/ops/ops-diagnose-report.txt
           git diff --cached --quiet || git commit -m "chore(ops): diagnose report [skip ci]"
+          # rebase onto the DISPATCHED ref — this workflow also runs on branches.
           for attempt in 1 2 3; do
             git push && break
-            git pull --rebase origin main
+            git pull --rebase origin "$GITHUB_REF_NAME"
           done
 
       - name: Reflect real status

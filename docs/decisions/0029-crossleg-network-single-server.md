@@ -77,3 +77,25 @@ OFF — each stack stays isolated in its own generated network. The provision
 script now sets `connect_to_docker_network: true` at creation AND
 correctively on every run (then redeploys), and `ops-diagnose` prints the
 flag so the attachment is verifiable remotely.
+
+**Fourth amendment — service names, not container names.** The generated
+compose Coolify actually deploys (now dumped by `ops-diagnose`) proved two
+things. (1) Coolify **overrides `container_name`** with its own
+`<service>-<resource-uuid>-<timestamp>` names, so PR #42's pinned
+`rpim-*` names never existed and the cross-leg URLs resolved nothing — the
+1s DNS failure. The rail that DOES exist: compose adds each service's
+**service name as a DNS alias on every attached network**, including the
+predefined `coolify` network. Cross-leg URLs are therefore service-name
+URLs (`http://model-gateway:8080`, `http://renderer:8091`,
+`http://core-api:8000`), and every service name must be **unique across
+BOTH legs** — the us leg's `redis` is renamed `redis-us` because docker DNS
+round-robins duplicate aliases across legs (iran's core-api could have
+connected to the us redis and mixed the queues). `container_name` lines are
+removed as dead weight. (2) The generated compose carries **resolved env
+values**: the first compose dump leaked APP_SECRET_KEY / JWT_SECRET /
+INTERNAL_TOKEN / the postgres password into a committed report (feature
+branch only, no provider keys). Remediation: diagnose now redacts env-shaped
+lines inside the compose dump plus a long-hex scrub, the provision workflow
+gained a `rotate_secrets` dispatch input (rotates the three app-layer
+secrets on both legs and redeploys; postgres password rotation stays a
+manual runbook step), and rotation was executed immediately after merge.

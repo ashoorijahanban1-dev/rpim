@@ -103,10 +103,13 @@ set_envs() { # uuid, then KEY=VALUE args
 
 upsert_env() { # uuid key value — create OR update (used for corrective overrides)
 	local uuid="$1" key="$2" val="$3"
+	# BOTH channels suppressed on BOTH attempts: api() echoes error response
+	# bodies to stderr, and Coolify validation errors can echo the submitted
+	# value — with rotation this function carries real secrets (rule 4).
 	api POST "/applications/$uuid/envs" \
 		-d "{\"key\":\"$key\",\"value\":\"$val\",\"is_preview\":false}" >/dev/null 2>&1 ||
 		api PATCH "/applications/$uuid/envs" \
-			-d "{\"key\":\"$key\",\"value\":\"$val\"}" >/dev/null ||
+			-d "{\"key\":\"$key\",\"value\":\"$val\"}" >/dev/null 2>&1 ||
 		echo "!! failed to upsert env $key on $uuid" >&2
 	echo "→ env $key upserted" >&2
 }
@@ -162,23 +165,42 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 	echo "$uuid"
 }
 
-# Cross-leg URLs use container-name DNS on Coolify's predefined network
-# (ADR 0029; container names pinned in the compose files). When the Iran VPS
-# returns (ADR 0025), the WireGuard IPs go back here.
+# Cross-leg URLs use SERVICE-name DNS on Coolify's predefined network
+# (ADR 0029 4th amendment): Coolify overrides container_name, but compose
+# gives every service its service-name alias on every attached network, and
+# service names are unique across both legs. When the Iran VPS returns
+# (ADR 0025), the WireGuard IPs go back here.
 IRAN_UUID=$(provision_leg "rpim-iran-leg" "/docker-compose.iran.yml" \
 	"APP_ENV=production" \
 	"POSTGRES_USER=rpim" "POSTGRES_PASSWORD=$PGPASS" "POSTGRES_DB=rpim" \
 	"DATABASE_URL=postgresql://rpim:$PGPASS@postgres:5432/rpim" \
 	"APP_SECRET_KEY=$APPKEY" "JWT_SECRET=$JWT" "INTERNAL_TOKEN=$ITOK" \
-	"GATEWAY_URL=http://rpim-model-gateway:8080" \
-	"RENDERER_URL=http://rpim-renderer:8091" \
+	"GATEWAY_URL=http://model-gateway:8080" \
+	"RENDERER_URL=http://renderer:8091" \
 	"CORE_BIND=127.0.0.1" "CORE_PORT=18000" | tail -1)
 
 US_UUID=$(provision_leg "rpim-us-leg" "/docker-compose.us.yml" \
 	"APP_ENV=production" \
 	"INTERNAL_TOKEN=$ITOK" \
-	"CORE_API_URL=http://rpim-core-api:8000" \
+	"CORE_API_URL=http://core-api:8000" \
 	"GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)
+
+# ROTATE_SECRETS=1 rotates the app-layer secrets on BOTH legs and redeploys.
+# Postgres password is NOT rotated here (the DB user's password lives inside
+# the postgres volume — rotating the env alone would break the leg; see the
+# runbook's rotation section). Values are generated here and never printed.
+if [ "${ROTATE_SECRETS:-0}" = "1" ]; then
+	NEW_APPKEY=$(openssl rand -hex 32)
+	NEW_JWT=$(openssl rand -hex 32)
+	NEW_ITOK=$(openssl rand -hex 32)
+	upsert_env "$IRAN_UUID" APP_SECRET_KEY "$NEW_APPKEY"
+	upsert_env "$IRAN_UUID" JWT_SECRET "$NEW_JWT"
+	upsert_env "$IRAN_UUID" INTERNAL_TOKEN "$NEW_ITOK"
+	upsert_env "$US_UUID" INTERNAL_TOKEN "$NEW_ITOK"
+	echo "→ rotated APP_SECRET_KEY / JWT_SECRET / INTERNAL_TOKEN (users must log in again)"
+	api GET "/deploy?uuid=$IRAN_UUID" >/dev/null && echo "→ iran-leg redeploy (rotation) triggered"
+	api GET "/deploy?uuid=$US_UUID" >/dev/null && echo "→ us-leg redeploy (rotation) triggered"
+fi
 
 echo
 echo "Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):"

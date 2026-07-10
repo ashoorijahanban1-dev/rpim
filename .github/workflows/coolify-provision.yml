@@ -12,6 +12,11 @@ on:
       - ".github/workflows/coolify-provision.yml"
       - "scripts/coolify-provision.sh"
   workflow_dispatch:
+    inputs:
+      rotate_secrets:
+        description: "Rotate APP_SECRET_KEY/JWT_SECRET/INTERNAL_TOKEN on both legs and redeploy (users must log in again)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,6 +30,8 @@ jobs:
       # Repo variable wins once the panel has TLS (docs/ops/cloudflare-ssl.md).
       COOLIFY_URL: ${{ vars.COOLIFY_URL || 'http://rpim.ir:8000' }}
       COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+      # push-triggered runs have no inputs → rotation stays off.
+      ROTATE_SECRETS: ${{ inputs.rotate_secrets && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
 
