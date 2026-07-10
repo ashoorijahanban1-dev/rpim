@@ -41,14 +41,43 @@ dump_app() { # label uuid
 	echo "===== $label ($uuid) ====="
 
 	echo "--- application ---"
+	# connect_to_docker_network is PATCH-only (absent from the GET schema);
+	# the generated docker_compose is the ground truth for what actually
+	# deploys — networks, aliases and container names included. DANGER: the
+	# generated compose carries RESOLVED env values (that bit us once —
+	# rotation followed), so every ENV-shaped line goes through the same
+	# allowlist redaction as the env dump, plus a long-hex scrub.
 	api GET "/applications/$uuid" | python3 -c '
-import json, sys
+import json, re, sys
 d = json.load(sys.stdin)
 for k in ("name", "status", "git_branch", "git_commit_sha",
-          "docker_compose_location", "connect_to_docker_network",
-          "last_online_at", "updated_at"):
+          "docker_compose_location", "custom_network_aliases",
+          "compose_parsing_version", "last_online_at", "updated_at"):
     if k in d:
         print(f"{k}: {d[k]}")
+compose = str(d.get("docker_compose") or "")
+allow = re.compile(r"^(APP_ENV|POSTGRES_USER|POSTGRES_DB|MODEL_T\d+)$|_(URL|BIND|PORT|MODE|HOST)$")
+deny = re.compile(r"TOKEN|SECRET|PASSWORD|PASSPHRASE|KEY|DSN", re.I)
+out = []
+for line in compose.splitlines():
+    # mapping form (KEY: value) and list form (- KEY=value) — both are
+    # spec-valid env syntaxes and Coolify may emit either.
+    m = re.match(r"^(\s+)([A-Z][A-Z0-9_]+):\s*(.+)$", line)
+    m2 = re.match(r"^(\s*-\s+)([A-Z][A-Z0-9_]+)=(.*)$", line) if not m else None
+    if m or m2:
+        indent, key, val = (m or m2).groups()
+        if allow.search(key) and not deny.search(key):
+            val = re.sub(r"://[^/@\s]+@", "://[redacted]@", val)
+        else:
+            val = "[redacted]"
+        line = f"{indent}{key}: {val}" if m else f"{indent}{key}={val}"
+    out.append(line)
+text = "\n".join(out)
+# belt & suspenders: openssl-rand-style secrets are long hex — kill any
+# that survived (cost: image-tag SHAs get scrubbed too, acceptable).
+text = re.sub(r"[0-9a-f]{32,}", "[redacted-hex]", text)
+print("--- generated docker_compose (Coolify-parsed, env values redacted, truncated) ---")
+print(text[:10000])
 ' || echo "(application fetch failed)"
 
 	echo "--- envs (redacted by default; only allowlisted names print values) ---"
@@ -69,9 +98,10 @@ for e in sorted(rows, key=lambda e: e.get("key", "")):
     else:
         v = "[redacted]"
     # The API returns production AND preview/build variants of each key —
-    # label them so conflicting values are attributable.
+    # label them so conflicting values are attributable. NOTE: this whole
+    # program lives inside a bash single-quoted string, so no single quotes.
     flags = [f for f in ("is_preview", "is_build_time") if e.get(f)]
-    suffix = f"  # {','.join(flags)}" if flags else ""
+    suffix = ("  # " + ",".join(flags)) if flags else ""
     print(f"{k}={v}{suffix}")
 ' || echo "(envs fetch failed)"
 
@@ -84,8 +114,10 @@ try:
     text = d.get("logs", raw) if isinstance(d, dict) else raw
 except ValueError:
     text = raw
-# strip credentials embedded in URLs (postgresql://user:pass@host)
+# strip credentials embedded in URLs (postgresql://user:pass@host) and any
+# long-hex secret a traceback might echo
 text = re.sub(r"://[^/\s@]+@", "://[redacted]@", text)
+text = re.sub(r"[0-9a-f]{32,}", "[redacted-hex]", text)
 print(text[-8000:])
 ' || echo "(logs endpoint unavailable on this Coolify version)"
 }

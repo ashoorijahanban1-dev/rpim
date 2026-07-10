@@ -22,9 +22,6 @@ services:
       retries: 5
 
   model-gateway:
-    # Deterministic DNS name on the shared coolify network (ADR 0029) —
-    # Coolify suffixes default container names with the resource uuid.
-    container_name: rpim-model-gateway
     build:
       context: .
       dockerfile: apps/model-gateway/Dockerfile
@@ -32,11 +29,15 @@ services:
       - path: ./.env.us
         required: false
     environment:
-      REDIS_URL: redis://redis:6379/0 # service hostname, not a secret
+      # redis-us, not redis: BOTH legs sit on Coolify's predefined network in
+      # production (ADR 0029), and docker DNS would round-robin the shared
+      # alias `redis` across the two legs' instances — queues must not mix.
+      REDIS_URL: redis://redis-us:6379/0 # service hostname, not a secret
       # Interpolated so Coolify-UI vars (or --env-file locally) reach the container:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      # single-server (ADR 0025/0029): shared rpim-crossleg network.
-      CORE_API_URL: ${CORE_API_URL:-http://rpim-core-api:8000}
+      # single-server (ADR 0025/0029 4th amendment): service-name DNS on the
+      # predefined network; service names are unique across both legs.
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-fake}
       EMBEDDINGS_URL: http://embeddings:8090
     ports:
@@ -45,7 +46,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      redis:
+      redis-us:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -93,7 +94,6 @@ services:
       start_period: 120s # first real-model load is slow
 
   renderer:
-    container_name: rpim-renderer
     build:
       context: .
       dockerfile: apps/renderer/Dockerfile
@@ -121,7 +121,9 @@ services:
       retries: 5
       start_period: 20s
 
-  redis:
+  # Named redis-us (not redis) so its DNS alias cannot collide with the iran
+  # leg's redis on the shared production network — see model-gateway note.
+  redis-us:
     image: redis:7-alpine
     restart: unless-stopped
     healthcheck:
