@@ -154,8 +154,8 @@ volumes:
 networks:
   default: {}
   # Shared with the us-leg compose project on the single server (ADR 0029).
-  # Created once per host: `docker network create rpim-crossleg`
-  # (make up-* does this locally/CI; on the server it is a one-time step).
   crossleg:
-    name: rpim-crossleg
+    # The coolify network pre-exists on every Coolify server (the proxy
+    # rides it), so no manual creation step and no deploy ordering.
+    name: coolify
     external: true

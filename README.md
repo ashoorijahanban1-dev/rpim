@@ -48,9 +48,8 @@ Coolify is the deploy path on the real servers; its proxy owns 80/443, so the
    WireGuard, never publicly.)
 3. ~~WireGuard~~ — suspended (ADR 0025). Stubs stay in `infra/wireguard/`
    for when the Iran VPS returns; do not set it up now.
-   **One-time per server (ADR 0029):** `docker network create rpim-crossleg`
-   (Coolify UI → Server → Terminal) — cross-leg traffic rides this shared
-   network on the single server.
+   Cross-leg traffic on the single server rides the pre-existing `coolify`
+   docker network (ADR 0029) — no manual network step.
 4. Auto-deploy from CI: add repo **secret** `COOLIFY_TOKEN` (create a
    least-privilege deploy token in Coolify — not root); resource UUIDs are
    read from `infra/coolify-uuids.conf`. The deploy job self-skips until
