@@ -9,7 +9,7 @@ ENVFILE_US   = $(if $(wildcard .env.us),--env-file .env.us,)
 COMPOSE_IRAN = docker compose $(ENVFILE_IRAN) -f docker-compose.iran.yml -p rpim-iran --profile local
 COMPOSE_US   = docker compose $(ENVFILE_US) -f docker-compose.us.yml -p rpim-us --profile local
 
-.PHONY: env-init up-iran up-us down-iran down-us test lint fmt healthcheck
+.PHONY: env-init crossleg-net up-iran up-us down-iran down-us test lint fmt healthcheck
 
 ## Generate gitignored .env.iran / .env.us from the committed examples.
 ## Secret-shaped fields are FILLED with `openssl rand -hex 32`, never left blank.
@@ -36,10 +36,13 @@ env-init:
 		if [ -n "$$tok" ]; then sed -i "s|^INTERNAL_TOKEN=.*|INTERNAL_TOKEN=$$tok|" .env.us; fi; \
 	fi
 
-up-iran: env-init
+crossleg-net:
+	@docker network create rpim-crossleg 2>/dev/null || true
+
+up-iran: crossleg-net env-init
 	$(COMPOSE_IRAN) up -d --build --wait
 
-up-us: env-init
+up-us: crossleg-net env-init
 	$(COMPOSE_US) up -d --build --wait
 
 down-iran:

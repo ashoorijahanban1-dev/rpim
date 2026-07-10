@@ -57,13 +57,17 @@ services:
       APP_SECRET_KEY: ${APP_SECRET_KEY:-}
       JWT_SECRET: ${JWT_SECRET:-}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-}
-      GATEWAY_URL: ${GATEWAY_URL:-http://10.66.0.2:8080}
+      # single-server (ADR 0025/0029): the legs meet on the shared
+      # rpim-crossleg network; WireGuard IPs return via env when re-split.
+      GATEWAY_URL: ${GATEWAY_URL:-http://model-gateway:8080}
+      RENDERER_URL: ${RENDERER_URL:-http://renderer:8091}
     ports:
       # local: loopback · real server: CORE_BIND=10.66.0.1 (WireGuard IP) · CI: 0.0.0.0
       # CORE_PORT dodges host collisions (Coolify panel owns 8000 on the US server)
       - "${CORE_BIND:-127.0.0.1}:${CORE_PORT:-8000}:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks: [default, crossleg]
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,3 +150,12 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  default: {}
+  # Shared with the us-leg compose project on the single server (ADR 0029).
+  # Created once per host: `docker network create rpim-crossleg`
+  # (make up-* does this locally/CI; on the server it is a one-time step).
+  crossleg:
+    name: rpim-crossleg
+    external: true
