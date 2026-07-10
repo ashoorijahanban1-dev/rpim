@@ -1,14 +1,17 @@
-# Coolify provisioning report — 2026-07-10T09:21:10Z — commit 7b1cc3403b8dd9daafd46052f2e2728a22bae091
+# Coolify provisioning report — 2026-07-10T20:26:31Z — commit 5c061113880a04197eb272da606b930f38e3232a
 → Coolify 4.1.2
 → server: s88qql7wkilyfabk80aa6zfb
 → project exists: xkqhgfj6sshtle6m7jv5mb52
 → rpim-iran-leg exists: uj6u0a274fksaah42ahcgoxu (envs untouched)
 → rpim-iran-leg compose location set to /docker-compose.iran.yml
+→ env GATEWAY_URL upserted
+→ env RENDERER_URL upserted
 → env CORE_BIND upserted
 → env CORE_PORT upserted
 → rpim-iran-leg deploy triggered
 → rpim-us-leg exists: g121hff560aj748anak0uf6f (envs untouched)
 → rpim-us-leg compose location set to /docker-compose.us.yml
+→ env CORE_API_URL upserted
 → env GATEWAY_BIND upserted
 → env GATEWAY_PORT upserted
 → rpim-us-leg deploy triggered
