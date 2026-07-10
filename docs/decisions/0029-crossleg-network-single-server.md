@@ -35,3 +35,13 @@ because the smoke run overrides the URLs and binds.
 work on the deployed topology with zero manual steps; the gateway stays off
 the public interface (no port/bind changes — it is merely reachable by
 other containers on the operator's own coolify network).
+
+**Amendment (same day).** Explicitly declaring the `coolify` network in the
+compose files collided with the network definition Coolify itself injects
+into generated deployments, failing `docker compose up` on the server. The
+declaration is removed: Coolify already attaches every service of both
+resources to its predefined `coolify` network, which is exactly the shared
+rail we need. The compose files keep only the service-name URL defaults;
+local/CI never needed the shared network (Caddy/env overrides route there).
+If service-name DNS ever fails on the coolify network, the fallback is
+setting the cross-leg URLs explicitly in the Coolify UI env.
