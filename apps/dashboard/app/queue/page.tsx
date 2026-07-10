@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import fa from "@/locales/fa.json";
 import { api, getToken } from "@/lib/api";
+import { faNum, relativeTime } from "@/lib/format";
 
 type QaFlag = { check: string; level: string; reason: string };
 type Draft = {
@@ -16,26 +17,6 @@ type Draft = {
   brief: Record<string, string | null>;
   qa: { flags: QaFlag[]; requires_human: boolean } | null;
 };
-
-function faNum(n: number): string {
-  return n.toLocaleString("fa-IR");
-}
-
-// Relative time, all strings from locales/fa.json. API timestamps are
-// timezone-aware ISO; normalize defensively if the offset is missing.
-function relativeTime(iso: string): string {
-  const normalized = /Z$|[+-]\d{2}:?\d{2}$/.test(iso) ? iso : `${iso}Z`;
-  const then = Date.parse(normalized);
-  if (Number.isNaN(then)) return "";
-  const minutes = Math.max(0, Math.floor((Date.now() - then) / 60_000));
-  if (minutes < 1) return fa.time.just_now;
-  if (minutes < 60) return fa.time.minutes_ago.replace("{n}", faNum(minutes));
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return fa.time.hours_ago.replace("{n}", faNum(hours));
-  const days = Math.floor(hours / 24);
-  if (days === 1) return fa.time.yesterday;
-  return fa.time.days_ago.replace("{n}", faNum(days));
-}
 
 function currentMonth(): string {
   return new Date().toISOString().slice(0, 7);

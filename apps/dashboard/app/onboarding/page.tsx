@@ -111,7 +111,7 @@ export default function OnboardingPage() {
       const missing = questions
         .filter((q) => (drafts[q.field] ?? "").trim() === "")
         .map((q) => labels[q.field] ?? q.question);
-      setNotice(`${fa.onboarding.missing_prefix}${missing.join("، ")}`);
+      setNotice(`${fa.onboarding.missing_prefix}${missing.join(fa.onboarding.list_separator)}`);
       return;
     }
     setNotice(fa.auth.error_generic);

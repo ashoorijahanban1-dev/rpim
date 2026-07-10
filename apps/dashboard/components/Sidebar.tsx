@@ -8,6 +8,8 @@ import fa from "@/locales/fa.json";
 const NAV_ITEMS = [
   { href: "/queue", label: fa.nav.queue },
   { href: "/briefs/new", label: fa.nav.new_brief },
+  { href: "/brain", label: fa.nav.brain },
+  { href: "/publish", label: fa.nav.publish },
   { href: "/reports", label: fa.nav.reports },
   { href: "/export", label: fa.nav.export },
   { href: "/onboarding", label: fa.nav.brand_settings },
