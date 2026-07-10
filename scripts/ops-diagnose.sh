@@ -45,7 +45,8 @@ dump_app() { # label uuid
 import json, sys
 d = json.load(sys.stdin)
 for k in ("name", "status", "git_branch", "git_commit_sha",
-          "docker_compose_location", "last_online_at", "updated_at"):
+          "docker_compose_location", "connect_to_docker_network",
+          "last_online_at", "updated_at"):
     if k in d:
         print(f"{k}: {d[k]}")
 ' || echo "(application fetch failed)"
@@ -67,7 +68,11 @@ for e in sorted(rows, key=lambda e: e.get("key", "")):
         v = re.sub(r"://[^/@\s]+@", "://[redacted]@", v)
     else:
         v = "[redacted]"
-    print(f"{k}={v}")
+    # The API returns production AND preview/build variants of each key —
+    # label them so conflicting values are attributable.
+    flags = [f for f in ("is_preview", "is_build_time") if e.get(f)]
+    suffix = f"  # {','.join(flags)}" if flags else ""
+    print(f"{k}={v}{suffix}")
 ' || echo "(envs fetch failed)"
 
 	echo "--- container logs tail (best-effort) ---"
