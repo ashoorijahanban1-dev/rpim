@@ -45,3 +45,23 @@ rail we need. The compose files keep only the service-name URL defaults;
 local/CI never needed the shared network (Caddy/env overrides route there).
 If service-name DNS ever fails on the coolify network, the fallback is
 setting the cross-leg URLs explicitly in the Coolify UI env.
+
+**Second amendment — the actual root cause.** Ingest kept failing (HTTP 500
+after the 15s embed timeout) even after the network fixes above, because the
+network layer was never the consulted layer: the ORIGINAL provisioning run
+stored `GATEWAY_URL=http://10.66.0.2:8080` / `CORE_API_URL=http://10.66.0.1:8000`
+(WireGuard IPs, dead since ADR 0025) as Coolify application envs, the
+provision script only writes envs on first creation, and a stored env always
+overrides the compose-file default `${GATEWAY_URL:-…}`. Fixes:
+- `scripts/coolify-provision.sh` now provisions container-name URLs
+  (`http://rpim-model-gateway:8080`, `http://rpim-renderer:8091`,
+  `http://rpim-core-api:8000`) and treats `GATEWAY_URL`/`RENDERER_URL`/
+  `CORE_API_URL` as *corrective* envs — upserted on every run, existing apps
+  included, so a stale override can never survive a provision run again.
+- New read-only `ops-diagnose` workflow (`scripts/ops-diagnose.sh`) dumps
+  each leg's status, redacted envs and a log tail to
+  `docs/ops/ops-diagnose-report.txt`, so production state is verified from
+  facts rather than inferred. Env values are redacted by default — only an
+  allowlist of known non-secret names prints, with URL userinfo scrubbed
+  even from those (rule 4; a denylist misses names like
+  `ZARINPAL_MERCHANT_ID`).

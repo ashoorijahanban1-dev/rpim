@@ -136,10 +136,14 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 	fi
 	if [ "$created" = 1 ]; then set_envs "$uuid" "$@"; fi
 	# Corrective overrides apply to EXISTING apps too (host-port collisions on
-	# the server: Coolify panel owns 8000, Traefik owns 8080).
+	# the server: Coolify panel owns 8000, Traefik owns 8080). The cross-leg
+	# URLs are corrective as well: the first provisioning stored WireGuard IPs
+	# (10.66.x) as Coolify envs, which kept overriding the compose defaults
+	# after ADR 0025/0029 moved to container-name URLs — that stale override
+	# broke every brain ingest in production.
 	for kv in "$@"; do
 		case "${kv%%=*}" in
-		CORE_PORT | GATEWAY_PORT | CORE_BIND | GATEWAY_BIND)
+		CORE_PORT | GATEWAY_PORT | CORE_BIND | GATEWAY_BIND | GATEWAY_URL | RENDERER_URL | CORE_API_URL)
 			upsert_env "$uuid" "${kv%%=*}" "${kv#*=}"
 			;;
 		esac
@@ -150,17 +154,23 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 	echo "$uuid"
 }
 
+# Cross-leg URLs use container-name DNS on Coolify's predefined network
+# (ADR 0029; container names pinned in the compose files). When the Iran VPS
+# returns (ADR 0025), the WireGuard IPs go back here.
 IRAN_UUID=$(provision_leg "rpim-iran-leg" "/docker-compose.iran.yml" \
 	"APP_ENV=production" \
 	"POSTGRES_USER=rpim" "POSTGRES_PASSWORD=$PGPASS" "POSTGRES_DB=rpim" \
 	"DATABASE_URL=postgresql://rpim:$PGPASS@postgres:5432/rpim" \
 	"APP_SECRET_KEY=$APPKEY" "JWT_SECRET=$JWT" "INTERNAL_TOKEN=$ITOK" \
-	"GATEWAY_URL=http://10.66.0.2:8080" "CORE_BIND=127.0.0.1" "CORE_PORT=18000" | tail -1)
+	"GATEWAY_URL=http://rpim-model-gateway:8080" \
+	"RENDERER_URL=http://rpim-renderer:8091" \
+	"CORE_BIND=127.0.0.1" "CORE_PORT=18000" | tail -1)
 
 US_UUID=$(provision_leg "rpim-us-leg" "/docker-compose.us.yml" \
 	"APP_ENV=production" \
 	"INTERNAL_TOKEN=$ITOK" \
-	"CORE_API_URL=http://10.66.0.1:8000" "GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)
+	"CORE_API_URL=http://rpim-core-api:8000" \
+	"GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)
 
 echo
 echo "Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):"
