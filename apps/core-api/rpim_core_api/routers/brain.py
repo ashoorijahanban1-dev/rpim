@@ -134,15 +134,31 @@ def create_source_pdf(
     raw = file.file.read()
     try:
         reader = PdfReader(io.BytesIO(raw))
+        # PasswordType.NOT_DECRYPTED is falsy; an empty user password is the
+        # only automatic attempt we make.
+        if reader.is_encrypted and not reader.decrypt(""):
+            raise HTTPException(
+                status_code=422,
+                detail="password-protected PDF — remove the password and retry",
+            )
         text = "\n\n".join(
             stripped
             for page in reader.pages
             if (stripped := (page.extract_text() or "").strip())
         )
+    except HTTPException:
+        raise
     except PdfReadError as exc:
         raise HTTPException(status_code=422, detail="invalid PDF") from exc
+    except Exception as exc:
+        # pypdf raises beyond PdfReadError on exotic/corrupt/AES-only files
+        # (e.g. DependencyError) — malformed INPUT is a 422, never a 500.
+        raise HTTPException(status_code=422, detail="invalid or unreadable PDF") from exc
     if not text.strip():
-        raise HTTPException(status_code=422, detail="no extractable text in PDF")
+        raise HTTPException(
+            status_code=422,
+            detail="no extractable text in PDF (scanned image-only file?)",
+        )
     return _ingest(session, identity, title=title, kind="pdf", text=text)
 
 

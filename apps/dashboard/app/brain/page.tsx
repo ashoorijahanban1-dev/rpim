@@ -78,11 +78,17 @@ export default function BrainPage() {
       }
       if (!resp.ok) {
         const detail = await readErrorDetail(resp);
+        // API details are stable English strings; known ones map to Persian
+        // via the locale file (rule: user-facing text lives in fa.json).
+        const map = fa.brain.detail_map as Record<string, string>;
+        const translated =
+          detail &&
+          (Object.entries(map).find(([key]) => detail.includes(key))?.[1] ?? detail);
         setState({
           busy: false,
           ok: null,
-          error: detail
-            ? `${fa.brain.error} ${fa.brain.error_detail_prefix}${detail}`
+          error: translated
+            ? `${fa.brain.error} ${fa.brain.error_detail_prefix}${translated}`
             : fa.brain.error,
         });
         return;

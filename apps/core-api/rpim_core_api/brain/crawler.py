@@ -60,19 +60,31 @@ def fetch_page(url: str) -> tuple[str, list[str]]:
 
 
 def crawl_site(start_url: str, max_pages: int = 5) -> tuple[str, int]:
-    """Same-domain breadth-first crawl. Returns (joined text, pages fetched)."""
+    """Same-domain breadth-first crawl.
+
+    Returns (joined text, successfully fetched page count). Individual page
+    failures are skipped: a real site always has a broken or slow link, and
+    one must not kill the whole crawl (it 500'd every production crawl until
+    it did). max_pages caps ATTEMPTED fetches. If nothing succeeds the text
+    comes back empty and the router turns that into a clean 422.
+    """
     seen: set[str] = set()
     queue = [start_url]
     texts: list[str] = []
+    fetched = 0
     while queue and len(seen) < max_pages:
         url = queue.pop(0)
         if url in seen:
             continue
         seen.add(url)
-        text, links = fetch_page(url)
+        try:
+            text, links = fetch_page(url)
+        except httpx.HTTPError:
+            continue
+        fetched += 1
         if text.strip():
             texts.append(text.strip())
         for link in links:
             if link not in seen and link not in queue:
                 queue.append(link)
-    return "\n\n".join(texts), len(seen)
+    return "\n\n".join(texts), fetched
