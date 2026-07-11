@@ -270,3 +270,70 @@ def test_m2_brain_cross_tenant_isolation(client: TestClient):
         f"Tenant B cannot find its own uploaded source after isolation check.\n"
         f"B's results: {b_texts}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Robustness (production incident): large sources must embed in batches and
+# embedding failures must surface as clean 503s, never raw 500s
+# ---------------------------------------------------------------------------
+
+
+def test_embed_client_batches_large_inputs(monkeypatch):
+    """embed_texts must split >32 texts into ≤32-sized calls and concatenate
+    vectors in order — a 300-chunk PDF in one request blew the 15s timeout."""
+    import rpim_core_api.brain.embed_client as ec  # noqa: PLC0415
+
+    calls: list[int] = []
+
+    class _Resp:
+        def __init__(self, n: int):
+            self._n = n
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"vectors": [[0.0] * 3] * self._n}
+
+    def fake_post(url, json=None, headers=None, timeout=None):  # noqa: A002
+        calls.append(len(json["texts"]))
+        return _Resp(len(json["texts"]))
+
+    monkeypatch.setenv("EMBED_MODE", "remote")
+    monkeypatch.setenv("GATEWAY_URL", "http://gateway.test:8080")
+    import httpx  # noqa: PLC0415
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+
+    vectors = ec.embed_texts([f"t{i}" for i in range(70)], tenant_id="t1")
+    assert len(vectors) == 70, f"all vectors must come back, got {len(vectors)}"
+    assert all(size <= 32 for size in calls), f"batch sizes exceeded 32: {calls}"
+    assert len(calls) == 3, f"70 texts should take 3 batches of <=32, got {calls}"
+
+
+def test_ingest_embed_failure_returns_503_not_500(client, monkeypatch):
+    """A dead/slow embedding path must be a clean 503 whose detail names the
+    embedding service — the dashboard maps it to Persian."""
+    import httpx  # noqa: PLC0415
+
+    import rpim_core_api.routers.brain as brain_router  # noqa: PLC0415
+
+    def dead_embed(texts, tenant_id=None):
+        raise httpx.ConnectTimeout("embed path down")
+
+    monkeypatch.setattr(brain_router, "embed_texts", dead_embed)
+
+    token = _register(
+        client, "embed-down@example.com", "Password123!", "EmbedDown"
+    )["access_token"]
+    resp = client.post(
+        "/brain/sources",
+        json={"title": "t", "text": "متن آزمایشی برای مسیر امبدینگ."},
+        headers=_auth(token),
+    )
+    assert resp.status_code == 503, (
+        f"embed failure must be 503, got {resp.status_code}: {resp.text}"
+    )
+    assert "embedding" in resp.json()["detail"].lower(), (
+        f"detail must name the embedding service: {resp.json()}"
+    )

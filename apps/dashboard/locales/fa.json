@@ -191,7 +191,9 @@
       "no extractable text found on the site": "متن قابل استخراجی از سایت پیدا نشد — احتمالاً سایت خزنده را مسدود می‌کند یا در دسترس نیست.",
       "host resolves to a non-public address": "این نشانی به آدرس غیرعمومی می‌رسد و مجاز نیست.",
       "only public http(s) URLs are allowed": "فقط نشانی‌های عمومی http یا https مجازند.",
-      "empty text": "متن خالی است."
+      "empty text": "متن خالی است.",
+      "embedding service unavailable": "سرویس پردازش معنایی موقتاً در دسترس نیست — چند لحظه بعد دوباره تلاش کنید.",
+      "source too large": "سند برای یک‌بار پردازش خیلی بزرگ است — آن را به چند بخش کوچک‌تر تقسیم و جداگانه بارگذاری کنید."
     },
     "search_heading": "جست‌وجو در مغز برند",
     "search_placeholder": "چه چیزی را می‌خواهید پیدا کنید؟",

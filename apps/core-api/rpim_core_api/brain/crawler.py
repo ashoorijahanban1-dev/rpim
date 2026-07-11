@@ -7,6 +7,18 @@ from bs4 import BeautifulSoup
 
 MAX_BYTES = 1_000_000
 TIMEOUT = 10.0
+# Bot-blockers (CDN/WAF fronts) reset bare httpx UAs; identify as a normal
+# browser fetch of the brand's OWN public site. Geo-blocks (Iran-hosted
+# sites rejecting foreign IPs) are NOT solvable here — that path returns to
+# the iran leg when the VPS is restored (ADR 0025).
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0 Safari/537.36 RPIM-BrandCrawler"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "fa,en;q=0.8",
+}
 
 
 def validate_public_http_url(url: str) -> None:
@@ -39,7 +51,7 @@ def validate_public_http_url(url: str) -> None:
 def fetch_page(url: str) -> tuple[str, list[str]]:
     """Fetch one HTML page → (extracted text, same-domain links).
     Tests monkeypatch this function."""
-    response = httpx.get(url, timeout=TIMEOUT, follow_redirects=True)
+    response = httpx.get(url, timeout=TIMEOUT, follow_redirects=True, headers=HEADERS)
     response.raise_for_status()
     if "text/html" not in response.headers.get("content-type", ""):
         return "", []
