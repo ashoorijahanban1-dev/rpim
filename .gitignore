@@ -14,3 +14,4 @@ dist/
 scripts/eval/results/
 # encrypted backup artifacts never enter the repo
 infra/backup/*.enc
+*.tsbuildinfo
