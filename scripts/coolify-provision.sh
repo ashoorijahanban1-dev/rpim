@@ -154,7 +154,7 @@ provision_leg() { # name compose_path env... — progress on stderr, uuid on std
 	# broke every brain ingest in production.
 	for kv in "$@"; do
 		case "${kv%%=*}" in
-		CORE_PORT | GATEWAY_PORT | CORE_BIND | GATEWAY_BIND | GATEWAY_URL | RENDERER_URL | CORE_API_URL)
+		CORE_PORT | GATEWAY_PORT | CORE_BIND | GATEWAY_BIND | GATEWAY_URL | RENDERER_URL | CORE_API_URL | EMBEDDING_BACKEND | EMBEDDINGS_INSTALL_MODEL)
 			upsert_env "$uuid" "${kv%%=*}" "${kv#*=}"
 			;;
 		esac
@@ -183,6 +183,8 @@ US_UUID=$(provision_leg "rpim-us-leg" "/docker-compose.us.yml" \
 	"APP_ENV=production" \
 	"INTERNAL_TOKEN=$ITOK" \
 	"CORE_API_URL=http://core-api:8000" \
+	"EMBEDDING_BACKEND=real" \
+	"EMBEDDINGS_INSTALL_MODEL=true" \
 	"GATEWAY_BIND=127.0.0.1" "GATEWAY_PORT=18080" | tail -1)
 
 # ROTATE_SECRETS=1 rotates the app-layer secrets on BOTH legs and redeploys.

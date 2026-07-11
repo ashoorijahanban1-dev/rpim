@@ -89,7 +89,11 @@ rows = data if isinstance(data, list) else data.get("data", [])
 # allowlist (a denylist inevitably misses the next credential-shaped name,
 # e.g. ZARINPAL_MERCHANT_ID). Deny terms win even over the allowlist, and
 # printed values still get URL userinfo scrubbed (redis://:pass@host…).
-allow = re.compile(r"^(APP_ENV|POSTGRES_USER|POSTGRES_DB|MODEL_T\d+)$|_(URL|BIND|PORT|MODE|HOST)$")
+allow = re.compile(
+    r"^(APP_ENV|POSTGRES_USER|POSTGRES_DB|MODEL_T\d+"
+    r"|EMBEDDING_(BACKEND|MODEL|DEVICE)|EMBEDDINGS_INSTALL_MODEL)$"
+    r"|_(URL|BIND|PORT|MODE|HOST)$"
+)
 deny = re.compile(r"TOKEN|SECRET|PASSWORD|PASSPHRASE|KEY|DSN", re.I)
 for e in sorted(rows, key=lambda e: e.get("key", "")):
     k, v = e.get("key", ""), str(e.get("value", ""))

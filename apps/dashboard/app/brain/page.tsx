@@ -59,6 +59,7 @@ export default function BrainPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [searchState, setSearchState] = useState<FormState>(IDLE);
+  const [reindexState, setReindexState] = useState<FormState>(IDLE);
 
   useEffect(() => {
     if (!getToken()) router.push("/login");
@@ -175,6 +176,31 @@ export default function BrainPage() {
     );
   }
 
+  async function submitReindex() {
+    setReindexState({ busy: true, ok: null, error: null });
+    try {
+      const resp = await api("/brain/reindex", { method: "POST" });
+      if (resp.status === 401) {
+        router.push("/login");
+        return;
+      }
+      if (!resp.ok) {
+        setReindexState({ busy: false, ok: null, error: fa.brain.reindex_error });
+        return;
+      }
+      const body = await resp.json();
+      setReindexState({
+        busy: false,
+        ok: fa.brain.reindex_ok
+          .replace("{sources}", String(body.sources))
+          .replace("{chunks}", String(body.chunks)),
+        error: null,
+      });
+    } catch {
+      setReindexState({ busy: false, ok: null, error: fa.brain.reindex_error });
+    }
+  }
+
   return (
     <main>
       <header className="page-header">
@@ -270,6 +296,15 @@ export default function BrainPage() {
               {pdfState.busy ? fa.brain.busy : fa.brain.pdf_submit}
             </button>
           </form>
+        </section>
+
+        <section className="card">
+          <h2>{fa.brain.reindex_heading}</h2>
+          <p className="muted">{fa.brain.reindex_desc}</p>
+          {formStatus(reindexState)}
+          <button className="btn" onClick={submitReindex} disabled={reindexState.busy}>
+            {reindexState.busy ? fa.brain.reindex_busy : fa.brain.reindex_submit}
+          </button>
         </section>
       </div>
 

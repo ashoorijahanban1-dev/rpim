@@ -337,3 +337,34 @@ def test_ingest_embed_failure_returns_503_not_500(client, monkeypatch):
     assert "embedding" in resp.json()["detail"].lower(), (
         f"detail must name the embedding service: {resp.json()}"
     )
+
+
+def test_reindex_reembeds_only_own_tenant_chunks(client, monkeypatch):
+    """POST /brain/reindex re-embeds every chunk of the CALLING tenant only
+    (rule 6) and reports counts — the recovery path for sources ingested
+    while the embedding backend was fake."""
+    token_a = _register(
+        client, "reindex-a@example.com", "Password123!", "ReindexA"
+    )["access_token"]
+    token_b = _register(
+        client, "reindex-b@example.com", "Password123!", "ReindexB"
+    )["access_token"]
+    for i in range(2):
+        resp = client.post(
+            "/brain/sources",
+            json={"title": f"s{i}", "text": f"متن منبع شماره {i} برای بازسازی ایندکس."},
+            headers=_auth(token_a),
+        )
+        assert resp.status_code == 201, resp.text
+    resp = client.post(
+        "/brain/sources",
+        json={"title": "b", "text": "منبع تنانت دیگر — نباید شمارش شود."},
+        headers=_auth(token_b),
+    )
+    assert resp.status_code == 201, resp.text
+
+    resp = client.post("/brain/reindex", headers=_auth(token_a))
+    assert resp.status_code == 200, f"reindex failed: {resp.status_code} {resp.text}"
+    body = resp.json()
+    assert body["sources"] == 2, f"tenant A has 2 sources, got {body}"
+    assert body["chunks"] >= 2, f"tenant A chunks must be re-embedded, got {body}"
