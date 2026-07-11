@@ -38,6 +38,12 @@ def _gemini_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) 
         body["systemInstruction"] = {"parts": [{"text": system}]}
     if max_tokens:
         body["generationConfig"] = {"maxOutputTokens": max_tokens}
+    if model.startswith("gemini-2.5"):
+        # 2.5-series are "thinking" models: internal reasoning consumes
+        # maxOutputTokens and truncates the visible reply to a stub (proven
+        # in the phase-0 eval — ADR 0030). Marketing copy needs the whole
+        # budget as text. 2.0 models reject this field, so gate by prefix.
+        body.setdefault("generationConfig", {})["thinkingConfig"] = {"thinkingBudget": 0}
     response = httpx.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         # Key travels in the official header, NEVER the URL — httpx exception
@@ -121,6 +127,9 @@ PROVIDERS = {
 PRICES: dict[str, tuple[float, float]] = {
     "echo": (0.0, 0.0),
     "gemini-2.0-flash": (0.10, 0.40),
+    # MODEL_T2 (ADR 0030). Paid-tier list price so the ledger books real cost
+    # even while the key rides the free tier.
+    "gemini-2.5-flash": (0.30, 2.50),
     "deepseek-chat": (0.27, 1.10),
 }
 
