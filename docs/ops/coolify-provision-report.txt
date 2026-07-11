@@ -1,4 +1,4 @@
-# Coolify provisioning report — 2026-07-10T21:29:47Z — commit afd33a4e9c09623d57af4857bd3c88111afa404b
+# Coolify provisioning report — 2026-07-10T23:08:24Z — commit fc10d467e6bae21b3af985df6818938184303367
 → Coolify 4.1.2
 → server: s88qql7wkilyfabk80aa6zfb
 → project exists: xkqhgfj6sshtle6m7jv5mb52
@@ -17,6 +17,13 @@
 → env GATEWAY_BIND upserted
 → env GATEWAY_PORT upserted
 → rpim-us-leg deploy triggered
+→ env APP_SECRET_KEY upserted
+→ env JWT_SECRET upserted
+→ env INTERNAL_TOKEN upserted
+→ env INTERNAL_TOKEN upserted
+→ rotated APP_SECRET_KEY / JWT_SECRET / INTERNAL_TOKEN (users must log in again)
+→ iran-leg redeploy (rotation) triggered
+→ us-leg redeploy (rotation) triggered
 
 Done. Resource UUIDs (for GitHub repo variables COOLIFY_IRAN_UUID / COOLIFY_US_UUID):
   iran-leg: uj6u0a274fksaah42ahcgoxu

@@ -1,4 +1,899 @@
-# ops-diagnose report — purged
-# A prior report contained resolved secret values from the Coolify-generated
-# compose (rule-4 incident, ADR 0029 fourth amendment). Content removed;
-# secrets rotated; the next diagnose run writes a redacted report here.
+# ops-diagnose report — 2026-07-11T00:05:40Z — commit 9f352ddf0503410fafaf645e63fd4528eccfaa7e
+# ops-diagnose — read-only — Coolify 4.1.2
+
+===== rpim-iran-leg (uj6u0a274fksaah42ahcgoxu) =====
+--- application ---
+name: rpim-iran-leg
+status: running:healthy
+git_branch: main
+git_commit_sha: HEAD
+docker_compose_location: /docker-compose.iran.yml
+custom_network_aliases: None
+compose_parsing_version: 5
+last_online_at: 2026-07-10 23:27:05
+updated_at: 2026-07-10T23:27:05.000000Z
+--- generated docker_compose (Coolify-parsed, env values redacted, truncated) ---
+services:
+  caddy:
+    image: 'caddy:2-alpine'
+    profiles:
+      - local
+    ports:
+      - '${IRAN_HTTP_PORT:-8001}:80'
+    volumes:
+      - '/data/coolify/applications/uj6u0a274fksaah42ahcgoxu/infra/caddy/Caddyfile.iran:/etc/caddy/Caddyfile:ro'
+    depends_on:
+      core-api:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '-q'
+        - '--spider'
+        - 'http://127.0.0.1/health'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: caddy-uj6u0a274fksaah42ahcgoxu-230828315833
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=1
+      - coolify.type=application
+      - coolify.name=caddy-uj6u0a274fksaah42ahcgoxu-230828315833
+      - coolify.resourceName=rpim-iran-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-iran-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      uj6u0a274fksaah42ahcgoxu: null
+      coolify: null
+    environment:
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_URL_CORE_API: [redacted]
+      SERVICE_FQDN_CORE_API: [redacted]
+      SERVICE_URL_DASHBOARD: [redacted]
+      SERVICE_FQDN_DASHBOARD: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_DASHBOARD: [redacted]
+      SERVICE_NAME_CORE_API: [redacted]
+      SERVICE_NAME_WORKERS: [redacted]
+      SERVICE_NAME_POSTGRES: [redacted]
+      SERVICE_NAME_REDIS: [redacted]
+    env_file:
+      - .env
+  dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    env_file:
+      -
+        path: ./.env.iran
+        required: false
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - '-e'
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    container_name: dashboard-uj6u0a274fksaah42ahcgoxu-230828329768
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=1
+      - coolify.type=application
+      - coolify.name=dashboard-uj6u0a274fksaah42ahcgoxu-230828329768
+      - coolify.resourceName=rpim-iran-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-iran-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - traefik.enable=true
+      - traefik.http.middlewares.gzip.compress=true
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-dashboard.entryPoints=http
+      - traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-dashboard.middlewares=redirect-to-https
+      - 'traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-dashboard.rule=Host(`app.rpim.ir`) && PathPrefix(`/`)'
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-dashboard.entryPoints=https
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-dashboard.middlewares=gzip
+      - 'traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-dashboard.rule=Host(`app.rpim.ir`) && PathPrefix(`/`)'
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-dashboard.tls=true
+      - 'caddy_0.encode=zstd gzip'
+      - 'caddy_0.handle_path.0_reverse_proxy={{upstreams}}'
+      - 'caddy_0.handle_path=/*'
+      - caddy_0.header=-Server
+      - 'caddy_0.try_files={path} /index.html /index.php'
+      - 'caddy_0=https://app.rpim.ir'
+      - caddy_ingress_network=uj6u0a274fksaah42ahcgoxu
+    networks:
+      uj6u0a274fksaah42ahcgoxu: null
+      coolify: null
+    environment:
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_URL_CORE_API: [redacted]
+      SERVICE_FQDN_CORE_API: [redacted]
+      SERVICE_URL_DASHBOARD: [redacted]
+      SERVICE_FQDN_DASHBOARD: [redacted]
+      COOLIFY_URL: 'https://app.rpim.ir'
+      COOLIFY_FQDN: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_DASHBOARD: [redacted]
+      SERVICE_NAME_CORE_API: [redacted]
+      SERVICE_NAME_WORKERS: [redacted]
+      SERVICE_NAME_POSTGRES: [redacted]
+      SERVICE_NAME_REDIS: [redacted]
+    image: 'uj6u0a274fksaah42ahcgoxu_dashboard:[redacted-hex]'
+  core-api:
+    build:
+      context: .
+      dockerfile: apps/core-api/Dockerfile
+    env_file:
+      -
+        path: ./.env.iran
+        required: false
+      - .env
+    environment:
+      REDIS_URL: 'redis://redis:6379/0'
+      DATABASE_URL: 'postgresql://[redacted]@postgres:5432/rpim'
+      APP_SECRET_KEY: [redacted]
+      JWT_SECRET: [redacted]
+      INTERNAL_TOKEN: [redacted]
+      GATEWAY_URL: 'http://model-gateway:8080'
+      RENDERER_URL: 'http://renderer:8091'
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_URL_CORE_API: [redacted]
+      SERVICE_FQDN_CORE_API: [redacted]
+      SERVICE_URL_DASHBOARD: [redacted]
+      SERVICE_FQDN_DASHBOARD: [redacted]
+      COOLIFY_URL: 'https://api.rpim.ir'
+      COOLIFY_FQDN: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_DASHBOARD: [redacted]
+      SERVICE_NAME_CORE_API: [redacted]
+      SERVICE_NAME_WORKERS: [redacted]
+      SERVICE_NAME_POSTGRES: [redacted]
+      SERVICE_NAME_REDIS: [redacted]
+    ports:
+      - '${CORE_BIND:-127.0.0.1}:${CORE_PORT:-8000}:8000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - '-c'
+        - "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).status==200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    container_name: core-api-uj6u0a274fksaah42ahcgoxu-230828338055
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=1
+      - coolify.type=application
+      - coolify.name=core-api-uj6u0a274fksaah42ahcgoxu-230828338055
+      - coolify.resourceName=rpim-iran-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-iran-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - traefik.enable=true
+      - traefik.http.middlewares.gzip.compress=true
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-core-api.entryPoints=http
+      - traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-core-api.middlewares=redirect-to-https
+      - 'traefik.http.routers.http-0-uj6u0a274fksaah42ahcgoxu-core-api.rule=Host(`api.rpim.ir`) && PathPrefix(`/`)'
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-core-api.entryPoints=https
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-core-api.middlewares=gzip
+      - 'traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-core-api.rule=Host(`api.rpim.ir`) && PathPrefix(`/`)'
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-core-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.https-0-uj6u0a274fksaah42ahcgoxu-core-api.tls=true
+      - 'caddy_0.encode=zstd gzip'
+      - 'caddy_0.handle_path.0_reverse_proxy={{upstreams}}'
+      - 'caddy_0.handle_path=/*'
+      - caddy_0.header=-Server
+      - 'caddy_0.try_files={path} /index.html /index.php'
+      - 'caddy_0=https://api.rpim.ir'
+      - caddy_ingress_network=uj6u0a274fksaah42ahcgoxu
+    networks:
+      uj6u0a274fksaah42ahcgoxu: null
+      coolify: null
+    image: 'uj6u0a274fksaah42ahcgoxu_core-api:[redacted-hex]'
+  workers:
+    build:
+      context: .
+      dockerfile: apps/workers/Dockerfile
+    env_file:
+      -
+        path: ./.env.iran
+        required: false
+      - .env
+    environment:
+      REDIS_URL: 'redis://redis:6379/0'
+      CORE_API_URL: 'http://core-api:8000'
+      INTERNAL_TOKEN: [redacted]
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_URL_CORE_API: [redacted]
+      SERVICE_FQDN_CORE_API: [redacted]
+      SERVICE_URL_DASHBOARD: [redacted]
+      SERVICE_FQDN_DASHBOARD: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_DASHBOARD: [redacted]
+      SERVICE_NAME_CORE_API: [redacted]
+      SERVICE_NAME_WORKERS: [redacted]
+      SERVICE_NAME_POSTGRES: [redacted]
+      SERVICE_NAME_REDIS: [redacted]
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'uv run --no-sync celery -A rpim_workers.celery_app inspect ping -t 5 | grep -q pong'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    container_name: workers-uj6u0a274fksaah42ahcgoxu-230828358570
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=1
+      - coolify.type=application
+      - coolify.name=workers-uj6u0a274fksaah42ahcgoxu-230828358570
+      - coolify.resourceName=rpim-iran-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-iran-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      uj6u0a274fksaah42ahcgoxu: null
+      coolify: null
+    image: 'uj6u0a274fksaah42ahcgoxu_workers:[redacted-hex]'
+  postgres:
+    image: 'pgvector/pgvector:pg16'
+    env_file:
+      -
+        path: ./.env.iran
+        required: false
+      - .env
+    environment:
+      POSTGRES_USER: rpim
+      POSTGRES_PASSWORD: [redacted]
+      POSTGRES_DB: rpim
+      CO
+--- envs (redacted by default; only allowlisted names print values) ---
+APP_ENV=production
+APP_ENV=production  # is_preview
+APP_SECRET_KEY=[redacted]
+APP_SECRET_KEY=[redacted]  # is_preview
+CORE_BIND=127.0.0.1
+CORE_BIND=127.0.0.1  # is_preview
+CORE_PORT=18000
+CORE_PORT=18000  # is_preview
+DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim
+DATABASE_URL=postgresql://[redacted]@postgres:5432/rpim  # is_preview
+DEEPSEEK_API_KEY=[redacted]
+DEEPSEEK_API_KEY=[redacted]  # is_preview
+GATEWAY_URL=http://model-gateway:8080
+GATEWAY_URL=http://10.66.0.2:8080  # is_preview
+GEMINI_API_KEY=[redacted]
+GEMINI_API_KEY=[redacted]  # is_preview
+INTERNAL_TOKEN=[redacted]
+INTERNAL_TOKEN=[redacted]  # is_preview
+JWT_SECRET=[redacted]
+JWT_SECRET=[redacted]  # is_preview
+POSTGRES_DB=rpim
+POSTGRES_DB=rpim  # is_preview
+POSTGRES_PASSWORD=[redacted]
+POSTGRES_PASSWORD=[redacted]  # is_preview
+POSTGRES_USER=rpim
+POSTGRES_USER=rpim  # is_preview
+RENDERER_URL=http://renderer:8091
+RENDERER_URL=http://renderer:8091  # is_preview
+SERVICE_FQDN_CORE_API=[redacted]
+SERVICE_FQDN_CORE_API=[redacted]  # is_preview
+SERVICE_FQDN_DASHBOARD=[redacted]
+SERVICE_FQDN_DASHBOARD=[redacted]  # is_preview
+SERVICE_URL_CORE_API=[redacted]
+SERVICE_URL_CORE_API=[redacted]  # is_preview
+SERVICE_URL_DASHBOARD=[redacted]
+SERVICE_URL_DASHBOARD=[redacted]  # is_preview
+--- container logs tail (best-effort) ---
+^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/app/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout: The read operation timed out
+INFO:     127.0.0.1:41164 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42504 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39756 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:39290 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57160 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58548 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:51592 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39130 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42126 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58320 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:58580 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47008 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43926 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48886 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:34240 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35764 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47446 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48302 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:45572 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55294 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38600 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51012 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:46478 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46030 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50016 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48504 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:45040 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40854 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50954 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35844 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:50828 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53590 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34714 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58348 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:43212 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58592 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53786 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56054 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:34198 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55392 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57880 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:47584 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46812 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43368 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47414 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:35946 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35592 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36570 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38068 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:60740 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58348 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57750 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39320 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:38418 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32954 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51576 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46670 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:51718 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43320 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42614 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59262 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:59506 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46768 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43282 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:48616 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52974 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44964 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39540 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:33338 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49400 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37068 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37430 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:58208 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53762 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37728 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50148 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:36444 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46384 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39518 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60758 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:34132 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40774 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56984 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:55618 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39308 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54228 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39218 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:37008 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47066 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55146 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40420 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:35712 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58256 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57068 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58744 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:54820 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40350 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.6:40990 - "POST /auth/register HTTP/1.1" 201 Created
+INFO:     10.0.1.6:40990 - "POST /brain/sources HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56928 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.6:40990 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58684 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.14:48464 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51162 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50508 - "GET /health HTTP/1.1" 200 OK
+
+===== rpim-us-leg (g121hff560aj748anak0uf6f) =====
+--- application ---
+name: rpim-us-leg
+status: running:healthy
+git_branch: main
+git_commit_sha: HEAD
+docker_compose_location: /docker-compose.us.yml
+custom_network_aliases: None
+compose_parsing_version: 5
+last_online_at: 2026-07-10 23:27:05
+updated_at: 2026-07-10T23:27:05.000000Z
+--- generated docker_compose (Coolify-parsed, env values redacted, truncated) ---
+services:
+  caddy:
+    image: 'caddy:2-alpine'
+    profiles:
+      - local
+    ports:
+      - '127.0.0.1:${US_HTTP_PORT:-8002}:80'
+    volumes:
+      - '/data/coolify/applications/g121hff560aj748anak0uf6f/infra/caddy/Caddyfile.us:/etc/caddy/Caddyfile:ro'
+    depends_on:
+      model-gateway:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '-q'
+        - '--spider'
+        - 'http://127.0.0.1/health'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: caddy-g121hff560aj748anak0uf6f-230836639327
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=2
+      - coolify.type=application
+      - coolify.name=caddy-g121hff560aj748anak0uf6f-230836639327
+      - coolify.resourceName=rpim-us-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-us-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      g121hff560aj748anak0uf6f: null
+      coolify: null
+    environment:
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_MODEL_GATEWAY: [redacted]
+      SERVICE_NAME_EMBEDDINGS: [redacted]
+      SERVICE_NAME_RENDERER: [redacted]
+      SERVICE_NAME_REDIS_US: [redacted]
+    env_file:
+      - .env
+  model-gateway:
+    build:
+      context: .
+      dockerfile: apps/model-gateway/Dockerfile
+    env_file:
+      -
+        path: ./.env.us
+        required: false
+      - .env
+    environment:
+      REDIS_URL: 'redis://redis-us:6379/0'
+      INTERNAL_TOKEN: [redacted]
+      CORE_API_URL: 'http://core-api:8000'
+      EMBEDDING_BACKEND: [redacted]
+      EMBEDDINGS_URL: 'http://embeddings:8090'
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_MODEL_GATEWAY: [redacted]
+      SERVICE_NAME_EMBEDDINGS: [redacted]
+      SERVICE_NAME_RENDERER: [redacted]
+      SERVICE_NAME_REDIS_US: [redacted]
+    ports:
+      - '${GATEWAY_BIND:-127.0.0.1}:${GATEWAY_PORT:-8080}:8080'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      redis-us:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - '-c'
+        - "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3).status==200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    container_name: model-gateway-g121hff560aj748anak0uf6f-230836656116
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=2
+      - coolify.type=application
+      - coolify.name=model-gateway-g121hff560aj748anak0uf6f-230836656116
+      - coolify.resourceName=rpim-us-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-us-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      g121hff560aj748anak0uf6f: null
+      coolify: null
+    image: 'g121hff560aj748anak0uf6f_model-gateway:[redacted-hex]'
+  embeddings:
+    build:
+      context: .
+      dockerfile: apps/embeddings/Dockerfile
+      args:
+        INSTALL_MODEL: [redacted]
+    env_file:
+      -
+        path: ./.env.us
+        required: false
+      - .env
+    environment:
+      INTERNAL_TOKEN: [redacted]
+      EMBEDDING_BACKEND: [redacted]
+      EMBEDDING_MODEL: [redacted]
+      EMBEDDING_DEVICE: [redacted]
+      INSTALL_MODEL: [redacted]
+      EMBEDDINGS_INSTALL_MODEL: [redacted]
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_MODEL_GATEWAY: [redacted]
+      SERVICE_NAME_EMBEDDINGS: [redacted]
+      SERVICE_NAME_RENDERER: [redacted]
+      SERVICE_NAME_REDIS_US: [redacted]
+    volumes:
+      - 'g121hff560aj748anak0uf6f_model-cache:/root/.cache'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - '-c'
+        - "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8090/health',timeout=3).status==200 else 1)"
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    container_name: embeddings-g121hff560aj748anak0uf6f-230836669587
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=2
+      - coolify.type=application
+      - coolify.name=embeddings-g121hff560aj748anak0uf6f-230836669587
+      - coolify.resourceName=rpim-us-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-us-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      g121hff560aj748anak0uf6f: null
+      coolify: null
+    image: 'g121hff560aj748anak0uf6f_embeddings:[redacted-hex]'
+  renderer:
+    build:
+      context: .
+      dockerfile: apps/renderer/Dockerfile
+    env_file:
+      -
+        path: ./.env.us
+        required: false
+      - .env
+    environment:
+      INTERNAL_TOKEN: [redacted]
+      RENDER_MODE: fake
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_MODEL_GATEWAY: [redacted]
+      SERVICE_NAME_EMBEDDINGS: [redacted]
+      SERVICE_NAME_RENDERER: [redacted]
+      SERVICE_NAME_REDIS_US: [redacted]
+    ports:
+      - '${RENDERER_BIND:-127.0.0.1}:${RENDERER_PORT:-8091}:8091'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - '-c'
+        - "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8091/health',timeout=3).status==200 else 1)"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    container_name: renderer-g121hff560aj748anak0uf6f-230836696833
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=2
+      - coolify.type=application
+      - coolify.name=renderer-g121hff560aj748anak0uf6f-230836696833
+      - coolify.resourceName=rpim-us-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-us-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      g121hff560aj748anak0uf6f: null
+      coolify: null
+    image: 'g121hff560aj748anak0uf6f_renderer:[redacted-hex]'
+  redis-us:
+    image: 'redis:7-alpine'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: redis-us-g121hff560aj748anak0uf6f-230836701981
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.1.2
+      - coolify.applicationId=2
+      - coolify.type=application
+      - coolify.name=redis-us-g121hff560aj748anak0uf6f-230836701981
+      - coolify.resourceName=rpim-us-leg
+      - coolify.projectName=rpim
+      - coolify.serviceName=rpim-us-leg
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+    networks:
+      g121hff560aj748anak0uf6f: null
+      coolify: null
+    environment:
+      COOLIFY_BRANCH: [redacted]
+      COOLIFY_RESOURCE_UUID: [redacted]
+      COOLIFY_CONTAINER_NAME: [redacted]
+      SERVICE_NAME_CADDY: [redacted]
+      SERVICE_NAME_MODEL_GATEWAY: [redacted]
+      SERVICE_NAME_EMBEDDINGS: [redacted]
+      SERVICE_NAME_RENDERER: [redacted]
+      SERVICE_NAME_REDIS_US: [redacted]
+    env_file:
+      - .env
+volumes:
+  g121hff560aj748anak0uf6f_model-cache:
+    name: g121hff560aj748anak0uf6f_model-cache
+networks:
+  g121hff560aj748anak0uf6f:
+    name: g121hff560aj748anak0uf6f
+    external: true
+  coolify:
+    name: coolify
+    external: true
+--- envs (redacted by default; only allowlisted names print values) ---
+APP_ENV=production
+APP_ENV=production  # is_preview
+CORE_API_URL=http://core-api:8000
+CORE_API_URL=http://10.66.0.1:8000  # is_preview
+DEEPSEEK_API_KEY=[redacted]
+DEEPSEEK_API_KEY=[redacted]  # is_preview
+EMBEDDINGS_INSTALL_MODEL=[redacted]
+EMBEDDINGS_INSTALL_MODEL=[redacted]  # is_preview
+EMBEDDING_BACKEND=[redacted]
+EMBEDDING_BACKEND=[redacted]  # is_preview
+EMBEDDING_DEVICE=[redacted]
+EMBEDDING_DEVICE=[redacted]  # is_preview
+EMBEDDING_MODEL=[redacted]
+EMBEDDING_MODEL=[redacted]  # is_preview
+GATEWAY_BIND=127.0.0.1
+GATEWAY_BIND=127.0.0.1  # is_preview
+GATEWAY_PORT=18080
+GATEWAY_PORT=18080  # is_preview
+GEMINI_API_KEY=[redacted]
+GEMINI_API_KEY=[redacted]  # is_preview
+INTERNAL_TOKEN=[redacted]
+INTERNAL_TOKEN=[redacted]  # is_preview
+RENDER_MODE=fake
+RENDER_MODE=fake  # is_preview
+--- container logs tail (best-effort) ---
+O:     127.0.0.1:50454 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52006 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42218 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60682 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57430 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36908 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37782 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59312 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52538 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50202 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59846 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40914 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41390 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35704 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55984 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56258 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53884 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47890 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41530 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34402 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35396 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40390 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46552 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41620 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58920 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46214 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37356 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34422 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36764 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39884 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33090 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53024 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51934 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35732 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52774 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46368 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55604 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48804 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41622 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53384 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45166 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33554 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47494 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42550 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35420 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40518 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53618 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57228 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45296 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38774 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40608 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37882 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44032 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49028 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58912 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48396 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51686 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39400 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41608 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46526 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58302 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55134 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43986 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36222 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53512 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33528 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47628 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52488 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33656 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35310 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60018 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36686 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56920 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54002 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51930 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55160 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58052 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46770 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34206 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52718 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45610 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51140 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36062 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56492 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60500 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55538 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36024 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60744 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35750 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60432 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35574 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58106 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51494 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40926 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60978 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53428 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47444 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39494 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45380 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59856 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38630 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44848 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34560 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52762 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48666 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52710 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40998 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58056 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53914 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37790 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51588 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38250 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49720 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38724 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43752 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34004 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44774 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60338 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47958 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44170 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35942 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36444 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47820 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50066 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:58740 - "POST /embed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57372 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59518 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33176 - "GET /health HTTP/1.1" 200 OK
+
+# end of report
+exit_code=0
