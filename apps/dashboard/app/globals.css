@@ -30,6 +30,8 @@
   --gold-strong: #8f6f2a;
   --gold-soft: #f1e8d2;
   --gold-ink: #ffffff;
+  /* chart marks only — validated (dataviz six checks) against --ground */
+  --chart-mark: #a8863c;
   --ok: #3e7c58;
   --ok-soft: #e2efe6;
   --warn: #a97a22;
@@ -55,6 +57,8 @@
     --gold-strong: #e0c186;
     --gold-soft: #2a2a1e;
     --gold-ink: #141109;
+    /* dark surface needs a deeper gold to pass the lightness/chroma checks */
+    --chart-mark: #b08a32;
     --ok: #6fb98b;
     --ok-soft: #1b2f24;
     --warn: #d9ac5c;
@@ -715,4 +719,92 @@ main.auth-card {
   * {
     transition: none !important;
   }
+}
+
+/* ── reports: horizontal bar charts (dataviz spec: thin marks, 4px rounded
+   data-end, direct labels, values in text tokens — never mark color) ────── */
+
+.chart {
+  margin: 0 0 18px;
+}
+
+.chart figcaption {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 128px) 1fr minmax(40px, auto);
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px; /* ≥2px surface gap between adjacent fills */
+}
+
+.hbar-label {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hbar-track {
+  background: var(--surface-2);
+  border-radius: 4px;
+  block-size: 14px; /* thin mark */
+  overflow: hidden;
+}
+
+.hbar-fill {
+  display: block;
+  block-size: 100%;
+  background: var(--chart-mark);
+  border-start-start-radius: 2px;
+  border-end-start-radius: 2px;
+  border-start-end-radius: 4px; /* rounded data-end (inline-end in RTL) */
+  border-end-end-radius: 4px;
+  min-inline-size: 2px;
+  transition: inline-size 0.35s ease;
+}
+
+.hbar-value {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-align: start;
+}
+
+/* campaigns table (a11y table view for the chart data) */
+.report-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table th {
+  color: var(--ink-2);
+  font-weight: 600;
+  text-align: start;
+  padding: 8px 10px;
+  border-block-end: 1px solid var(--hairline);
+}
+
+.report-table td {
+  padding: 8px 10px;
+  border-block-end: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+/* silence toggle card */
+.silence-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.silence-row input[type="text"] {
+  flex: 1 1 220px;
 }
