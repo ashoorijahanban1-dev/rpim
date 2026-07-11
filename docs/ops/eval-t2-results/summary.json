@@ -16,17 +16,17 @@
   },
   {
     "candidate": "gemini:gemini-2.5-flash",
-    "ok": 4,
-    "errors": 8,
+    "ok": 26,
+    "errors": 13,
     "mean_score": null,
     "scored": 0,
-    "mean_latency_s": 16.23,
-    "tokens_in": 190,
-    "tokens_out": 162,
+    "mean_latency_s": 25.17,
+    "tokens_in": 1245,
+    "tokens_out": 1074,
     "est_cost_usd": 0.0,
-    "aborted_after": 12,
+    "aborted_after": 39,
     "top_errors": {
-      "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:g": 8
+      "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:g": 13
     }
   }
 ]
