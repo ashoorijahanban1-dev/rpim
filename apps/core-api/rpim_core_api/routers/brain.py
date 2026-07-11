@@ -3,6 +3,7 @@ import io
 import math
 from urllib.parse import urlparse
 
+import httpx
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
@@ -47,10 +48,17 @@ def _cosine(a: list[float], b: list[float]) -> float:
     return dot / (na * nb)
 
 
+MAX_CHUNKS = 300
+
+
 def _ingest(session: Session, identity: Identity, title: str, kind: str, text: str) -> SourceOut:
     pieces = chunk_text(text)
     if not pieces:
         raise HTTPException(status_code=422, detail="empty text")
+    if len(pieces) > MAX_CHUNKS:
+        # A single giant source (book-sized PDF) would hold the request open
+        # for minutes; ask for a split instead of timing out opaquely.
+        raise HTTPException(status_code=422, detail="source too large — split the document")
 
     # Idempotent across retries (tunnel drops mid-request): identical content
     # for the same tenant returns the existing source — no re-embed, no dupes.
@@ -59,7 +67,15 @@ def _ingest(session: Session, identity: Identity, title: str, kind: str, text: s
     if existing_out is not None:
         return existing_out
 
-    vectors = embed_texts(pieces, tenant_id=identity.tenant_id)
+    try:
+        vectors = embed_texts(pieces, tenant_id=identity.tenant_id)
+    except httpx.HTTPError as exc:
+        # Cross-leg embedding down/slow is an operational condition, not a
+        # server bug: surface a clean, dashboard-mappable 503 instead of a
+        # bare 500 (production incident: large PDFs looked like a mystery).
+        raise HTTPException(
+            status_code=503, detail="embedding service unavailable — try again shortly"
+        ) from exc
     source = BrainSource(
         tenant_id=identity.tenant_id,
         title=title,
