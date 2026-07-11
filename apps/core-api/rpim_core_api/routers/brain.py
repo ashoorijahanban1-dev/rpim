@@ -178,6 +178,38 @@ def create_source_pdf(
     return _ingest(session, identity, title=title, kind="pdf", text=text)
 
 
+@router.post("/reindex")
+def reindex(
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Re-embed every chunk of the calling tenant with the CURRENT backend.
+
+    Recovery path for sources ingested while the embedding backend was fake
+    (or after a model upgrade): the content-hash dedup rightly refuses to
+    re-ingest identical text, so vectors must be refreshed in place.
+    Idempotent — safe to re-run (rule 8)."""
+    chunks = session.scalars(
+        select(BrainChunk)
+        .where(BrainChunk.tenant_id == identity.tenant_id)  # rule 6
+        .order_by(BrainChunk.source_id, BrainChunk.seq)
+    ).all()
+    if chunks:
+        try:
+            vectors = embed_texts([c.text for c in chunks], tenant_id=identity.tenant_id)
+        except httpx.HTTPError as exc:
+            raise HTTPException(
+                status_code=503, detail="embedding service unavailable — try again shortly"
+            ) from exc
+        for chunk, vector in zip(chunks, vectors, strict=True):
+            chunk.embedding = vector
+        session.commit()
+    return {
+        "chunks": len(chunks),
+        "sources": len({c.source_id for c in chunks}),
+    }
+
+
 @router.get("/search")
 def search(
     q: str = Query(min_length=1),

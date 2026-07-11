@@ -57,7 +57,9 @@ def fetch_page(url: str) -> tuple[str, list[str]]:
         return "", []
 
     soup = BeautifulSoup(response.text[:MAX_BYTES], "html.parser")
-    for tag in soup(["script", "style", "noscript"]):
+    # nav/footer/aside/form boilerplate pollutes retrieval (observed in
+    # production: menu and footer chunks outranked real content).
+    for tag in soup(["script", "style", "noscript", "nav", "footer", "aside", "form", "svg"]):
         tag.decompose()
     text = "\n\n".join(t.strip() for t in soup.stripped_strings if len(t.strip()) > 1)
 
