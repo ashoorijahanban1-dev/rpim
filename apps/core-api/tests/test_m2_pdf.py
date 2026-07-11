@@ -359,3 +359,31 @@ def test_m2_pdf_cross_tenant_isolation(client: TestClient):
         f"Tenant B cannot find its own uploaded source after isolation check.\n"
         f"B's results: {b_texts}"
     )
+
+
+# ---------------------------------------------------------------------------
+# 7. Robustness — encrypted PDFs must be a clean 422, never a 500
+#    (production incident: user uploads failed with a generic 500)
+# ---------------------------------------------------------------------------
+
+
+def test_m2_pdf_password_protected_returns_422(client: TestClient):
+    """A password-protected PDF → 422 whose detail names the password problem."""
+    import io  # noqa: PLC0415
+
+    from pypdf import PdfReader, PdfWriter  # noqa: PLC0415
+
+    writer = PdfWriter()
+    writer.append(PdfReader(io.BytesIO(_VALID_PDF)))
+    writer.encrypt("owner-secret")
+    buf = io.BytesIO()
+    writer.write(buf)
+
+    token = _register(client, "pdf-enc@example.com", "password1!", "PdfEnc")["access_token"]
+    resp = _upload_pdf(client, token, buf.getvalue())
+    assert resp.status_code == 422, (
+        f"encrypted PDF must be a 422, got {resp.status_code}: {resp.text}"
+    )
+    assert "password" in resp.json()["detail"].lower(), (
+        f"detail must name the password problem: {resp.json()}"
+    )

@@ -425,3 +425,60 @@ def test_m2_crawl_cross_tenant_isolation(client: TestClient, monkeypatch):
         f"Tenant B cannot find its own uploaded source after isolation check.\n"
         f"B's results: {b_texts}"
     )
+
+
+# ---------------------------------------------------------------------------
+# 6. Robustness — page failures must not 500 the crawl (production incident:
+#    real sites always have a broken/slow link; example.com worked, the
+#    brand's real site 500'd)
+# ---------------------------------------------------------------------------
+
+
+def test_m2_crawl_broken_link_does_not_kill_crawl(client: TestClient, monkeypatch):
+    """Root succeeds and links to a page whose fetch raises — the crawl must
+    ingest the root's text (201) instead of bubbling a 500. `pages` counts
+    successfully fetched pages only, so it is 1 here."""
+    import httpx  # noqa: PLC0415
+
+    import rpim_core_api.brain.crawler as _crawler_mod  # noqa: PLC0415
+
+    def flaky_site(url: str) -> tuple[str, list[str]]:
+        if url in (_ROOT_URL, _ROOT_URL + "/"):
+            return (f"صفحه اصلی برند. {_MARKER}", [_PAGE_A_URL])
+        raise httpx.ConnectError("connection refused")
+
+    monkeypatch.setattr(_crawler_mod, "fetch_page", flaky_site)
+
+    token = _register(
+        client, "crawl-flaky@example.com", "Password123!", "CrawlFlaky"
+    )["access_token"]
+    resp = _crawl(client, token, _ROOT_URL)
+    assert resp.status_code == 201, (
+        f"a single broken link must not kill the crawl — expected 201, "
+        f"got {resp.status_code}: {resp.text}"
+    )
+    body = resp.json()
+    assert body["pages"] == 1, (
+        f"'pages' must count successfully fetched pages only, got {body['pages']}"
+    )
+
+
+def test_m2_crawl_unreachable_site_returns_422_not_500(client: TestClient, monkeypatch):
+    """Every fetch fails (site down / blocks bots) → clean 422 with a
+    human-readable detail, never a 500."""
+    import httpx  # noqa: PLC0415
+
+    import rpim_core_api.brain.crawler as _crawler_mod  # noqa: PLC0415
+
+    def dead_site(url: str) -> tuple[str, list[str]]:
+        raise httpx.ConnectError("connection refused")
+
+    monkeypatch.setattr(_crawler_mod, "fetch_page", dead_site)
+
+    token = _register(
+        client, "crawl-dead@example.com", "Password123!", "CrawlDead"
+    )["access_token"]
+    resp = _crawl(client, token, _ROOT_URL)
+    assert resp.status_code == 422, (
+        f"an unreachable site must be a 422, got {resp.status_code}: {resp.text}"
+    )
