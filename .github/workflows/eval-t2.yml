@@ -25,6 +25,13 @@ on:
         description: "EVAL_DELAY_S — seconds between calls (free tiers need 4+)"
         default: "4"
         type: string
+      prompts:
+        # lets a quota-killed run resume with only the remaining slice
+        # (e.g. scripts/eval/prompts_fa_tail20.jsonl) instead of burning the
+        # daily budget re-running prompts that already have outputs.
+        description: "EVAL_PROMPTS — prompts file path; empty = the full 50"
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -42,6 +49,7 @@ jobs:
       EVAL_CANDIDATES: ${{ inputs.candidates }}
       EVAL_JUDGE: ${{ inputs.judge }}
       EVAL_DELAY_S: ${{ inputs.delay }}
+      EVAL_PROMPTS: ${{ inputs.prompts }}
       EVAL_RESULTS_DIR: eval-results
     steps:
       - uses: actions/checkout@v4
