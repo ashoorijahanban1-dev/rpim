@@ -33,7 +33,7 @@ jobs:
       # push-triggered runs have no inputs → rotation stays off.
       ROTATE_SECRETS: ${{ inputs.rotate_secrets && '1' || '0' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Provision (never fails the step — report is the channel)
         run: |

@@ -52,7 +52,7 @@ jobs:
       EVAL_PROMPTS: ${{ inputs.prompts }}
       EVAL_RESULTS_DIR: eval-results
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Guard — a key exists for every provider referenced
         run: |
