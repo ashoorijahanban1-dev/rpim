@@ -9,7 +9,7 @@ jobs:
   python:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -24,7 +24,7 @@ jobs:
       run:
         working-directory: apps/dashboard
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -37,7 +37,7 @@ jobs:
   compose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: make env-init
       - run: docker compose -f docker-compose.iran.yml --profile local config -q
       - run: docker compose -f docker-compose.us.yml --profile local config -q
@@ -55,7 +55,7 @@ jobs:
       # standing in for the WireGuard tunnel (ADR 0004):
       GATEWAY_URL: http://host.docker.internal:8080
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: make env-init
       - run: make up-iran
       - run: make up-us
@@ -105,7 +105,7 @@ jobs:
       COOLIFY_URL: ${{ vars.COOLIFY_URL || 'http://rpim.ir:8000' }}
       COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Redeploy both legs via Coolify
         run: |
           if [ -z "$COOLIFY_TOKEN" ] || [ ! -f infra/coolify-uuids.conf ]; then
