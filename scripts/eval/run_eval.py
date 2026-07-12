@@ -125,7 +125,9 @@ def main() -> int:
     judge_env = os.environ.get("EVAL_JUDGE", "").strip()
     judge = _parse_target(judge_env) if judge_env else None
 
-    prompts_path = Path(os.environ.get("EVAL_PROMPTS", here / "prompts_fa.jsonl"))
+    # `or` (not a default arg): the workflow passes EVAL_PROMPTS="" when the
+    # dispatch input is blank, and Path("") must still mean "the full 50".
+    prompts_path = Path(os.environ.get("EVAL_PROMPTS") or (here / "prompts_fa.jsonl"))
     items = [json.loads(line) for line in prompts_path.read_text("utf-8").splitlines() if line]
     limit = os.environ.get("EVAL_LIMIT")
     if limit:
