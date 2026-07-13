@@ -67,6 +67,22 @@ full-length (e37 901, e47 971 tokens — no more 40-token stubs).
 - `PRICES` already carries the paid-tier rate (0.30/2.50 per 1M, ADR 0030),
   so the per-tenant ledger books real cost from the first T2 call.
 
+## Amendment (same day) — drafts tier & MODEL_T1 interim
+
+Post-deploy verification surfaced a pilot blocker: the brief→draft endpoint
+(ADR 0014) still called `task="t1"` — its stopgap from the gated-T2 era —
+and **MODEL_T1 was never set in production**, so draft generation would 503
+on `t1` even with MODEL_T2 live. Two moves, both here:
+
+- **Code:** drafts now request `task="t2"` (`routers/content.py`) — final
+  content runs on the eval-gated tier, exactly what ADR 0014's tier note
+  promised after the gate. Takes effect when this branch merges to main.
+- **Env (interim):** `MODEL_T1=gemini:gemini-2.5-flash` upserted alongside
+  MODEL_T2 — until the merge, production main still sends drafts down the
+  t1 chain, and the only model allowed to serve them is the one that passed
+  the eval. T1 has no eval'd cheap candidate of its own yet; when one is
+  chosen (DeepSeek re-run etc.), that gets its own ADR.
+
 ## Carried risk & re-eval triggers (adds to ADR 0030's list)
 
 - tone_post / hook_cta were only judged on pre-thinking-fix truncated
