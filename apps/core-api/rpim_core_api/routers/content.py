@@ -1,6 +1,7 @@
 import re
 from typing import Literal
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -55,7 +56,15 @@ def create_draft(
     )
 
     query = " ".join(filter(None, [body.brief.goal, body.brief.audience, body.brief.hook or ""]))
-    query_vector = embed_texts([query], tenant_id=identity.tenant_id)[0]
+    try:
+        query_vector = embed_texts([query], tenant_id=identity.tenant_id)[0]
+    except httpx.HTTPError as exc:
+        # Same operational condition as brain ingest (cold/slow embeddings
+        # after a redeploy): a clean dashboard-mappable 503, not a bare 500 —
+        # this exact path killed the pilot's first draft.
+        raise HTTPException(
+            status_code=503, detail="embedding service unavailable — try again shortly"
+        ) from exc
     chunks = search_chunks(session, identity.tenant_id, query_vector, k=5)
 
     context_block = "\n\n".join(f"[{c['source_title']}] {c['text']}" for c in chunks)
@@ -79,7 +88,12 @@ def create_draft(
     )
     # Final content runs on T2 now that the eval gate cleared (ADR 0031);
     # t1 was the ADR 0014 stopgap while MODEL_T2 was constitution-gated.
-    text = complete(prompt, system=system, tenant_id=identity.tenant_id, task="t2")
+    try:
+        text = complete(prompt, system=system, tenant_id=identity.tenant_id, task="t2")
+    except httpx.HTTPError as exc:
+        raise HTTPException(
+            status_code=503, detail="model gateway unavailable — try again shortly"
+        ) from exc
 
     # Cheap unsourced-claim tripwire (full claim-check is M5 QA): any multi-
     # digit number in the draft that never appears in the context gets flagged.
