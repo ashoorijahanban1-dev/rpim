@@ -18,8 +18,12 @@ docker run -d --name "${CONTAINER}" \
   pgvector/pgvector:pg16 >/dev/null
 trap 'docker rm -f "${CONTAINER}" >/dev/null 2>&1' EXIT
 
+# pg_isready is NOT enough here: the postgres entrypoint answers pings from
+# its temporary init server BEFORE POSTGRES_DB exists (and briefly restarts),
+# so a psql against the target DB must be the readiness probe — anything less
+# raced in CI ("database \"rpim\" does not exist", main run 29257318831).
 for _ in $(seq 1 30); do
-  if docker exec "${CONTAINER}" pg_isready -U postgres >/dev/null 2>&1; then
+  if docker exec "${CONTAINER}" psql -U postgres -d rpim -tAc "SELECT 1" >/dev/null 2>&1; then
     break
   fi
   sleep 2
