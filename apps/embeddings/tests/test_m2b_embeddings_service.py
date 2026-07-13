@@ -159,3 +159,74 @@ def test_m2b_embeddings_vectors_match_fake_embed(emb_client: TestClient):
         assert vectors[i] == pytest.approx(expected, abs=1e-9), (
             f"vector[{i}] does not match fake_embed({text!r})"
         )
+
+
+# ---------------------------------------------------------------------------
+# 4. Startup warmup — bge-m3 loads at boot, not on the first user request
+# ---------------------------------------------------------------------------
+
+
+def test_m2b_warmup_skipped_for_fake_backend(monkeypatch):
+    """EMBEDDING_BACKEND=fake must not spawn a warmup thread."""
+    import threading  # noqa: PLC0415
+
+    import rpim_embeddings.main as emb_main  # noqa: PLC0415
+
+    spawned: list[int] = []
+
+    class _RecordingThread(threading.Thread):
+        def __init__(self, *args, **kwargs):
+            spawned.append(1)
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setenv("EMBEDDING_BACKEND", "fake")
+    monkeypatch.setattr(emb_main.threading, "Thread", _RecordingThread)
+    emb_main._warm_model_in_background()
+    assert not spawned, "fake backend must not start a model warmup thread"
+
+
+def test_m2b_warmup_loads_model_for_real_backend(monkeypatch):
+    """EMBEDDING_BACKEND=real must kick off a background load at startup —
+    the post-redeploy first request must not pay the bge-m3 load cost
+    (production incident: the pilot's first draft timed out on it)."""
+    import threading  # noqa: PLC0415
+
+    import rpim_embeddings.main as emb_main  # noqa: PLC0415
+
+    loaded = threading.Event()
+    monkeypatch.setenv("EMBEDDING_BACKEND", "real")
+    monkeypatch.setattr(emb_main, "_get_model", lambda: loaded.set())
+    emb_main._warm_model_in_background()
+    assert loaded.wait(timeout=5), "warmup must call _get_model in the background"
+
+
+def test_m2b_model_load_is_single_flight(monkeypatch):
+    """Two concurrent first calls must construct the model exactly once —
+    a double bge-m3 load is GBs of wasted RAM."""
+    import sys  # noqa: PLC0415
+    import threading  # noqa: PLC0415
+    import time  # noqa: PLC0415
+    import types  # noqa: PLC0415
+
+    import rpim_embeddings.main as emb_main  # noqa: PLC0415
+
+    constructed: list[int] = []
+
+    class _FakeSentenceTransformer:
+        def __init__(self, name: str, device: str | None = None):
+            constructed.append(1)
+            time.sleep(0.2)  # long enough for both threads to race the load
+
+    fake_module = types.ModuleType("sentence_transformers")
+    fake_module.SentenceTransformer = _FakeSentenceTransformer
+    monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
+    monkeypatch.setattr(emb_main, "_model", None)
+
+    threads = [threading.Thread(target=emb_main._get_model) for _ in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=5)
+    assert len(constructed) == 1, (
+        f"model must be constructed exactly once, got {len(constructed)}"
+    )

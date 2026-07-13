@@ -521,3 +521,57 @@ def test_m4_content_cross_tenant_isolation(client: TestClient):
         f"Tenant B's apprentice-log must not contain Tenant A's marker.\n"
         f"marker={MARKER!r}\nlog_response={log_resp.text!r}"
     )
+
+
+# ---------------------------------------------------------------------------
+# 8. Cross-leg outages surface as clean 503s, never raw 500s
+# ---------------------------------------------------------------------------
+
+
+def test_m4_draft_embed_failure_returns_503_not_500(client: TestClient, monkeypatch):
+    """A dead/cold embedding path (bge-m3 still loading after a redeploy) must
+    be a clean 503 whose detail names the embedding service — the dashboard
+    maps it to Persian. This exact path failed the pilot's first draft."""
+    import httpx  # noqa: PLC0415
+
+    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+
+    def dead_embed(texts, tenant_id=None):
+        raise httpx.ReadTimeout("cold bge-m3 load")
+
+    monkeypatch.setattr(content_router, "embed_texts", dead_embed)
+
+    token = _setup_tenant(
+        client, "draft-embed-down@example.com", "Password123!", "DraftEmbedDown"
+    )
+    resp = client.post("/content/drafts", json={"brief": _BRIEF}, headers=_auth(token))
+    assert resp.status_code == 503, (
+        f"embed failure must be 503, got {resp.status_code}: {resp.text}"
+    )
+    assert "embedding" in resp.json()["detail"].lower(), (
+        f"detail must name the embedding service: {resp.json()}"
+    )
+
+
+def test_m4_draft_gateway_failure_returns_503_not_500(client: TestClient, monkeypatch):
+    """A dead model gateway (T2 chain down, provider quota burned) must be a
+    clean 503 naming the gateway — the dashboard maps it to Persian."""
+    import httpx  # noqa: PLC0415
+
+    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+
+    def dead_complete(prompt, system=None, tenant_id=None, task="t1", request_id=None):
+        raise httpx.ConnectError("gateway down")
+
+    monkeypatch.setattr(content_router, "complete", dead_complete)
+
+    token = _setup_tenant(
+        client, "draft-gw-down@example.com", "Password123!", "DraftGwDown"
+    )
+    resp = client.post("/content/drafts", json={"brief": _BRIEF}, headers=_auth(token))
+    assert resp.status_code == 503, (
+        f"gateway failure must be 503, got {resp.status_code}: {resp.text}"
+    )
+    assert "gateway" in resp.json()["detail"].lower(), (
+        f"detail must name the model gateway: {resp.json()}"
+    )

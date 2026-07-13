@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import fa from "@/locales/fa.json";
-import { api } from "@/lib/api";
+import { api, readErrorDetail } from "@/lib/api";
 
 const FIELDS = ["goal", "audience", "channel", "format", "hook", "cta"] as const;
 
@@ -38,7 +38,13 @@ export default function NewBriefPage() {
         return;
       }
       if (!resp.ok) {
-        setError(fa.auth.error_generic);
+        // API details are stable English strings; known ones map to Persian
+        // via the locale file (rule: user-facing text lives in fa.json).
+        const detail = await readErrorDetail(resp);
+        const map = fa.brief.detail_map as Record<string, string>;
+        const translated =
+          detail && Object.entries(map).find(([key]) => detail.includes(key))?.[1];
+        setError(translated ?? fa.auth.error_generic);
         return;
       }
       setDone(true);
