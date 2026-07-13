@@ -1,4 +1,4 @@
-# Coolify provisioning report — 2026-07-13T11:13:35Z — commit 0c54a83ac8460d1c3841f9eab7721f3ad3d07835
+# Coolify provisioning report — 2026-07-13T11:33:45Z — commit 45a0bff855b8ceb00f3645578136b1c3d96fc9c2
 → Coolify 4.1.2
 → server: s88qql7wkilyfabk80aa6zfb
 → project exists: xkqhgfj6sshtle6m7jv5mb52
@@ -17,6 +17,7 @@
 → env EMBEDDING_BACKEND upserted
 → env EMBEDDINGS_INSTALL_MODEL upserted
 → env MODEL_T2 upserted
+→ env MODEL_T1 upserted
 → env GATEWAY_BIND upserted
 → env GATEWAY_PORT upserted
 → rpim-us-leg deploy triggered
