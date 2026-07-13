@@ -1,4 +1,4 @@
-# ops-diagnose report — 2026-07-11T00:05:40Z — commit 9f352ddf0503410fafaf645e63fd4528eccfaa7e
+# ops-diagnose report — 2026-07-13T11:20:15Z — commit 7d04c65de91d618cd9ec9d8ad0a9c429010b7f2e
 # ops-diagnose — read-only — Coolify 4.1.2
 
 ===== rpim-iran-leg (uj6u0a274fksaah42ahcgoxu) =====
@@ -10,8 +10,8 @@ git_commit_sha: HEAD
 docker_compose_location: /docker-compose.iran.yml
 custom_network_aliases: None
 compose_parsing_version: 5
-last_online_at: 2026-07-10 23:27:05
-updated_at: 2026-07-10T23:27:05.000000Z
+last_online_at: 2026-07-13 11:16:25
+updated_at: 2026-07-13T11:16:25.000000Z
 --- generated docker_compose (Coolify-parsed, env values redacted, truncated) ---
 services:
   caddy:
@@ -37,14 +37,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    container_name: caddy-uj6u0a274fksaah42ahcgoxu-230828315833
+    container_name: caddy-uj6u0a274fksaah42ahcgoxu-111341250753
     restart: unless-stopped
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=1
       - coolify.type=application
-      - coolify.name=caddy-uj6u0a274fksaah42ahcgoxu-230828315833
+      - coolify.name=caddy-uj6u0a274fksaah42ahcgoxu-111341250753
       - coolify.resourceName=rpim-iran-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-iran-leg
@@ -89,13 +89,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
-    container_name: dashboard-uj6u0a274fksaah42ahcgoxu-230828329768
+    container_name: dashboard-uj6u0a274fksaah42ahcgoxu-111341271379
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=1
       - coolify.type=application
-      - coolify.name=dashboard-uj6u0a274fksaah42ahcgoxu-230828329768
+      - coolify.name=dashboard-uj6u0a274fksaah42ahcgoxu-111341271379
       - coolify.resourceName=rpim-iran-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-iran-leg
@@ -191,13 +191,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    container_name: core-api-uj6u0a274fksaah42ahcgoxu-230828338055
+    container_name: core-api-uj6u0a274fksaah42ahcgoxu-111341283779
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=1
       - coolify.type=application
-      - coolify.name=core-api-uj6u0a274fksaah42ahcgoxu-230828338055
+      - coolify.name=core-api-uj6u0a274fksaah42ahcgoxu-111341283779
       - coolify.resourceName=rpim-iran-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-iran-leg
@@ -263,13 +263,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    container_name: workers-uj6u0a274fksaah42ahcgoxu-230828358570
+    container_name: workers-uj6u0a274fksaah42ahcgoxu-111341311897
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=1
       - coolify.type=application
-      - coolify.name=workers-uj6u0a274fksaah42ahcgoxu-230828358570
+      - coolify.name=workers-uj6u0a274fksaah42ahcgoxu-111341311897
       - coolify.resourceName=rpim-iran-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-iran-leg
@@ -329,137 +329,39 @@ SERVICE_URL_CORE_API=[redacted]  # is_preview
 SERVICE_URL_DASHBOARD=[redacted]
 SERVICE_URL_DASHBOARD=[redacted]  # is_preview
 --- container logs tail (best-effort) ---
-^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
-    return self.send(request, auth=auth, follow_redirects=follow_redirects)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
-    response = self._send_handling_auth(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
-    response = self._send_handling_redirects(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
-    response = self._send_single_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
-    response = transport.handle_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 249, in handle_request
-    with map_httpcore_exceptions():
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/contextlib.py", line 158, in __exit__
-    self.gen.throw(value)
-  File "/app/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
-httpx.ReadTimeout: The read operation timed out
-INFO:     127.0.0.1:41164 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42504 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39756 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:39290 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57160 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58548 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:51592 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39130 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42126 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58320 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:58580 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47008 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43926 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48886 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:34240 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35764 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47446 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48302 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:45572 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55294 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38600 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51012 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:46478 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46030 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50016 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48504 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:45040 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40854 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50954 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35844 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:50828 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53590 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34714 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58348 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:43212 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58592 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53786 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56054 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:34198 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55392 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53664 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57880 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:47584 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46812 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43368 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47414 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:35946 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35592 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36570 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38068 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:60740 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58348 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57750 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39320 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:38418 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:32954 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51576 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46670 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:51718 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43320 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42614 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59262 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:59506 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46768 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43282 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:48616 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52974 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44964 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39540 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:33338 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49400 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37068 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37430 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:58208 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53762 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37728 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50148 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:36444 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46384 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39518 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60758 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:34132 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40774 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56984 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:55618 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39308 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54228 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39218 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:37008 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47066 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55146 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40420 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:35712 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58256 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57068 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58744 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:54820 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40350 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.6:40990 - "POST /auth/register HTTP/1.1" 201 Created
-INFO:     10.0.1.6:40990 - "POST /brain/sources HTTP/1.1" 201 Created
-INFO:     127.0.0.1:56928 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.6:40990 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58684 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.14:48464 - "POST /publish/dispatch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51162 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50508 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [19]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:48912 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37698 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37740 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:34008 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50390 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38152 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37420 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:43848 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46326 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46664 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:55296 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51392 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54190 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43440 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:44488 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59174 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58214 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40894 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:46310 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60654 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46916 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:34330 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45252 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /health HTTP/1.1" 200 OK
+INFO:     10.0.1.15:40926 - "POST /publish/dispatch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50576 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50134 - "GET /health HTTP/1.1" 200 OK
 
 ===== rpim-us-leg (g121hff560aj748anak0uf6f) =====
 --- application ---
@@ -470,8 +372,8 @@ git_commit_sha: HEAD
 docker_compose_location: /docker-compose.us.yml
 custom_network_aliases: None
 compose_parsing_version: 5
-last_online_at: 2026-07-10 23:27:05
-updated_at: 2026-07-10T23:27:05.000000Z
+last_online_at: 2026-07-13 11:16:25
+updated_at: 2026-07-13T11:16:25.000000Z
 --- generated docker_compose (Coolify-parsed, env values redacted, truncated) ---
 services:
   caddy:
@@ -495,14 +397,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    container_name: caddy-g121hff560aj748anak0uf6f-230836639327
+    container_name: caddy-g121hff560aj748anak0uf6f-111348697485
     restart: unless-stopped
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=2
       - coolify.type=application
-      - coolify.name=caddy-g121hff560aj748anak0uf6f-230836639327
+      - coolify.name=caddy-g121hff560aj748anak0uf6f-111348697485
       - coolify.resourceName=rpim-us-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-us-leg
@@ -563,13 +465,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    container_name: model-gateway-g121hff560aj748anak0uf6f-230836656116
+    container_name: model-gateway-g121hff560aj748anak0uf6f-111348708558
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=2
       - coolify.type=application
-      - coolify.name=model-gateway-g121hff560aj748anak0uf6f-230836656116
+      - coolify.name=model-gateway-g121hff560aj748anak0uf6f-111348708558
       - coolify.resourceName=rpim-us-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-us-leg
@@ -618,13 +520,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 120s
-    container_name: embeddings-g121hff560aj748anak0uf6f-230836669587
+    container_name: embeddings-g121hff560aj748anak0uf6f-111348718194
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=2
       - coolify.type=application
-      - coolify.name=embeddings-g121hff560aj748anak0uf6f-230836669587
+      - coolify.name=embeddings-g121hff560aj748anak0uf6f-111348718194
       - coolify.resourceName=rpim-us-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-us-leg
@@ -667,13 +569,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-    container_name: renderer-g121hff560aj748anak0uf6f-230836696833
+    container_name: renderer-g121hff560aj748anak0uf6f-111348735003
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=2
       - coolify.type=application
-      - coolify.name=renderer-g121hff560aj748anak0uf6f-230836696833
+      - coolify.name=renderer-g121hff560aj748anak0uf6f-111348735003
       - coolify.resourceName=rpim-us-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-us-leg
@@ -694,13 +596,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    container_name: redis-us-g121hff560aj748anak0uf6f-230836701981
+    container_name: redis-us-g121hff560aj748anak0uf6f-111348748456
     labels:
       - coolify.managed=true
       - coolify.version=4.1.2
       - coolify.applicationId=2
       - coolify.type=application
-      - coolify.name=redis-us-g121hff560aj748anak0uf6f-230836701981
+      - coolify.name=redis-us-g121hff560aj748anak0uf6f-111348748456
       - coolify.resourceName=rpim-us-leg
       - coolify.projectName=rpim
       - coolify.serviceName=rpim-us-leg
@@ -737,14 +639,14 @@ CORE_API_URL=http://core-api:8000
 CORE_API_URL=http://10.66.0.1:8000  # is_preview
 DEEPSEEK_API_KEY=[redacted]
 DEEPSEEK_API_KEY=[redacted]  # is_preview
-EMBEDDINGS_INSTALL_MODEL=[redacted]
-EMBEDDINGS_INSTALL_MODEL=[redacted]  # is_preview
-EMBEDDING_BACKEND=[redacted]
-EMBEDDING_BACKEND=[redacted]  # is_preview
-EMBEDDING_DEVICE=[redacted]
-EMBEDDING_DEVICE=[redacted]  # is_preview
-EMBEDDING_MODEL=[redacted]
-EMBEDDING_MODEL=[redacted]  # is_preview
+EMBEDDINGS_INSTALL_MODEL=true
+EMBEDDINGS_INSTALL_MODEL=false  # is_preview
+EMBEDDING_BACKEND=real
+EMBEDDING_BACKEND=fake  # is_preview
+EMBEDDING_DEVICE=cpu
+EMBEDDING_DEVICE=cpu  # is_preview
+EMBEDDING_MODEL=BAAI/bge-m3
+EMBEDDING_MODEL=BAAI/bge-m3  # is_preview
 GATEWAY_BIND=127.0.0.1
 GATEWAY_BIND=127.0.0.1  # is_preview
 GATEWAY_PORT=18080
@@ -753,147 +655,149 @@ GEMINI_API_KEY=[redacted]
 GEMINI_API_KEY=[redacted]  # is_preview
 INTERNAL_TOKEN=[redacted]
 INTERNAL_TOKEN=[redacted]  # is_preview
+MODEL_T2=gemini:gemini-2.5-flash
+MODEL_T2=gemini:gemini-2.5-flash  # is_preview
 RENDER_MODE=fake
 RENDER_MODE=fake  # is_preview
 --- container logs tail (best-effort) ---
-O:     127.0.0.1:50454 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52006 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42218 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60682 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57430 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36908 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37782 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59312 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52538 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50202 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59846 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40914 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41390 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35704 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55984 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56258 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53884 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47890 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41530 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52562 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34402 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35396 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40390 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46552 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41620 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58920 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46214 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37356 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46562 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34422 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36764 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39884 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33090 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53024 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35382 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51934 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35732 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52774 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46368 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55604 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48804 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41622 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53384 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45166 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33554 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47494 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42550 - "GET /health HTTP/1.1" 200 OK
+O:     127.0.0.1:52670 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54792 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47150 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32974 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55062 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54950 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54212 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52234 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44880 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53424 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39846 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:35420 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40518 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53618 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57228 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45296 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38774 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40608 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37882 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59968 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39904 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48050 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58154 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47048 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56070 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44872 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56760 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50130 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41398 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56290 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57560 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34100 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38754 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54616 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50302 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33470 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52018 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55324 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41878 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43284 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58866 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38446 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47218 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33526 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40588 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35866 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33718 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56976 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36630 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39986 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59582 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52690 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32838 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35586 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38810 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52708 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40882 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42860 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36694 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35298 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49640 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53328 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60806 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36084 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39126 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35294 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44052 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54070 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41716 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37800 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36148 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38880 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34254 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43942 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35940 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53910 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39264 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40010 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51738 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56996 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42164 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41660 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52670 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44362 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45244 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44368 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58220 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40582 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35598 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34918 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33328 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40672 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54906 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:42370 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44032 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49028 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58912 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48396 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51686 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39400 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41608 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46526 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58302 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55134 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43986 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36222 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53512 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51834 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33528 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47628 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52488 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33656 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35310 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52692 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60018 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36686 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58652 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56920 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54002 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51930 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55160 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58052 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46770 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34206 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52718 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45610 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51140 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36062 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56492 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60500 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55538 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36024 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47382 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60744 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35750 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60432 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35574 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58106 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51494 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39270 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40926 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60978 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53428 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47444 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39494 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45380 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59856 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38630 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44848 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34560 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52762 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48666 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52710 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40998 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58056 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53914 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37790 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51588 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38250 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49720 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38724 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43752 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34004 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44774 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60338 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47958 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44170 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35942 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36444 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55352 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47820 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50066 - "GET /health HTTP/1.1" 200 OK
-INFO:     10.0.1.15:58740 - "POST /embed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57372 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59518 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33176 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53268 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53326 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43946 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57624 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47786 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43620 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36530 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60230 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46276 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42970 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49944 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48588 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41128 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47426 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48930 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58394 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54380 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38628 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45402 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51586 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52384 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47510 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35152 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50782 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46032 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60890 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51752 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48564 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44854 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48470 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39702 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47616 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40254 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56066 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48040 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43756 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52036 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58556 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33292 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54226 - "GET /health HTTP/1.1" 200 OK
 
 # end of report
 exit_code=0
