@@ -1,6 +1,11 @@
 # ADR 0030 — T2 candidate narrowed to gemini-2.5-flash; thinking disabled; MODEL_T2 still unset
 
-**Status:** interim — the CLAUDE.md gate ("MODEL_T2 stays unset until the
+**Status:** accepted & completed by ADR 0031 (2026-07-13) — the tail-20
+slice ran 20/20 with zero errors, qa_safety was judged, the gate cleared,
+and MODEL_T2 is set to `gemini:gemini-2.5-flash`. Original interim status
+below, kept for the record.
+
+**Status (original, 2026-07-12):** interim — the CLAUDE.md gate ("MODEL_T2 stays unset until the
 50-prompt Persian eval decides it") is NOT yet cleared: only 26/50 prompts
 have produced output. MODEL_T2 therefore **remains unset** until the full
 run completes. What IS decided here: candidate elimination, the adapter fix

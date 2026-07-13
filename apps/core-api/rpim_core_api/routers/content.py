@@ -77,7 +77,9 @@ def create_draft(
         + (f" | فراخوان={body.brief.cta}" if body.brief.cta else "")
         + "\n\nپیش‌نویس کامل بنویس."
     )
-    text = complete(prompt, system=system, tenant_id=identity.tenant_id, task="t1")
+    # Final content runs on T2 now that the eval gate cleared (ADR 0031);
+    # t1 was the ADR 0014 stopgap while MODEL_T2 was constitution-gated.
+    text = complete(prompt, system=system, tenant_id=identity.tenant_id, task="t2")
 
     # Cheap unsourced-claim tripwire (full claim-check is M5 QA): any multi-
     # digit number in the draft that never appears in the context gets flagged.

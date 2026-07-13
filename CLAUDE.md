@@ -42,8 +42,9 @@ two-leg split and the tunnel-drop resilience rules stay in force.
   resumable — assume the Iran↔US tunnel WILL drop mid-job.
 - All model calls go through `apps/model-gateway` adapters (tiers T1-T5,
   web blueprint §5). Never call a provider directly from a service. Every
-  call writes tokens+cost to the per-tenant ledger. `MODEL_T2` stays unset
-  until the 50-prompt Persian eval decides it.
+  call writes tokens+cost to the per-tenant ledger. `MODEL_T2` =
+  `gemini:gemini-2.5-flash` — the 50-prompt Persian eval verdict (ADR 0031).
+  No T2 fallback: no other candidate has passed the eval.
 - Commits: conventional commits, small, only after green tests.
 
 ## Commands
