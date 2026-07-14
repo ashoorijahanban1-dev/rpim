@@ -45,7 +45,7 @@ type JobCreated = {
 
 type Governance = { silence: boolean; kill: boolean };
 
-const CHANNELS = ["telegram", "bale", "eitaa"] as const;
+const CHANNELS = ["telegram", "bale", "eitaa", "wordpress"] as const;
 const IMAGE_TEMPLATES = ["announce", "quote", "product"] as const;
 const IMAGE_SIZES = ["square", "story", "wide"] as const;
 

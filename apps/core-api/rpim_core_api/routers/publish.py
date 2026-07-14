@@ -26,7 +26,7 @@ class ImageSpecIn(BaseModel):
 
 class PublishJobIn(BaseModel):
     draft_id: str
-    channel: Literal["telegram", "bale", "eitaa"]
+    channel: Literal["telegram", "bale", "eitaa", "wordpress"]
     chat_id: str = Field(min_length=1, max_length=128)
     campaign_code: str = Field(min_length=1, max_length=120)
     scheduled_at: datetime | None = None
