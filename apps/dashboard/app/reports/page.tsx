@@ -15,6 +15,14 @@ type Report = {
   costs: { total_usd: number; by_provider: Record<string, number> };
 };
 
+type TrendBucket = {
+  month: string;
+  drafts_created: number;
+  drafts_approved: number;
+  sent: number;
+  clicks: number;
+};
+
 type GovFlags = { silence: boolean; kill: boolean };
 
 function currentMonth(): string {
@@ -66,6 +74,7 @@ export default function ReportsPage() {
   const router = useRouter();
   const [month, setMonth] = useState(currentMonth());
   const [report, setReport] = useState<Report | null>(null);
+  const [trend, setTrend] = useState<TrendBucket[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [flags, setFlags] = useState<GovFlags | null>(null);
   const [silenceReason, setSilenceReason] = useState("");
@@ -94,6 +103,11 @@ export default function ReportsPage() {
     if (resp.ok) setFlags(await resp.json());
   }, []);
 
+  const loadTrend = useCallback(async () => {
+    const resp = await api("/reports/trend?months=6");
+    if (resp.ok) setTrend((await resp.json()).months);
+  }, []);
+
   useEffect(() => {
     if (!getToken()) {
       router.push("/login");
@@ -101,7 +115,8 @@ export default function ReportsPage() {
     }
     load(currentMonth()).catch(() => setReport(null));
     loadFlags().catch(() => setFlags(null));
-  }, [router, load, loadFlags]);
+    loadTrend().catch(() => setTrend(null));
+  }, [router, load, loadFlags, loadTrend]);
 
   async function toggleSilence() {
     if (!flags) return;
@@ -148,6 +163,15 @@ export default function ReportsPage() {
         .filter((c) => c.clicks > 0)
         .map((c) => ({ label: c.campaign_code, value: c.clicks }))
     : [];
+  const trendRows = trend ?? [];
+  const trendHasData = trendRows.some(
+    (t) => t.drafts_created > 0 || t.sent > 0 || t.clicks > 0,
+  );
+
+  function ctrLabel(c: { sent: number; clicks: number }): string {
+    if (c.sent === 0) return fa.reports.ctr_none;
+    return `${faNum(Math.round((c.clicks / c.sent) * 100))}${fa.reports.percent}`;
+  }
 
   return (
     <main>
@@ -224,6 +248,18 @@ export default function ReportsPage() {
               <div className="k">{fa.reports.tile_clicks}</div>
               <div className="v">{faNum(report.clicks.total)}</div>
             </div>
+            <div className="stat">
+              <div className="k">{fa.reports.tile_edited}</div>
+              <div className="v">{faNum(report.drafts.edited)}</div>
+            </div>
+            <div className="stat">
+              <div className="k">{fa.reports.tile_rejected}</div>
+              <div className="v">{faNum(report.drafts.rejected)}</div>
+            </div>
+            <div className="stat">
+              <div className="k">{fa.reports.tile_queued}</div>
+              <div className="v">{faNum(report.publish.queued)}</div>
+            </div>
           </div>
 
           {channelRows.length > 0 && (
@@ -247,6 +283,7 @@ export default function ReportsPage() {
                   <th>{fa.reports.jobs}</th>
                   <th>{fa.reports.sent}</th>
                   <th>{fa.reports.clicks}</th>
+                  <th>{fa.reports.ctr}</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,11 +293,44 @@ export default function ReportsPage() {
                     <td>{faNum(c.jobs)}</td>
                     <td>{faNum(c.sent)}</td>
                     <td>{faNum(c.clicks)}</td>
+                    <td>{ctrLabel(c)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </section>
+
+          {trendHasData && (
+            <section>
+              <h2>{fa.reports.trend_heading}</h2>
+              <HBarChart
+                title={fa.reports.chart_trend_clicks}
+                rows={trendRows.map((t) => ({ label: t.month, value: t.clicks }))}
+              />
+              <table className="report-table" aria-label={fa.reports.trend_table_aria}>
+                <thead>
+                  <tr>
+                    <th>{fa.reports.month_label}</th>
+                    <th>{fa.reports.created}</th>
+                    <th>{fa.reports.approved}</th>
+                    <th>{fa.reports.sent}</th>
+                    <th>{fa.reports.clicks}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trendRows.map((t) => (
+                    <tr key={t.month}>
+                      <td dir="ltr">{t.month}</td>
+                      <td>{faNum(t.drafts_created)}</td>
+                      <td>{faNum(t.drafts_approved)}</td>
+                      <td>{faNum(t.sent)}</td>
+                      <td>{faNum(t.clicks)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
 
           <section>
             <h2>{fa.reports.costs}</h2>

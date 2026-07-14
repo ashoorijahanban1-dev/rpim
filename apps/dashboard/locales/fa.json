@@ -149,7 +149,16 @@
     "silence_release": "برگرداندن انتشار",
     "silence_busy": "در حال اعمال…",
     "silence_error": "خطا در تغییر وضعیت سکوت؛ دوباره تلاش کنید.",
-    "silence_reason_required": "نوشتن دلیل الزامی است."
+    "silence_reason_required": "نوشتن دلیل الزامی است.",
+    "tile_edited": "ویرایش‌شده",
+    "tile_rejected": "ردشده",
+    "tile_queued": "در صف انتشار",
+    "ctr": "نرخ کلیک",
+    "percent": "٪",
+    "trend_heading": "روند ماه‌های اخیر",
+    "trend_table_aria": "جدول روند ماهانه",
+    "chart_trend_clicks": "کلیک به تفکیک ماه",
+    "ctr_none": "—"
   },
   "brief": {
     "title": "بریف جدید",

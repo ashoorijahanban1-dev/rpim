@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -18,6 +18,18 @@ _MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
 
 def _in_month(stamp: datetime | None, month: str) -> bool:
     return stamp is not None and stamp.strftime("%Y-%m") == month
+
+
+def _month_keys(until: str, months: int) -> list[str]:
+    """The `months` month-keys ending at `until`, ascending (year-safe)."""
+    year, mon = (int(part) for part in until.split("-"))
+    keys: list[str] = []
+    for _ in range(months):
+        keys.append(f"{year:04d}-{mon:02d}")
+        mon -= 1
+        if mon == 0:
+            year, mon = year - 1, 12
+    return list(reversed(keys))
 
 
 @router.get("/monthly")
@@ -85,3 +97,45 @@ def monthly_report(
             "by_provider": {k: round(v, 6) for k, v in by_provider.items()},
         },
     }
+
+
+@router.get("/trend")
+def trend_report(
+    months: int = Query(default=6, ge=1, le=12),
+    until: str | None = Query(default=None, pattern=_MONTH_PATTERN),
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Per-month funnel counts for the last `months` months, ascending.
+    `until` pins the window end so a report is reproducible; default = now.
+    Same rule-6 containment as /monthly: click counts only surface for
+    campaign codes carried by THIS tenant's jobs in that month."""
+    end = until or datetime.now(UTC).strftime("%Y-%m")
+
+    drafts = session.scalars(
+        select(ContentDraft).where(ContentDraft.tenant_id == identity.tenant_id)  # rule 6
+    ).all()
+    jobs = session.scalars(
+        select(PublishJob).where(PublishJob.tenant_id == identity.tenant_id)  # rule 6
+    ).all()
+
+    buckets: list[dict] = []
+    for key in _month_keys(end, months):
+        month_drafts = [d for d in drafts if _in_month(d.created_at, key)]
+        month_jobs = [j for j in jobs if _in_month(j.created_at, key)]
+        tenant_campaigns = {j.campaign_code for j in month_jobs}
+        click_counts = clicks_client.fetch_clicks_by_campaign(key)
+        buckets.append(
+            {
+                "month": key,
+                "drafts_created": len(month_drafts),
+                "drafts_approved": sum(1 for d in month_drafts if d.status == "approved"),
+                "sent": sum(1 for j in month_jobs if j.status == "sent"),
+                "clicks": sum(
+                    int(count)
+                    for code, count in click_counts.items()
+                    if code in tenant_campaigns
+                ),
+            }
+        )
+    return {"months": buckets}
