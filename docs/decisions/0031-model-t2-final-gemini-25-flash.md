@@ -83,16 +83,57 @@ on `t1` even with MODEL_T2 live. Two moves, both here:
   the eval. T1 has no eval'd cheap candidate of its own yet; when one is
   chosen (DeepSeek re-run etc.), that gets its own ADR.
 
+## Amendment 2 (2026-07-14) — tone+hook re-run under the production contract
+
+The trigger fired on day one: the pilot's first batch opened with a meta
+preamble («پست تلگرام و بله برای معرفی…») and the operator logged a
+structured A0 reject. PR #57 shipped the final-output-only contract into
+the M4 system prompt, and the promised re-run executed against
+`prompts_fa_tonehook20.jsonl` — e01–e20 with that same contract as the
+system field, so the eval measured exactly what production now sends.
+
+**Run:** eval-t2 run 29316722964, 2026-07-14 ~08:10 UTC, fresh quota
+window. 19/20 ok; e20 failed on a single transient 429 (RPM blip, not
+quota death — the run was not aborted). Mean output length dropped from
+~484 tokens (pre-contract tail-20 day) to ~194 — the fluff is gone, not
+the content.
+
+**Judged scores (same judge-in-session, same 1–5 rubric, strict):**
+
+| id | cat | score | note | id | cat | score | note |
+|---|---|---|---|---|---|---|---|
+| e01 | tone | 5 | opens with the post itself | e11 | hook | 4 | all 5 requested hook types; one typo («می‌دانستستید») |
+| e02 | tone | 4 | right tone; longer than the asked «کوتاه» | e12 | hook | 5 | 3 CTAs, all ≤8 words |
+| e03 | tone | 5 | motherly tone, exactly 2 emoji | e13 | hook | 5 | 4 title+subtitle pairs as asked |
+| e04 | tone | 5 | ≤80 words, on-brief | e14 | hook | 5 | 3 punchy 5-second openers |
+| e05 | tone | 5 | «رفیق کاربلد» register nailed | e15 | hook | 4 | non-defensive but wordy hooks |
+| e06 | tone | 4 | correct; [نام استارتاپ] placeholders (no brand ctx in eval) | e16 | hook | 5 | 4 angles all distinct |
+| e07 | tone | 5 | verse + poet named | e17 | hook | 5 | 5 ultra-short CTAs |
+| e08 | tone | 5 | exactly 3 fa hashtags | e18 | hook | 4 | good, slightly long for hooks |
+| e09 | tone | 5 | expert, jargon-free | e19 | hook | 4 | ≤160 chars; mild register mixing |
+| e10 | tone | 5 | avoided the banned cliché | e20 | hook | — | no output (single 429) |
+
+**Category means: tone_post 4.8 (was 2.5) · hook_cta 4.6, n=9 (was 2.5).**
+Where outputs contain multiple versions, the prompt explicitly requested N
+versions — zero UNREQUESTED option menus, zero chat preambles, zero meta
+labels across all 19 outputs. The pilot's rejected pattern does not appear
+once.
+
+**Verdict: the final-output-only contract works.** The pre-fix 2.5 means
+are fully explained by the (since-fixed) thinking-budget truncation plus
+the (since-fixed) missing prompt contract. No model change needed; the
+carried risk below is closed. Residual nits are content-level and minor
+(one spelling slip, occasional over-length vs an explicit brevity ask) —
+the approval queue is the right net for those, and A0 keeps recording them.
+
 ## Carried risk & re-eval triggers (adds to ADR 0030's list)
 
-- tone_post / hook_cta were only judged on pre-thinking-fix truncated
-  outputs. The truncation root cause is fixed, but those two categories have
-  no post-fix scores. **Trigger:** if pilot-batch drafts show option-menus,
-  chat preambles, or thin hooks, rerun a tone+hook slice before scaling
-  past the pilot tenant.
-- M4 production prompts must demand final-output-only (no preambles, no
-  option menus) — the e32/e37/e39 pattern is a prompting contract, not a
-  model defect.
+- ~~tone_post / hook_cta were only judged on pre-thinking-fix truncated
+  outputs.~~ **Closed by Amendment 2** — post-contract re-run scored
+  4.8 / 4.6.
+- ~~M4 production prompts must demand final-output-only.~~ **Shipped**
+  (PR #57) and verified by Amendment 2; a regression test pins the
+  contract phrases.
 - Free-tier daily quota is a pilot ceiling, not a production budget:
   ~25–30 calls/day observed. Going paid-tier before multi-tenant scale
   stays on the ADR 0030 list, as does re-running DeepSeek if its balance
