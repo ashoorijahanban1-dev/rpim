@@ -68,6 +68,10 @@ def create_draft(
     chunks = search_chunks(session, identity.tenant_id, query_vector, k=5)
 
     context_block = "\n\n".join(f"[{c['source_title']}] {c['text']}" for c in chunks)
+    # Final-output-only contract (ADR 0031 + pilot A0 reject signals): the
+    # model opened drafts with meta-preambles («پست تلگرام و بله برای معرفی…»)
+    # and option menus. The contract lives in the system prompt AND as the
+    # prompt's last line — last-position instructions bind strongest.
     system = (
         "تو نویسنده محتوای برند هستی. لحن برند: "
         + ((profile.tone or "رسمی و روشن") if profile else "رسمی و روشن")
@@ -77,6 +81,10 @@ def create_draft(
             if profile and profile.forbidden_claims
             else ""
         )
+        + "\nخروجی تو عیناً به‌عنوان متن پست استفاده می‌شود. فقط متن نهایی خود پست"
+        " را بنویس: بدون مقدمه، بدون بازگویی بریف، بدون توضیح درباره‌ی متن،"
+        " بدون ارائه‌ی چند گزینه و بدون عنوان یا برچسب متا. از اولین کلمه تا"
+        " آخرین کلمه باید قابل انتشار باشد."
     )
     prompt = (
         f"زمینه برند:\n{context_block}\n\n"
@@ -84,7 +92,7 @@ def create_draft(
         f"کانال={body.brief.channel} | قالب={body.brief.format}"
         + (f" | قلاب={body.brief.hook}" if body.brief.hook else "")
         + (f" | فراخوان={body.brief.cta}" if body.brief.cta else "")
-        + "\n\nپیش‌نویس کامل بنویس."
+        + "\n\nحالا فقط متن نهایی پست را بنویس. با خود پست شروع کن، نه با توضیح یا مقدمه."
     )
     # Final content runs on T2 now that the eval gate cleared (ADR 0031);
     # t1 was the ADR 0014 stopgap while MODEL_T2 was constitution-gated.

@@ -575,3 +575,33 @@ def test_m4_draft_gateway_failure_returns_503_not_500(client: TestClient, monkey
     assert "gateway" in resp.json()["detail"].lower(), (
         f"detail must name the model gateway: {resp.json()}"
     )
+
+
+def test_m4_draft_prompt_demands_final_output_only(client: TestClient, monkeypatch):
+    """Pilot A0 reject signals: drafts opened with meta-preambles («پست
+    تلگرام و بله برای معرفی…») and option menus. The M4 prompt contract must
+    demand the final post text only (ADR 0031 carried risk)."""
+    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+
+    captured: dict = {}
+
+    def spy_complete(prompt, system=None, tenant_id=None, task="t1", request_id=None):
+        captured["system"] = system
+        captured["prompt"] = prompt
+        return "متن نهایی پست"
+
+    monkeypatch.setattr(content_router, "complete", spy_complete)
+
+    token = _setup_tenant(
+        client, "prompt-contract@example.com", "Password123!", "PromptContract"
+    )
+    resp = client.post("/content/drafts", json={"brief": _BRIEF}, headers=_auth(token))
+    assert resp.status_code == 201, resp.text
+    for needle in ("بدون مقدمه", "چند گزینه", "بازگویی بریف"):
+        assert needle in captured["system"], (
+            f"system prompt must carry the final-output-only contract ({needle}): "
+            f"{captured['system']}"
+        )
+    assert "متن نهایی پست" in captured["prompt"], (
+        f"prompt's last line must demand the final post text: {captured['prompt']}"
+    )
