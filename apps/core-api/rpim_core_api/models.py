@@ -166,3 +166,23 @@ class OnboardingInterview(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )
+
+
+class CrmLeadSync(Base):
+    """Per-tenant watermark for the CRM lead bridge (M13): the last click
+    count already delivered per (campaign, month). Sync sends only the delta
+    beyond the watermark, so replays after a drop are silent (rule 8)."""
+
+    __tablename__ = "crm_lead_syncs"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "campaign_code", "month", name="uq_crm_sync_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    campaign_code: Mapped[str] = mapped_column(String(120))
+    month: Mapped[str] = mapped_column(String(7))  # YYYY-MM
+    last_count: Mapped[int] = mapped_column(default=0)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )

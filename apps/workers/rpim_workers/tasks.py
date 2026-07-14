@@ -38,3 +38,25 @@ celery_app.conf.beat_schedule = {
         "schedule": 30.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.sync_crm_leads")
+def sync_crm_leads() -> dict:
+    """Pokes core-api's internal CRM lead sync (M13). Idempotency lives
+    INSIDE core-api (watermark rows) — a misbehaving beat can only sync
+    more often, never double-deliver a lead."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/crm/sync", headers)
+
+
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "sync-crm-leads": {
+        "task": "rpim_workers.sync_crm_leads",
+        "schedule": 300.0,
+    },
+}
