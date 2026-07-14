@@ -15,7 +15,7 @@ class ChannelSendError(Exception):
     """Transient send failure — the job stays queued and is retried later."""
 
 
-SUPPORTED_CHANNELS = ("telegram", "bale", "eitaa")
+SUPPORTED_CHANNELS = ("telegram", "bale", "eitaa", "wordpress")
 
 # Fake seam: tests inspect _OUTBOX and inject one-shot failures by appending
 # channel names to _FAIL_NEXT (consumed one entry per failed send).
@@ -106,8 +106,32 @@ def send_photo(channel: str, chat_id: str, caption: str, image_png: bytes, job_i
             headers={"X-Internal-Token": internal},
             request_id=job_id,
         )
+    elif channel == "wordpress":
+        # Media is a two-step wp flow (upload → featured_media) — follow-up
+        # slice. Transient failure keeps the job queued (telegram-photo
+        # precedent), never a silent drop or a false "sent".
+        raise ChannelSendError("wordpress photo posts need the media slice — job stays queued")
     else:
         raise ChannelSendError(f"unsupported channel {channel}")
+
+
+def _wordpress_send(text: str) -> None:
+    base = _require_env("WORDPRESS_BASE_URL").rstrip("/")
+    user = _require_env("WORDPRESS_USER")
+    app_password = _require_env("WORDPRESS_APP_PASSWORD")
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    title = lines[0] if lines else text
+    try:
+        response = httpx.post(
+            f"{base}/wp-json/wp/v2/posts",
+            json={"title": title, "content": text, "status": "publish"},
+            auth=(user, app_password),
+            timeout=30,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        # Never echo the URL or credentials (rule 4).
+        raise ChannelSendError(f"channel endpoint failed: {type(exc).__name__}") from exc
 
 
 def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
@@ -142,5 +166,10 @@ def send(channel: str, chat_id: str, text: str, job_id: str) -> None:
             {**payload, "request_id": job_id},
             headers={"X-Internal-Token": internal},
         )
+    elif channel == "wordpress":
+        # Official wp-json REST with an application password (rule 5).
+        # chat_id has no wordpress meaning and is ignored; title = the
+        # text's first non-empty line.
+        _wordpress_send(text)
     else:
         raise ChannelSendError(f"unsupported channel {channel}")

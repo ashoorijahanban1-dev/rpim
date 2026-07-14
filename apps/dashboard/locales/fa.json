@@ -238,7 +238,8 @@
     "channels": {
       "telegram": "تلگرام",
       "bale": "بله",
-      "eitaa": "ایتا"
+      "eitaa": "ایتا",
+      "wordpress": "وردپرس"
     },
     "chat_id": "شناسه گفتگو (chat_id)",
     "campaign_code": "کد کمپین (الزامی)",
