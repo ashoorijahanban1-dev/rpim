@@ -1,18 +1,20 @@
-# T2 eval report — 2026-07-13T11:00:55Z — commit c107b580378b89712ef9569dd8856e7cdd026592 — job status: success
+# T2 eval report — 2026-07-14T08:10:39Z — commit cace827acf5a526a8bd122d80603fe42d558eee6 — job status: success
 # candidates: gemini:gemini-2.5-flash · judge: none · delay: 8s
 # ranked by mean_score desc, then est_cost_usd asc (see scripts/eval/README.md)
 [
   {
     "candidate": "gemini:gemini-2.5-flash",
-    "ok": 20,
-    "errors": 0,
+    "ok": 19,
+    "errors": 1,
     "mean_score": null,
     "scored": 0,
-    "mean_latency_s": 11.79,
-    "tokens_in": 1202,
-    "tokens_out": 9679,
-    "est_cost_usd": 0.0246,
+    "mean_latency_s": 10.78,
+    "tokens_in": 1883,
+    "tokens_out": 3694,
+    "est_cost_usd": 0.0098,
     "aborted_after": null,
-    "top_errors": {}
+    "top_errors": {
+      "HTTPStatusError: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:g": 1
+    }
   }
 ]
