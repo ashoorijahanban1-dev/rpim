@@ -2,7 +2,6 @@
 
 import os
 from collections import defaultdict
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy import select
@@ -12,6 +11,7 @@ from rpim_core_api.crm import bridge
 from rpim_core_api.db import get_session
 from rpim_core_api.measurement import clicks as clicks_client
 from rpim_core_api.models import CrmLeadSync, PublishJob, Tenant
+from rpim_shared.tz import month_key, now_app
 
 router = APIRouter(prefix="/crm", tags=["crm"])
 
@@ -28,7 +28,7 @@ def sync_leads(
     if not expected or x_internal_token != expected:
         raise HTTPException(status_code=403, detail="invalid internal token")
 
-    month = datetime.now(UTC).strftime("%Y-%m")
+    month = now_app().strftime("%Y-%m")
     # Engine pattern: enumerate tenants, then per-tenant SCOPED queries —
     # the jobs table is never touched without a tenant_id filter (rule 6).
     tenant_ids = session.scalars(select(Tenant.id)).all()
@@ -38,7 +38,7 @@ def sync_leads(
             select(PublishJob).where(PublishJob.tenant_id == tenant_id)  # rule 6
         ).all()
         for job in tenant_jobs:
-            if job.created_at is not None and job.created_at.strftime("%Y-%m") == month:
+            if month_key(job.created_at) == month:
                 campaigns_by_tenant[tenant_id].add(job.campaign_code)
 
     click_counts = clicks_client.fetch_clicks_by_campaign(month)

@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from rpim_core_api.models import PublishJob, Tenant
 from rpim_core_api.publisher import channels, renderer_client
 from rpim_core_api.qa.governance import is_publishing_halted
+from rpim_shared.tz import now_app
 
 
 def _as_utc(dt: datetime) -> datetime:
@@ -26,7 +27,7 @@ def _as_utc(dt: datetime) -> datetime:
 
 
 def dispatch_due_jobs(session: Session) -> dict:
-    now = datetime.now(UTC)
+    now = now_app()
     # Fan-out over the tenant REGISTRY (not tenant data), then run every
     # publish_jobs query tenant-scoped (rule 6) — the engine serves all
     # tenants but never touches the jobs table without a tenant_id filter.
@@ -67,7 +68,7 @@ def dispatch_due_jobs(session: Session) -> dict:
                 failed += 1
                 continue
             job.status = "sent"
-            job.sent_at = datetime.now(UTC)
+            job.sent_at = now_app()
             job.last_error = None
             session.commit()
             sent += 1

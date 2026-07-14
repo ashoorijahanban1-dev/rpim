@@ -1,11 +1,12 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rpim_core_api.brain.vector_type import EmbeddingVector
 from rpim_core_api.db import Base
+from rpim_shared.tz import now_app
 
 
 def _uuid() -> str:
@@ -13,7 +14,8 @@ def _uuid() -> str:
 
 
 def _now() -> datetime:
-    return datetime.now(UTC)
+    # App timezone (ADR 0032) — PT by operator mandate, env-reversible.
+    return now_app()
 
 
 class Tenant(Base):

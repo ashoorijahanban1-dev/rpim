@@ -17,3 +17,6 @@ celery_app.conf.broker_connection_retry_on_startup = True
 @celery_app.task(name="rpim.ping")
 def ping() -> str:
     return "pong"
+
+# App timezone for any wall-clock beat entries (ADR 0032, env-reversible).
+celery_app.conf.timezone = os.environ.get("RPIM_TIMEZONE", "America/Los_Angeles")
