@@ -188,3 +188,37 @@ class CrmLeadSync(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )
+
+
+class TrendItem(Base):
+    """Trend Radar row (M14): one market keyword per tenant, upserted on
+    (tenant_id, keyword, source) so a replayed refresh never duplicates
+    (rule 8). فاز ۲ real source layers write through the same shape."""
+
+    __tablename__ = "trend_items"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "keyword", "source", name="uq_trend_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    keyword: Mapped[str] = mapped_column(String(200))
+    source: Mapped[str] = mapped_column(String(40), default="simulated")
+    score: Mapped[int] = mapped_column(default=0)  # 0..100
+    captured_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
+
+
+class VisualPrompt(Base):
+    """Visual Prompt Studio row (M15): a marketing brief deterministically
+    expanded into a professional image/video generative-model prompt."""
+
+    __tablename__ = "visual_prompts"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(8))  # image | video
+    brief: Mapped[dict] = mapped_column(JSON, default=dict)
+    prompt_text: Mapped[str] = mapped_column(String(4000))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
