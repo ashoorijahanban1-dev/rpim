@@ -6,7 +6,7 @@ property), and publish jobs. Embeddings are derived data and are NOT
 exported; re-ingesting the texts regenerates them.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -25,6 +25,7 @@ from rpim_core_api.models import (
     PublishJob,
     Tenant,
 )
+from rpim_shared.tz import now_app
 
 router = APIRouter(tags=["export"])
 
@@ -81,7 +82,7 @@ def full_export(
 
     payload = {
         "export_version": 1,
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": now_app().isoformat(),
         "tenant": {
             "id": tenant.id,
             "name": tenant.name,
@@ -162,7 +163,7 @@ def full_export(
             for job in jobs
         ],
     }
-    stamp = datetime.now(UTC).strftime("%Y%m%d")
+    stamp = now_app().strftime("%Y%m%d")
     return JSONResponse(
         payload,
         headers={

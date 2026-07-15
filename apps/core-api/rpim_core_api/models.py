@@ -1,11 +1,12 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rpim_core_api.brain.vector_type import EmbeddingVector
 from rpim_core_api.db import Base
+from rpim_shared.tz import now_app
 
 
 def _uuid() -> str:
@@ -13,7 +14,8 @@ def _uuid() -> str:
 
 
 def _now() -> datetime:
-    return datetime.now(UTC)
+    # App timezone (ADR 0032) — PT by operator mandate, env-reversible.
+    return now_app()
 
 
 class Tenant(Base):
@@ -163,6 +165,26 @@ class OnboardingInterview(Base):
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), unique=True, index=True)
     answers: Mapped[dict] = mapped_column(JSON, default=dict)
     status: Mapped[str] = mapped_column(String(16), default="draft")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
+
+
+class CrmLeadSync(Base):
+    """Per-tenant watermark for the CRM lead bridge (M13): the last click
+    count already delivered per (campaign, month). Sync sends only the delta
+    beyond the watermark, so replays after a drop are silent (rule 8)."""
+
+    __tablename__ = "crm_lead_syncs"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "campaign_code", "month", name="uq_crm_sync_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    campaign_code: Mapped[str] = mapped_column(String(120))
+    month: Mapped[str] = mapped_column(String(7))  # YYYY-MM
+    last_count: Mapped[int] = mapped_column(default=0)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )

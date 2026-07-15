@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import fa from "@/locales/fa.json";
 import { api, getToken } from "@/lib/api";
-import { faNum } from "@/lib/format";
+import { APP_TIMEZONE, faNum } from "@/lib/format";
 
 type Report = {
   month: string;
@@ -26,7 +26,14 @@ type TrendBucket = {
 type GovFlags = { silence: boolean; kill: boolean };
 
 function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7);
+  // YYYY-MM in the app timezone (ADR 0032) — en-CA gives ISO-style parts.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: APP_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+  })
+    .format(new Date())
+    .slice(0, 7);
 }
 
 function channelLabel(channel: string): string {

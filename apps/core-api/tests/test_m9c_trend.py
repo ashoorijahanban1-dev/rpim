@@ -23,8 +23,9 @@ from __future__ import annotations
 import json
 import os
 import re
-from datetime import UTC, datetime
 from pathlib import Path
+
+from rpim_shared.tz import now_app
 
 os.environ.setdefault("EMBED_MODE", "fake")
 os.environ.setdefault("COMPLETE_MODE", "fake")
@@ -92,7 +93,9 @@ def _create_job(client: TestClient, token: str, draft_id: str, campaign_code: st
 
 
 def _this_month() -> str:
-    return datetime.now(UTC).strftime("%Y-%m")
+    # Same clock as the backend (ADR 0032) — UTC here would flake for the
+    # last hours of every UTC month.
+    return now_app().strftime("%Y-%m")
 
 
 # ===========================================================================

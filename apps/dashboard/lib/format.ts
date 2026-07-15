@@ -2,6 +2,11 @@
 // All strings come from locales/fa.json — never hardcoded here.
 import fa from "@/locales/fa.json";
 
+// App timezone (ADR 0032): Pacific by operator mandate; NEXT_PUBLIC_RPIM_TIMEZONE
+// is the single revert lever on the frontend.
+export const APP_TIMEZONE =
+  process.env.NEXT_PUBLIC_RPIM_TIMEZONE ?? "America/Los_Angeles";
+
 export function faNum(n: number): string {
   return n.toLocaleString("fa-IR");
 }
@@ -32,5 +37,9 @@ export function relativeTime(iso: string): string {
 export function faDateTime(iso: string): string {
   const t = parseIso(iso);
   if (Number.isNaN(t)) return "";
-  return new Date(t).toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" });
+  return new Date(t).toLocaleString("fa-IR", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: APP_TIMEZONE,
+  });
 }

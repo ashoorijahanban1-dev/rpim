@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -10,6 +10,7 @@ from rpim_core_api.deps import Identity, get_identity
 from rpim_core_api.measurement import clicks as clicks_client
 from rpim_core_api.measurement import ledger_client
 from rpim_core_api.models import ContentDraft, PublishJob
+from rpim_shared.tz import month_key, now_app
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -17,7 +18,7 @@ _MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
 
 
 def _in_month(stamp: datetime | None, month: str) -> bool:
-    return stamp is not None and stamp.strftime("%Y-%m") == month
+    return month_key(stamp) == month
 
 
 def _month_keys(until: str, months: int) -> list[str]:
@@ -110,7 +111,7 @@ def trend_report(
     `until` pins the window end so a report is reproducible; default = now.
     Same rule-6 containment as /monthly: click counts only surface for
     campaign codes carried by THIS tenant's jobs in that month."""
-    end = until or datetime.now(UTC).strftime("%Y-%m")
+    end = until or now_app().strftime("%Y-%m")
 
     drafts = session.scalars(
         select(ContentDraft).where(ContentDraft.tenant_id == identity.tenant_id)  # rule 6

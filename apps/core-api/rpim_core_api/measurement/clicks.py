@@ -6,9 +6,11 @@ build_landing_url stamped onto every landing link at job birth.
 """
 
 import os
-from datetime import UTC, datetime
+from datetime import datetime
 
 import httpx
+
+from rpim_shared.tz import app_timezone
 
 # Fake seam: tests assign a dict here; fetch returns a copy in fake mode.
 _FAKE_CLICKS: dict[str, int] = {}
@@ -16,8 +18,10 @@ _FAKE_CLICKS: dict[str, int] = {}
 
 def _month_window_ms(month: str) -> tuple[int, int]:
     year, mon = (int(part) for part in month.split("-"))
-    start = datetime(year, mon, 1, tzinfo=UTC)
-    end = datetime(year + (1 if mon == 12 else 0), 1 if mon == 12 else mon + 1, 1, tzinfo=UTC)
+    start = datetime(year, mon, 1, tzinfo=app_timezone())
+    end = datetime(
+        year + (1 if mon == 12 else 0), 1 if mon == 12 else mon + 1, 1, tzinfo=app_timezone()
+    )
     return int(start.timestamp() * 1000), int(end.timestamp() * 1000)
 
 
