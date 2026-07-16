@@ -4,6 +4,7 @@ from rpim_core_api.routers import (
     auth,
     brain,
     brand_profile,
+    channels_hub,
     content,
     crm,
     export,
@@ -29,6 +30,7 @@ app.include_router(reports.router)
 app.include_router(crm.router)
 app.include_router(trends.router)
 app.include_router(studio.router)
+app.include_router(channels_hub.router)
 app.include_router(export.router)
 
 

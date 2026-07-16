@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/trends", label: fa.nav.trends },
   { href: "/studio", label: fa.nav.studio },
   { href: "/publish", label: fa.nav.publish },
+  { href: "/channels", label: fa.nav.channels },
   { href: "/reports", label: fa.nav.reports },
   { href: "/export", label: fa.nav.export },
   { href: "/onboarding", label: fa.nav.brand_settings },
