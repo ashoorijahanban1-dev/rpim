@@ -156,6 +156,9 @@ class TelegramIn(BaseModel):
     text: str = Field(min_length=1)
     # Cross-leg idempotency key (rule 8) — the iran leg sends its job_id.
     request_id: str | None = Field(default=None, max_length=128)
+    # M16b: a connected brand's own bot token rides along; absent = the
+    # us-leg env token (the pre-hub global identity).
+    bot_token: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/publish/telegram")
@@ -171,7 +174,7 @@ def publish_telegram(
         if cached is not None:
             return cached
     try:
-        result = telegram.send_telegram(body.chat_id, body.text)
+        result = telegram.send_telegram(body.chat_id, body.text, bot_token=body.bot_token)
     except telegram.TelegramNotConfigured as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except telegram.TelegramSendError as exc:
@@ -189,6 +192,7 @@ async def publish_telegram_photo(
     caption: str = Form(default=""),
     photo: UploadFile = File(),
     request_id: str | None = Form(default=None),
+    bot_token: str | None = Form(default=None),
     x_internal_token: str | None = Header(default=None),
 ) -> dict:
     # Cross-leg multipart seam (rule 5): the iran leg forwards photo posts
@@ -201,7 +205,7 @@ async def publish_telegram_photo(
             return cached
     image_png = await photo.read()
     try:
-        result = telegram.send_telegram_photo(chat_id, caption, image_png)
+        result = telegram.send_telegram_photo(chat_id, caption, image_png, bot_token=bot_token)
     except telegram.TelegramNotConfigured as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except telegram.TelegramSendError as exc:

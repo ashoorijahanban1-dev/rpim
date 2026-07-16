@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.models import PublishJob, Tenant
-from rpim_core_api.publisher import channels, renderer_client
+from rpim_core_api.publisher import channels, renderer_client, tenant_creds
 from rpim_core_api.qa.governance import is_publishing_halted
 from rpim_shared.tz import now_app
 
@@ -53,14 +53,20 @@ def dispatch_due_jobs(session: Session) -> dict:
                 continue
             job.attempts += 1
             try:
+                # M16b: a connected brand publishes through ITS credential;
+                # unresolvable tenant creds raise inside the try, so the job
+                # stays queued exactly like any transient send failure.
+                creds = tenant_creds.resolve(session, tenant_id, job.channel)
                 if job.image_spec:
                     # Render AFTER the halt check — silenced tenants get no
                     # renders either; a failed render is transient like a
                     # failed send (job stays queued).
                     image_png = renderer_client.render_for_job(job)
-                    channels.send_photo(job.channel, job.chat_id, job.text, image_png, job.id)
+                    channels.send_photo(
+                        job.channel, job.chat_id, job.text, image_png, job.id, creds=creds
+                    )
                 else:
-                    channels.send(job.channel, job.chat_id, job.text, job.id)
+                    channels.send(job.channel, job.chat_id, job.text, job.id, creds=creds)
             except channels.ChannelSendError as exc:
                 job.last_error = str(exc)[:500]
                 # Status stays 'queued': the job is never lost, only retried.

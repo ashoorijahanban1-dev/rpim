@@ -118,7 +118,13 @@ def test_m7c_publish_job_accepts_wordpress(client: TestClient):
 def test_m7c_fake_mode_routes_to_outbox():
     channels.send("wordpress", "-", "متن پست وبلاگ", "job-wp-1")
     assert channels._OUTBOX == [
-        {"channel": "wordpress", "chat_id": "-", "text": "متن پست وبلاگ", "job_id": "job-wp-1"}
+        {
+            "channel": "wordpress",
+            "chat_id": "-",
+            "text": "متن پست وبلاگ",
+            "job_id": "job-wp-1",
+            "creds_source": "env",
+        }
     ], f"fake mode must use the outbox seam: {channels._OUTBOX}"
 
 
