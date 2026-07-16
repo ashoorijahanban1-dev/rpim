@@ -40,7 +40,9 @@ def _post_multipart(url: str, data: dict, files: dict) -> None:
         raise TelegramSendError(f"telegram api failed: {type(exc).__name__}") from exc
 
 
-def send_telegram_photo(chat_id: str, caption: str, photo_png: bytes) -> dict:
+def send_telegram_photo(
+    chat_id: str, caption: str, photo_png: bytes, bot_token: str | None = None
+) -> dict:
     mode = os.environ.get("PUBLISH_MODE", "fake")
     if mode == "fake":
         _SENT.append(
@@ -55,7 +57,7 @@ def send_telegram_photo(chat_id: str, caption: str, photo_png: bytes) -> dict:
     if mode != "live":
         raise TelegramSendError("PUBLISH_MODE must be 'fake' or 'live'")
 
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    token = bot_token or os.environ.get("TELEGRAM_BOT_TOKEN", "")
     if not token:
         # Name the env var, never a value (rule 4).
         raise TelegramNotConfigured(
@@ -69,7 +71,7 @@ def send_telegram_photo(chat_id: str, caption: str, photo_png: bytes) -> dict:
     return {"ok": True, "mode": "live"}
 
 
-def send_telegram(chat_id: str, text: str) -> dict:
+def send_telegram(chat_id: str, text: str, bot_token: str | None = None) -> dict:
     mode = os.environ.get("PUBLISH_MODE", "fake")
     if mode == "fake":
         _SENT.append({"chat_id": chat_id, "text": text})
@@ -78,7 +80,7 @@ def send_telegram(chat_id: str, text: str) -> dict:
         # Explicit or nothing — a typo'd mode fails loud instead of guessing.
         raise TelegramSendError("PUBLISH_MODE must be 'fake' or 'live'")
 
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    token = bot_token or os.environ.get("TELEGRAM_BOT_TOKEN", "")
     if not token:
         # Name the env var, never a value (rule 4).
         raise TelegramNotConfigured(

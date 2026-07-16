@@ -32,3 +32,15 @@ The publish engine still sends with per-leg env credentials. Switching
 `channels.send()` to prefer a tenant's sealed credential (falling back to
 env) is the M16b slice — it touches the publish path, so it ships alone
 with its own review and tests.
+
+## Amendment (M16b shipped)
+
+The follow-up landed: the dispatch engine resolves the job tenant's
+connection per send (`publisher/tenant_creds.py`) — connected brands
+publish through THEIR credential (bale/eitaa/wordpress directly; telegram
+by forwarding `bot_token` to the us-leg gateway, which prefers it over its
+env token). Fallback to the global env credential happens ONLY when the
+brand has no connection; a connection whose secret cannot be unsealed
+(rotated/lost vault key) fails transiently and the job stays queued —
+never a silent publish through the wrong identity. The per-job silence
+check remains upstream and untouched.
