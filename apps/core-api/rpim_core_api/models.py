@@ -222,3 +222,24 @@ class VisualPrompt(Base):
     brief: Mapped[dict] = mapped_column(JSON, default=dict)
     prompt_text: Mapped[str] = mapped_column(String(4000))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ChannelConnection(Base):
+    """Per-brand social channel connection (M16). The secret is sealed with
+    the vault (ADR 0033) — plaintext never touches the row; non-secret
+    settings live in config. One row per (tenant, channel)."""
+
+    __tablename__ = "channel_connections"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "channel", name="uq_channel_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    channel: Mapped[str] = mapped_column(String(16))  # telegram|bale|eitaa|wordpress
+    status: Mapped[str] = mapped_column(String(16), default="disconnected")
+    config: Mapped[dict] = mapped_column(JSON, default=dict)
+    secret_sealed: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
