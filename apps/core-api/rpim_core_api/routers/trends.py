@@ -38,16 +38,17 @@ def refresh_trends(
             # A dead source must not wipe the existing radar (rule 8).
             continue
         for entry in batch:
+            source = str(entry.get("source", "simulated"))[:40]
             row = session.scalar(
                 select(TrendItem).where(
                     TrendItem.tenant_id == tenant_id,  # rule 6
                     TrendItem.keyword == entry["keyword"],
-                    TrendItem.source == "simulated",
+                    TrendItem.source == source,
                 )
             )
             if row is None:
                 row = TrendItem(
-                    tenant_id=tenant_id, keyword=entry["keyword"], source="simulated"
+                    tenant_id=tenant_id, keyword=entry["keyword"], source=source
                 )
                 session.add(row)
             row.score = int(entry["score"])

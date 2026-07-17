@@ -243,3 +243,20 @@ class ChannelConnection(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )
+
+
+class AiNewsItem(Base):
+    """AI-industry headline for the operator (M19) — a GLOBAL platform table,
+    deliberately tenant-free: it never holds tenant data, and only the admin
+    gate can read it (ADR 0036). Upserted on url so a replayed poll never
+    duplicates (rule 8)."""
+
+    __tablename__ = "ai_news_items"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    title: Mapped[str] = mapped_column(String(500))
+    url: Mapped[str] = mapped_column(String(1000), unique=True, index=True)
+    source: Mapped[str] = mapped_column(String(200), default="simulated")
+    fetched_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )

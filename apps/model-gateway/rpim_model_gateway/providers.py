@@ -89,6 +89,18 @@ def _openai_compatible(base_url: str, api_key_env: str):
     return call
 
 
+def _openai_compat_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) -> dict:
+    """Operator-configured OpenAI-compatible endpoint (M17 — GapGPT-style).
+    Base URL is read at CALL time so swapping providers is an env change with
+    zero code; a missing var is a failed chain link like any other."""
+    base = os.environ.get("OPENAI_COMPAT_BASE_URL", "").strip().rstrip("/")
+    if not base:
+        raise ProviderError("OPENAI_COMPAT_BASE_URL not set")
+    return _openai_compatible(base, "OPENAI_COMPAT_API_KEY")(
+        model, prompt, system=system, max_tokens=max_tokens, timeout=timeout
+    )
+
+
 def _anthropic_complete(model, prompt, system=None, max_tokens=None, timeout=60.0) -> dict:
     key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not key:
@@ -120,6 +132,7 @@ PROVIDERS = {
     "gemini": _gemini_complete,
     "deepseek": _openai_compatible("https://api.deepseek.com", "DEEPSEEK_API_KEY"),
     "anthropic": _anthropic_complete,
+    "openai_compat": _openai_compat_complete,
 }
 
 # USD per 1M tokens (input, output) — [فرض] anchors until the phase-0 eval
