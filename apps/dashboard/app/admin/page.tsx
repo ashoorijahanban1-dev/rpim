@@ -24,11 +24,19 @@ type AdminTenant = {
   costs: { total_usd: number; tokens: number };
 };
 
+type AiNewsItem = {
+  title: string;
+  url: string;
+  source: string;
+  fetched_at: string | null;
+};
+
 const CHANNEL_LABELS: Record<string, string> = fa.publish.channels;
 
 export default function AdminPage() {
   const router = useRouter();
   const [tenants, setTenants] = useState<AdminTenant[] | null>(null);
+  const [news, setNews] = useState<AiNewsItem[] | null>(null);
   const [denied, setDenied] = useState(false);
   const [error, setError] = useState(false);
 
@@ -47,6 +55,8 @@ export default function AdminPage() {
       return;
     }
     setTenants((await resp.json()).tenants);
+    const newsResp = await api("/admin/ai-news");
+    if (newsResp.ok) setNews((await newsResp.json()).items);
   }, [router]);
 
   useEffect(() => {
@@ -115,6 +125,33 @@ export default function AdminPage() {
               ))}
             </tbody>
           </table>
+        </section>
+      )}
+
+      {!denied && !error && (
+        <section>
+          <div className="page-header">
+            <h2>{fa.admin.suggestions_title}</h2>
+          </div>
+          <p className="muted">{fa.admin.suggestions_hint}</p>
+          {news && news.length === 0 && (
+            <p className="empty-state">{fa.admin.suggestions_empty}</p>
+          )}
+          {news && news.length > 0 && (
+            <ul className="plain">
+              {news.map((item) => (
+                <li key={item.url}>
+                  <a href={item.url} target="_blank" rel="noreferrer">
+                    {item.title}
+                  </a>{" "}
+                  <span className="muted">
+                    {fa.admin.suggestions_source}: {item.source}
+                    {item.fetched_at ? ` · ${relativeTime(item.fetched_at)}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </main>

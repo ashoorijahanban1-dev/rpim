@@ -162,11 +162,12 @@ def test_m14_cross_tenant_isolation(client: TestClient):
 
 
 def test_m14_live_mode_missing_env_names_the_var(monkeypatch):
+    # M19 wired real feeds: the live source env is TRENDS_FEED_URLS now.
     monkeypatch.setenv("TRENDS_MODE", "live")
-    monkeypatch.delenv("TRENDS_SOURCE_URL", raising=False)
+    monkeypatch.delenv("TRENDS_FEED_URLS", raising=False)
     with pytest.raises(radar.TrendSourceError) as excinfo:
         radar.fetch_trends("tenant-x", ["کلمه"])
-    assert "TRENDS_SOURCE_URL" in str(excinfo.value), (
+    assert "TRENDS_FEED_URLS" in str(excinfo.value), (
         f"error must NAME the missing env var (rule 4): {excinfo.value}"
     )
 

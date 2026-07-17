@@ -81,3 +81,25 @@ celery_app.conf.beat_schedule = {
         "schedule": 3600.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.refresh_ai_news")
+def refresh_ai_news() -> dict:
+    """Pokes core-api's internal AI-news refresh (M19). Upsert-by-url lives
+    INSIDE core-api — a misbehaving beat can only poll more often."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/admin/ai-news/refresh", headers)
+
+
+# Public industry feeds change slowly — every 6h is plenty.
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "refresh-ai-news": {
+        "task": "rpim_workers.refresh_ai_news",
+        "schedule": 21600.0,
+    },
+}
