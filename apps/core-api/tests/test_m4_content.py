@@ -534,12 +534,14 @@ def test_m4_draft_embed_failure_returns_503_not_500(client: TestClient, monkeypa
     maps it to Persian. This exact path failed the pilot's first draft."""
     import httpx  # noqa: PLC0415
 
-    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+    import rpim_core_api.brain.service as brain_service  # noqa: PLC0415
 
     def dead_embed(texts, tenant_id=None):
         raise httpx.ReadTimeout("cold bge-m3 load")
 
-    monkeypatch.setattr(content_router, "embed_texts", dead_embed)
+    # M20 moved retrieval behind the BrandBrain facade — the embed seam
+    # lives there now; the 503 contract is unchanged.
+    monkeypatch.setattr(brain_service, "embed_texts", dead_embed)
 
     token = _setup_tenant(
         client, "draft-embed-down@example.com", "Password123!", "DraftEmbedDown"

@@ -63,7 +63,7 @@ def full_export(
     chunks_by_source: dict[str, list[dict]] = {}
     for chunk in chunks:
         chunks_by_source.setdefault(chunk.source_id, []).append(
-            {"seq": chunk.seq, "text": chunk.text}
+            {"seq": chunk.seq, "text": chunk.text, "kind": chunk.kind}
         )
 
     drafts = session.scalars(
@@ -81,7 +81,7 @@ def full_export(
     ).all()
 
     payload = {
-        "export_version": 1,
+        "export_version": 2,  # M20: brain meta + chunk kinds
         "generated_at": now_app().isoformat(),
         "tenant": {
             "id": tenant.id,
@@ -110,6 +110,7 @@ def full_export(
                     "id": source.id,
                     "title": source.title,
                     "kind": source.kind,
+                    "meta": source.meta,
                     "status": source.status,
                     "created_at": _iso(source.created_at),
                     "chunks": chunks_by_source.get(source.id, []),

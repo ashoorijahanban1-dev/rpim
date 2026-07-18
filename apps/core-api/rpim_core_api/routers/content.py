@@ -6,8 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from rpim_core_api.brain.embed_client import embed_texts
-from rpim_core_api.brain.retrieval import search_chunks
+from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.content.complete_client import complete
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
@@ -56,8 +55,9 @@ def create_draft(
     )
 
     query = " ".join(filter(None, [body.brief.goal, body.brief.audience, body.brief.hook or ""]))
+    brain = BrandBrain(session, identity.tenant_id)
     try:
-        query_vector = embed_texts([query], tenant_id=identity.tenant_id)[0]
+        chunks = brain.retrieve(query, k=5)
     except httpx.HTTPError as exc:
         # Same operational condition as brain ingest (cold/slow embeddings
         # after a redeploy): a clean dashboard-mappable 503, not a bare 500 —
@@ -65,9 +65,8 @@ def create_draft(
         raise HTTPException(
             status_code=503, detail="embedding service unavailable — try again shortly"
         ) from exc
-    chunks = search_chunks(session, identity.tenant_id, query_vector, k=5)
 
-    context_block = "\n\n".join(f"[{c['source_title']}] {c['text']}" for c in chunks)
+    context_block = brain.compose_context(chunks)
     # Final-output-only contract (ADR 0031 + pilot A0 reject signals): the
     # model opened drafts with meta-preambles («پست تلگرام و بله برای معرفی…»)
     # and option menus. The contract lives in the system prompt AND as the

@@ -32,7 +32,7 @@ _NEGATIVE = (
 )
 
 
-def expand(kind: str, brief: dict, tone: str | None) -> str:
+def expand(kind: str, brief: dict, tone: str | None, context: str | None = None) -> str:
     subject = str(brief.get("subject", "")).strip()
     mood = str(brief.get("mood", "") or "").strip()
     channel = str(brief.get("channel", "") or "").strip().lower()
@@ -42,6 +42,11 @@ def expand(kind: str, brief: dict, tone: str | None) -> str:
         f"Marketing visual for: {subject}",
         f"Brand tone (Persian): {tone.strip()}" if tone and tone.strip() else "",
         f"Mood: {mood}" if mood else "",
+        # M20: retrieved brand knowledge grounds the visual — facts only,
+        # never invented claims; empty brain = no section at all.
+        f"Brand grounding (use only these facts):\n{context.strip()}"
+        if context and context.strip()
+        else "",
         f"Aspect ratio: {aspect}",
         _VIDEO_QUALITY if kind == "video" else _IMAGE_QUALITY,
     ]

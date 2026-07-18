@@ -5,13 +5,14 @@ from urllib.parse import urlparse
 
 import httpx
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from pydantic import BaseModel, Field, field_validator
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from rpim_core_api.brain import crawler
+from rpim_core_api.brain import crawler, service
 from rpim_core_api.brain.chunking import chunk_text
 from rpim_core_api.brain.embed_client import embed_texts
 from rpim_core_api.brain.retrieval import search_chunks
@@ -51,7 +52,15 @@ def _cosine(a: list[float], b: list[float]) -> float:
 MAX_CHUNKS = 300
 
 
-def _ingest(session: Session, identity: Identity, title: str, kind: str, text: str) -> SourceOut:
+def _ingest(
+    session: Session,
+    identity: Identity,
+    title: str,
+    kind: str,
+    text: str,
+    knowledge_kind: str = "doc",
+    meta: dict | None = None,
+) -> SourceOut:
     pieces = chunk_text(text)
     if not pieces:
         raise HTTPException(status_code=422, detail="empty text")
@@ -81,6 +90,7 @@ def _ingest(session: Session, identity: Identity, title: str, kind: str, text: s
         title=title,
         kind=kind,
         content_hash=content_hash,
+        meta=meta,
     )
     session.add(source)
     try:
@@ -92,6 +102,7 @@ def _ingest(session: Session, identity: Identity, title: str, kind: str, text: s
                     source_id=source.id,
                     seq=seq,
                     text=piece,
+                    kind=knowledge_kind,
                     embedding=vector,
                 )
             )
@@ -113,7 +124,85 @@ def create_source(
     identity: Identity = Depends(get_identity),
     session: Session = Depends(get_session),
 ) -> SourceOut:
-    return _ingest(session, identity, title=body.title, kind=body.kind, text=body.text)
+    return _ingest(
+        session,
+        identity,
+        title=body.title,
+        kind=body.kind,
+        text=body.text,
+        knowledge_kind=body.knowledge_kind,
+    )
+
+
+def _canonical_product_text(product: "CatalogProduct") -> str:
+    """Deterministic Persian block per catalog product — same input, same
+    text, so the content-hash dedupe makes catalog replays upserts (rule 8)."""
+    lines = [f"محصول: {product.name.strip()}"]
+    if product.sku and product.sku.strip():
+        lines.append(f"کد محصول: {product.sku.strip()}")
+    if product.price and product.price.strip():
+        lines.append(f"قیمت: {product.price.strip()}")
+    features = [f.strip() for f in product.features if f.strip()]
+    if features:
+        lines.append("ویژگی‌ها: " + "، ".join(features))
+    if product.url and product.url.strip():
+        lines.append(f"لینک: {product.url.strip()}")
+    return "\n".join(lines)
+
+
+class CatalogProduct(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    sku: str | None = Field(default=None, max_length=100)
+    price: str | None = Field(default=None, max_length=100)
+    features: list[str] = Field(default_factory=list, max_length=20)
+    url: str | None = Field(default=None, max_length=1000)
+
+    @field_validator("name")
+    @classmethod
+    def _name_not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("product name must not be blank")
+        return value
+
+
+class CatalogIn(BaseModel):
+    products: list[CatalogProduct] = Field(min_length=1, max_length=100)
+
+
+@router.post("/catalog", status_code=201)
+def ingest_catalog(
+    body: CatalogIn,
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Structured product-catalog door (M20): each product embeds as
+    kind=product chunks with its raw structure kept in brain_sources.meta."""
+    before = set(
+        session.scalars(
+            select(BrainSource.content_hash).where(
+                BrainSource.tenant_id == identity.tenant_id  # rule 6
+            )
+        ).all()
+    )
+    ingested = skipped = 0
+    for product in body.products:
+        text = _canonical_product_text(product)
+        content_hash = hashlib.sha256(text.strip().encode("utf-8")).hexdigest()
+        if content_hash in before:
+            skipped += 1
+            continue
+        _ingest(
+            session,
+            identity,
+            title=product.name.strip(),
+            kind="catalog",
+            text=text,
+            knowledge_kind="product",
+            meta=product.model_dump(),
+        )
+        before.add(content_hash)
+        ingested += 1
+    return {"ingested": ingested, "skipped": skipped}
 
 
 @router.post("/sources/crawl", response_model=CrawlOut, status_code=201)
@@ -214,8 +303,21 @@ def reindex(
 def search(
     q: str = Query(min_length=1),
     k: int = Query(default=5, ge=1, le=20),
+    kinds: str | None = Query(default=None),
     identity: Identity = Depends(get_identity),
     session: Session = Depends(get_session),
 ) -> dict:
+    # Explicit search stays STRICT (no doc-widening) — the graceful fallback
+    # belongs to prompt-building consumers via BrandBrain (M20 design §3.1).
+    kind_list: list[str] | None = None
+    if kinds:
+        kind_list = [part.strip() for part in kinds.split(",") if part.strip()]
+        unknown = [part for part in kind_list if part not in service.KINDS]
+        if unknown:
+            raise HTTPException(status_code=422, detail=f"unknown kinds: {unknown}")
     query_vector = embed_texts([q], tenant_id=identity.tenant_id)[0]
-    return {"results": search_chunks(session, identity.tenant_id, query_vector, k)}
+    return {
+        "results": search_chunks(
+            session, identity.tenant_id, query_vector, k, kinds=kind_list
+        )
+    }

@@ -2,11 +2,13 @@
 
 from typing import Literal
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity
 from rpim_core_api.models import BrandProfile, VisualPrompt
@@ -37,8 +39,21 @@ def create_prompt(
     profile = session.scalar(
         select(BrandProfile).where(BrandProfile.tenant_id == identity.tenant_id)  # rule 6
     )
+    # M20: the studio asks the brain — product/tone knowledge grounds the
+    # visual prompt (falls back to doc chunks; empty brain = no grounding).
+    brain = BrandBrain(session, identity.tenant_id)
+    try:
+        chunks = brain.retrieve(body.brief.subject, k=3, kinds=("product", "tone"))
+    except httpx.HTTPError as exc:
+        raise HTTPException(
+            status_code=503, detail="embedding service unavailable — try again shortly"
+        ) from exc
+    grounding = brain.compose_context(chunks, budget_chars=800)
     prompt_text = expand(
-        body.kind, body.brief.model_dump(), profile.tone if profile else None
+        body.kind,
+        body.brief.model_dump(),
+        profile.tone if profile else None,
+        context=grounding or None,
     )
     row = VisualPrompt(
         tenant_id=identity.tenant_id,
