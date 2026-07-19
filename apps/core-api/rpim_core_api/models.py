@@ -63,7 +63,11 @@ class BrainSource(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
     title: Mapped[str] = mapped_column(String(500))
+    # provenance: upload | crawl | pdf | catalog
     kind: Mapped[str] = mapped_column(String(16), default="upload")
+    # M20: structured catalog fields for knowledge_kind=product rows
+    # ({name, sku, price, features, url}) — provenance stays in `kind`.
+    meta: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="ready")
     content_hash: Mapped[str] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
@@ -77,6 +81,8 @@ class BrainChunk(Base):
     source_id: Mapped[str] = mapped_column(ForeignKey("brain_sources.id"), index=True)
     seq: Mapped[int] = mapped_column()
     text: Mapped[str] = mapped_column(String(4000))
+    # M20 retrieval facet: product|tone|faq|claim|doc (kind-filtered RAG).
+    kind: Mapped[str] = mapped_column(String(16), default="doc")
     # pgvector vector(1024) on postgres, JSON on sqlite tests (ADR 0011).
     embedding: Mapped[list] = mapped_column(EmbeddingVector(1024), default=list)
 

@@ -56,6 +56,8 @@ class SourceIn(BaseModel):
     title: str = Field(min_length=1, max_length=500)
     kind: str = "upload"
     text: str
+    # M20 retrieval facet — separate from `kind` (provenance).
+    knowledge_kind: Literal["product", "tone", "faq", "claim", "doc"] = "doc"
 
 
 class SourceOut(BaseModel):

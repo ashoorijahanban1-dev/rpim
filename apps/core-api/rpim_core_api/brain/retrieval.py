@@ -1,4 +1,5 @@
 import math
+from collections.abc import Sequence
 
 from sqlalchemy import Float, select
 from sqlalchemy.orm import Session
@@ -14,10 +15,16 @@ def _cosine(a: list[float], b: list[float]) -> float:
 
 
 def search_chunks(
-    session: Session, tenant_id: str, query_vector: list[float], k: int
+    session: Session,
+    tenant_id: str,
+    query_vector: list[float],
+    k: int,
+    kinds: Sequence[str] | None = None,
 ) -> list[dict]:
     """Tenant-scoped semantic retrieval — shared by /brain/search and the M4
-    content generator. pgvector ANN on postgres, python cosine on sqlite."""
+    content generator. pgvector ANN on postgres, python cosine on sqlite.
+    `kinds` filters STRICTLY on the chunk facet (M20); graceful widening
+    lives one level up, in BrandBrain.retrieve."""
     base = (
         select(BrainChunk, BrainSource.title)
         .join(BrainSource, BrainChunk.source_id == BrainSource.id)
@@ -26,6 +33,8 @@ def search_chunks(
             BrainSource.tenant_id == tenant_id,
         )
     )
+    if kinds:
+        base = base.where(BrainChunk.kind.in_(tuple(kinds)))
 
     if session.get_bind().dialect.name == "postgresql":
         # Explicit Float return type — otherwise SQLAlchemy inherits the
@@ -40,6 +49,7 @@ def search_chunks(
                 "text": chunk.text,
                 "source_id": chunk.source_id,
                 "source_title": title,
+                "kind": chunk.kind,
                 "score": 1.0 - float(dist),
             }
             for chunk, title, dist in rows
@@ -52,6 +62,7 @@ def search_chunks(
                 "text": chunk.text,
                 "source_id": chunk.source_id,
                 "source_title": title,
+                "kind": chunk.kind,
                 "score": _cosine(query_vector, chunk.embedding),
             }
             for chunk, title in rows
