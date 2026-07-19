@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_editor
 from rpim_core_api.models import BrandProfile, VisualPrompt
 from rpim_core_api.studio.expander import expand
 
@@ -31,7 +31,7 @@ class StudioIn(BaseModel):
 @router.post("/prompts", status_code=201)
 def create_prompt(
     body: StudioIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     if not body.brief.subject.strip():

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_editor, require_owner
 from rpim_core_api.models import BrainChunk, ContentDraft
 from rpim_core_api.qa import checks
 from rpim_core_api.qa.governance import GLOBAL_SCOPE, get_flags, set_flag
@@ -19,7 +19,7 @@ gov_router = APIRouter(prefix="/governance", tags=["governance"])
 @qa_router.post("/check/{draft_id}")
 def qa_check(
     draft_id: str,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     draft = session.scalar(
@@ -82,7 +82,7 @@ def governance_status(
 @gov_router.post("/silence")
 def set_silence(
     body: SilenceIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> dict:
     # Tenant-scoped silence; release is this same explicit call with

@@ -26,8 +26,19 @@ def resolve(session: Session, tenant_id: str, channel: str) -> dict | None:
     if row is None or not row.secret_sealed:
         return None
     try:
-        secret = vault.unseal(row.secret_sealed)
+        secret = vault.unseal(row.secret_sealed, tenant_id=tenant_id, channel=channel)
     except vault.VaultKeyError as exc:
         # Transient by design — never echoes the sealed value (rule 4).
         raise ChannelSendError(f"tenant credential unavailable: {exc}") from exc
+    if not vault.is_v2(row.secret_sealed):
+        # Lazy v1→v2 upgrade (M24, ADR 0038) — BEST-EFFORT: a missing/invalid
+        # V2 key keeps the working v1 blob untouched; re-seal must never turn
+        # a readable credential into a publish outage. The write rides the
+        # engine's per-job commit.
+        try:
+            resealed = vault.seal(secret, tenant_id=tenant_id, channel=channel)
+            if vault.is_v2(resealed):
+                row.secret_sealed = resealed
+        except vault.VaultKeyError:
+            pass
     return {"secret": secret, "config": dict(row.config or {})}

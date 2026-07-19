@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from rpim_core_api import vault
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, require_editor, require_owner
 from rpim_core_api.models import ChannelConnection
 from rpim_core_api.publisher.channels import SUPPORTED_CHANNELS
 
@@ -42,7 +42,7 @@ def _require_channel(channel: str) -> None:
 
 @router.get("")
 def list_channels(
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     rows = {
@@ -70,7 +70,7 @@ def list_channels(
 def upsert_channel(
     channel: str,
     body: ConnectionIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> dict:
     _require_channel(channel)
@@ -80,7 +80,9 @@ def upsert_channel(
         session.add(row)
     if body.secret is not None and body.secret.strip():
         try:
-            row.secret_sealed = vault.seal(body.secret.strip())
+            row.secret_sealed = vault.seal(
+                body.secret.strip(), tenant_id=identity.tenant_id, channel=channel
+            )
         except vault.VaultKeyError as exc:
             raise HTTPException(
                 status_code=503, detail="channel vault key missing — try again shortly"
@@ -94,7 +96,7 @@ def upsert_channel(
 @router.delete("/{channel}")
 def disconnect_channel(
     channel: str,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> dict:
     _require_channel(channel)

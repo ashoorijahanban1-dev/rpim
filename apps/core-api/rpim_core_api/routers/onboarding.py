@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_owner
 from rpim_core_api.models import BrandProfile, OnboardingInterview
 from rpim_core_api.schemas import AnswersIn, CompleteOut, InterviewOut
 
@@ -42,7 +42,7 @@ def get_interview(
 @router.put("/answers", response_model=InterviewOut)
 def put_answers(
     body: AnswersIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> InterviewOut:
     unknown = set(body.answers) - set(_FIELDS)
@@ -63,7 +63,7 @@ def put_answers(
 
 @router.post("/complete", response_model=CompleteOut)
 def complete(
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> CompleteOut:
     interview = _get_scoped(session, identity.tenant_id)
