@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, require_owner
 from rpim_core_api.models import (
     ApprenticeEvent,
     BrainChunk,
@@ -36,7 +36,7 @@ def _iso(stamp: datetime | None) -> str | None:
 
 @router.get("/export")
 def full_export(
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> JSONResponse:
     tenant_id = identity.tenant_id

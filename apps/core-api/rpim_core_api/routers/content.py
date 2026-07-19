@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.content.complete_client import complete
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_editor
 from rpim_core_api.models import ApprenticeEvent, BrandProfile, ContentDraft
 from rpim_core_api.schemas import BriefIn, DraftOut, EditIn, RejectIn
 
@@ -47,7 +47,7 @@ def _draft_out(draft: ContentDraft) -> DraftOut:
 @router.post("/drafts", response_model=DraftOut, status_code=201)
 def create_draft(
     body: BriefIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> DraftOut:
     profile = session.scalar(
@@ -163,7 +163,7 @@ def get_draft(
 @router.post("/drafts/{draft_id}/approve")
 def approve_draft(
     draft_id: str,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     draft = _get_draft(session, identity.tenant_id, draft_id)
@@ -183,7 +183,7 @@ def approve_draft(
 def edit_draft(
     draft_id: str,
     body: EditIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     draft = _get_draft(session, identity.tenant_id, draft_id)
@@ -204,7 +204,7 @@ def edit_draft(
 def reject_draft(
     draft_id: str,
     body: RejectIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     draft = _get_draft(session, identity.tenant_id, draft_id)

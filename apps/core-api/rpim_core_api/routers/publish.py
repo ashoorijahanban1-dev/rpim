@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_editor
 from rpim_core_api.measurement.utm import build_landing_url
 from rpim_core_api.models import ContentDraft, PublishJob
 from rpim_core_api.publisher.engine import dispatch_due_jobs
@@ -81,7 +81,7 @@ def _job_out(job: PublishJob) -> dict:
 @router.post("/jobs", status_code=201)
 def create_job(
     body: PublishJobIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> dict:
     draft = session.scalar(

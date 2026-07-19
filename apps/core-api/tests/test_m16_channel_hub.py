@@ -71,17 +71,19 @@ def _auth(token: str) -> dict:
 
 
 def test_m16_vault_roundtrip():
-    sealed = vault.seal(_SECRET_TOKEN)
+    # M24 evolved the signature: seals are bound to their row (AAD).
+    sealed = vault.seal(_SECRET_TOKEN, tenant_id="ten-t", channel="bale")
     assert sealed != _SECRET_TOKEN and _SECRET_TOKEN not in sealed, (
         "sealed value must not contain the plaintext"
     )
-    assert vault.unseal(sealed) == _SECRET_TOKEN
+    assert vault.unseal(sealed, tenant_id="ten-t", channel="bale") == _SECRET_TOKEN
 
 
 def test_m16_vault_missing_key_names_the_var(monkeypatch):
     monkeypatch.delenv("CHANNEL_SECRET_KEY", raising=False)
+    monkeypatch.delenv("CHANNEL_SECRET_KEY_V2", raising=False)
     with pytest.raises(vault.VaultKeyError) as excinfo:
-        vault.seal("x")
+        vault.seal("x", tenant_id="ten-t", channel="bale")
     assert "CHANNEL_SECRET_KEY" in str(excinfo.value), (
         f"error must NAME the env var (rule 4): {excinfo.value}"
     )

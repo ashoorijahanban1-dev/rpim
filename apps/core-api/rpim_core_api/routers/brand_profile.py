@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, get_identity
+from rpim_core_api.deps import Identity, get_identity, require_owner
 from rpim_core_api.models import BrandProfile
 from rpim_core_api.schemas import BrandProfileIn, BrandProfileOut
 
@@ -36,7 +36,7 @@ def get_profile(
 @router.put("", response_model=BrandProfileOut)
 def put_profile(
     body: BrandProfileIn,
-    identity: Identity = Depends(get_identity),
+    identity: Identity = Depends(require_owner),
     session: Session = Depends(get_session),
 ) -> BrandProfileOut:
     profile = _get_scoped(session, identity.tenant_id)

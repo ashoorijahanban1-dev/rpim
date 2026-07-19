@@ -32,6 +32,9 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(200))
+    # M24 RBAC: owner | editor | observer. Backfill 'owner' is exact — every
+    # pre-M24 user registered their own tenant and is its sole member.
+    role: Mapped[str] = mapped_column(String(16), default="owner")
     # M1: one user belongs to exactly one tenant; multi-seat comes with the
     # approval-queue milestone (see docs/decisions/).
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
@@ -266,3 +269,20 @@ class AiNewsItem(Base):
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )
+
+
+class TenantInvite(Base):
+    """Multi-seat invite (M24, ADR 0038). v1 rule: valid ONLY for emails with
+    no existing user — accounts never move across tenants (rule 6). The raw
+    token is shown once at creation; only its sha256 lands here."""
+
+    __tablename__ = "tenant_invites"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    email: Mapped[str] = mapped_column(String(320))
+    role: Mapped[str] = mapped_column(String(16))  # editor | observer
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
