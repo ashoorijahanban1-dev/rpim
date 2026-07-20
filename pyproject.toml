@@ -44,6 +44,8 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Vendored third-party code (skills) keeps its upstream style — not ours to lint.
+extend-exclude = [".claude"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
