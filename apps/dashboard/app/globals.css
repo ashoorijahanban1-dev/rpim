@@ -1,7 +1,55 @@
 /* ────────────────────────────────────────────────────────────────────────
    RPIM design tokens — porcelain/ivory + antique gold (light),
    emerald + gold (dark). Source of truth: approved mockup (slice 1).
+
+   ADR 0040 — 21st.dev interop layer: Tailwind v4 UTILITIES ONLY (no
+   preflight — the hand-rolled token system below stays the source of
+   truth for base styles; preflight would reset it). The @theme block is
+   the v4-native "tailwind config": the Pro UI scale (radii, smooth
+   shadows, motion) plus brand colors mapped from the existing tokens so
+   drop-in 21st.dev/shadcn components pick up the RPIM look.
    ──────────────────────────────────────────────────────────────────────── */
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+  /* Pro UI radius scale */
+  --radius-card: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Smooth shadow scale (soft → floating → popover) */
+  --shadow-soft: 0 1px 2px rgb(24 29 28 / 0.05), 0 4px 12px rgb(24 29 28 / 0.06);
+  --shadow-float: 0 2px 6px rgb(24 29 28 / 0.07), 0 12px 32px rgb(24 29 28 / 0.1);
+  --shadow-pop: 0 4px 12px rgb(24 29 28 / 0.1), 0 24px 48px rgb(24 29 28 / 0.16);
+
+  /* Motion primitives (150-300ms band, decelerating — UX guideline) */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-up: fade-up 0.3s var(--ease-out-soft) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@theme inline {
+  /* Brand palette exposed as Tailwind color tokens (bg-gold, text-ink, …) */
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --color-gold-strong: var(--gold-strong);
+}
 
 /* Vazirmatn variable font, bundled locally (no network at runtime).
    SIL OFL 1.1 — see public/fonts/OFL.txt (Vazirmatn Project Authors). */
