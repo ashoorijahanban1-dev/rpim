@@ -7,7 +7,7 @@ every click back to the exact post and campaign.
 
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-_UTM_KEYS = ("utm_source", "utm_medium", "utm_campaign")
+_UTM_KEYS = ("utm_source", "utm_medium", "utm_campaign", "utm_id")
 
 
 def build_landing_url(base_url: str, utm: dict) -> str:

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity, require_editor
+from rpim_core_api.measurement import attribution
 from rpim_core_api.measurement.utm import build_landing_url
 from rpim_core_api.models import ContentDraft, MediaAsset, PublishJob
 from rpim_core_api.publisher.engine import dispatch_due_jobs
@@ -64,11 +65,15 @@ class PublishJobIn(BaseModel):
         return value
 
 
-def _build_utm(channel: str, campaign_code: str) -> dict:
+def _build_utm(channel: str, campaign_code: str, tenant_id: str) -> dict:
     return {
         "utm_source": channel,
         "utm_medium": "social",
         "utm_campaign": campaign_code,
+        # M22 (ADR 0041): tenant attribution key — campaign codes are free
+        # strings on a SHARED analytics site; without this, two brands using
+        # the same code would ingest each other's clicks (rule 6).
+        "utm_id": attribution.tenant_key(tenant_id),
     }
 
 
@@ -124,7 +129,7 @@ def create_job(
             )
         asset.status = "attached"
 
-    utm = _build_utm(body.channel, body.campaign_code)
+    utm = _build_utm(body.channel, body.campaign_code, identity.tenant_id)
     job = PublishJob(
         tenant_id=identity.tenant_id,
         draft_id=draft.id,
