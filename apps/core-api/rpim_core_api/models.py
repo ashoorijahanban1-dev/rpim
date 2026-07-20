@@ -322,3 +322,50 @@ class MediaAsset(Base):
     status: Mapped[str] = mapped_column(String(16), default="draft")  # draft|approved|attached
     cost_usd: Mapped[float] = mapped_column(default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class CampaignChannelMetric(Base):
+    """Daily per-tenant metrics snapshot (M22, ADR 0041). One row per
+    (tenant, campaign, channel, source, day) — the beat's replays upsert
+    (rule 8). posts_sent carries the CTR denominator; day is app-TZ for
+    umami rows and source-local for ga4 (documented, never mixed)."""
+
+    __tablename__ = "campaign_channel_metrics"
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "campaign_code", "channel", "source", "day",
+            name="uq_metric_scope",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    campaign_code: Mapped[str] = mapped_column(String(120))
+    channel: Mapped[str] = mapped_column(String(16))  # telegram|bale|eitaa|wordpress|web
+    day: Mapped[str] = mapped_column(String(10))  # YYYY-MM-DD
+    source: Mapped[str] = mapped_column(String(16))  # umami | ga4
+    clicks: Mapped[int] = mapped_column(default=0)
+    sessions: Mapped[int] = mapped_column(default=0)
+    impressions: Mapped[int | None] = mapped_column(nullable=True)  # NULL = source can't know
+    posts_sent: Mapped[int] = mapped_column(default=0)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class TenantLearning(Base):
+    """Versioned learned directives (M22). The distiller writes a new version
+    ONLY when content_hash changes (rule-8 no-op replays); prompts inject
+    the latest active version, capped — the owner can retire any version."""
+
+    __tablename__ = "tenant_learnings"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "version", name="uq_learning_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    version: Mapped[int] = mapped_column()
+    directives: Mapped[list] = mapped_column(JSON, default=list)
+    evidence: Mapped[dict] = mapped_column(JSON, default=dict)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16), default="active")  # active | retired
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

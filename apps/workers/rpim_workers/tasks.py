@@ -103,3 +103,24 @@ celery_app.conf.beat_schedule = {
         "schedule": 21600.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.snapshot_metrics")
+def snapshot_metrics() -> dict:
+    """Pokes core-api's internal metrics snapshot (M22). Upsert semantics
+    live INSIDE core-api — a misbehaving beat can only snapshot more often."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/metrics/snapshot", headers)
+
+
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "snapshot-metrics": {
+        "task": "rpim_workers.snapshot_metrics",
+        "schedule": 21600.0,
+    },
+}
