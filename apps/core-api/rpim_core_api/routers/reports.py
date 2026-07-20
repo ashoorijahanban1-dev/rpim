@@ -86,6 +86,7 @@ def monthly_report(
         "publish": {
             "queued": sum(1 for j in month_jobs if j.status == "queued"),
             "sent": sum(1 for j in month_jobs if j.status == "sent"),
+            "stalled": sum(1 for j in month_jobs if j.status == "stalled"),
             "by_channel": dict(by_channel),
         },
         "campaigns": sorted(campaigns.values(), key=lambda c: c["campaign_code"]),

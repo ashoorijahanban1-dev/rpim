@@ -3,14 +3,14 @@ from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity, require_editor
 from rpim_core_api.measurement.utm import build_landing_url
-from rpim_core_api.models import ContentDraft, PublishJob
+from rpim_core_api.models import ContentDraft, MediaAsset, PublishJob
 from rpim_core_api.publisher.engine import dispatch_due_jobs
 
 router = APIRouter(prefix="/publish", tags=["publish"])
@@ -20,8 +20,20 @@ PUBLISHABLE_STATUSES = ("approved", "edited")
 
 
 class ImageSpecIn(BaseModel):
-    template: Literal["announce", "quote", "product"]
-    size: Literal["square", "story", "wide"]
+    # M21: template = renderer HTML templates (M12); generated = an APPROVED
+    # media asset from the studio (rule 1 covers images too).
+    kind: Literal["template", "generated"] = "template"
+    template: Literal["announce", "quote", "product"] | None = None
+    size: Literal["square", "story", "wide"] | None = None
+    media_asset_id: str | None = Field(default=None, max_length=64)
+
+    @model_validator(mode="after")
+    def _shape_matches_kind(self) -> "ImageSpecIn":
+        if self.kind == "template" and (self.template is None or self.size is None):
+            raise ValueError("template image needs template and size")
+        if self.kind == "generated" and not self.media_asset_id:
+            raise ValueError("generated image needs media_asset_id")
+        return self
 
 
 class PublishJobIn(BaseModel):
@@ -95,6 +107,23 @@ def create_job(
     if draft.status not in PUBLISHABLE_STATUSES:
         raise HTTPException(status_code=409, detail="draft is not approved for publishing")
 
+    if body.image is not None and body.image.kind == "generated":
+        # Rule 1 covers IMAGES: only a human-approved asset may attach; the
+        # lookup is tenant-scoped so a foreign id is simply invisible (rule 6).
+        asset = session.scalar(
+            select(MediaAsset).where(
+                MediaAsset.tenant_id == identity.tenant_id,  # rule 6
+                MediaAsset.id == body.image.media_asset_id,
+            )
+        )
+        if asset is None:
+            raise HTTPException(status_code=404, detail="media asset not found")
+        if asset.status not in ("approved", "attached"):
+            raise HTTPException(
+                status_code=409, detail="media asset is not approved for publishing"
+            )
+        asset.status = "attached"
+
     utm = _build_utm(body.channel, body.campaign_code)
     job = PublishJob(
         tenant_id=identity.tenant_id,
@@ -105,7 +134,17 @@ def create_job(
         utm=utm,
         # UTM params compiled into the landing link at job birth (M9).
         landing_url=build_landing_url(body.landing_url, utm) if body.landing_url else None,
-        image_spec=body.image.model_dump() if body.image else None,
+        # Stored shape stays IDENTICAL to pre-M21 rows for template posts
+        # ({template, size}); only generated posts carry the new fields.
+        image_spec=(
+            {
+                key: value
+                for key, value in body.image.model_dump(exclude_none=True).items()
+                if not (key == "kind" and value == "template")
+            }
+            if body.image
+            else None
+        ),
         # Frozen at compile time: what was approved is exactly what ships.
         text=draft.edited_text or draft.text,
         scheduled_at=body.scheduled_at,
@@ -145,3 +184,28 @@ def dispatch(
     if not expected or x_internal_token != expected:
         raise HTTPException(status_code=403, detail="invalid internal token")
     return dispatch_due_jobs(session)
+
+
+@router.post("/jobs/{job_id}/requeue")
+def requeue_job(
+    job_id: str,
+    identity: Identity = Depends(require_editor),
+    session: Session = Depends(get_session),
+) -> dict:
+    """M21 dead-letter exit: revive a STALLED job after the operator fixed
+    the underlying cause. Only stalled jobs qualify — queued/sent jobs 409."""
+    job = session.scalar(
+        select(PublishJob).where(
+            PublishJob.tenant_id == identity.tenant_id,  # rule 6
+            PublishJob.id == job_id,
+        )
+    )
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    if job.status != "stalled":
+        raise HTTPException(status_code=409, detail="only stalled jobs can be requeued")
+    job.status = "queued"
+    job.first_failed_at = None
+    job.last_error = None
+    session.commit()
+    return {"job_id": job.id, "status": job.status}

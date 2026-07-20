@@ -279,7 +279,9 @@
     "sent_label": "ارسال: ",
     "created_label": "ساخت: ",
     "landing_link": "لینک فرود",
-    "loading": "در حال بارگیری…"
+    "loading": "در حال بارگیری…",
+    "status_stalled": "معطل‌مانده",
+    "requeue": "بازگشت به صف"
   },
   "trends": {
     "title": "رادار ایده‌ی محتوا",
@@ -303,7 +305,15 @@
     "copy": "کپی",
     "copied": "کپی شد ✅",
     "error": "ساخت پرامپت ناموفق بود؛ دوباره تلاش کنید.",
-    "list_aria": "فهرست پرامپت‌های ساخته‌شده"
+    "list_aria": "فهرست پرامپت‌های ساخته‌شده",
+    "media_title": "دارایی‌های تصویری",
+    "media_generate": "تولید تصویر",
+    "media_empty": "هنوز تصویری تولید نشده — از روی یک پرامپت، تصویر بسازید.",
+    "media_approve": "تأیید تصویر",
+    "media_status_draft": "پیش‌نویس",
+    "media_status_approved": "تأییدشده",
+    "media_status_attached": "متصل به انتشار",
+    "media_error": "خطا در تولید تصویر. دوباره تلاش کنید."
   },
   "channels_hub": {
     "title": "هاب کانال‌های برند",

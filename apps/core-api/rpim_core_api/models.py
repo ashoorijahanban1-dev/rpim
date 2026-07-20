@@ -163,6 +163,12 @@ class PublishJob(Base):
     attempts: Mapped[int] = mapped_column(default=0)
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # M21 dead-letter clock (ADR 0039): stamped on the FIRST ChannelSendError,
+    # cleared on success; age > MAX_PUBLISH_RETRY_HOURS moves the job to
+    # 'stalled' — silence/kill-blocked passes never touch it.
+    first_failed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
@@ -285,4 +291,34 @@ class TenantInvite(Base):
     token_hash: Mapped[str] = mapped_column(String(64), unique=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class MediaAsset(Base):
+    """Generated/rendered visual (M21, ADR 0039). Bytes live under
+    MEDIA_STORAGE_DIR (never in the DB); rule 1 covers images too — only an
+    approved asset may attach to a publish job. wp_media_id is the stage-1
+    receipt that makes the WordPress two-step resumable (rule 8)."""
+
+    __tablename__ = "media_assets"
+    __table_args__ = (UniqueConstraint("tenant_id", "sha256", name="uq_media_scope"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(16), default="generated")  # generated | rendered
+    prompt_id: Mapped[str | None] = mapped_column(
+        ForeignKey("visual_prompts.id"), nullable=True
+    )
+    provider: Mapped[str] = mapped_column(String(32), default="")
+    model: Mapped[str] = mapped_column(String(64), default="")
+    prompt_text: Mapped[str] = mapped_column(String(4000), default="")
+    alt_text: Mapped[str] = mapped_column(String(300), default="")
+    sha256: Mapped[str] = mapped_column(String(64))
+    mime: Mapped[str] = mapped_column(String(32), default="image/png")
+    width: Mapped[int | None] = mapped_column(nullable=True)
+    height: Mapped[int | None] = mapped_column(nullable=True)
+    storage_path: Mapped[str] = mapped_column(String(500))
+    wp_media_id: Mapped[int | None] = mapped_column(nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="draft")  # draft|approved|attached
+    cost_usd: Mapped[float] = mapped_column(default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
