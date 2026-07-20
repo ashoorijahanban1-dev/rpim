@@ -127,6 +127,109 @@ def send_photo(
         raise ChannelSendError(f"unsupported channel {channel}")
 
 
+def _wp_creds(creds: dict | None) -> tuple[str, str, str]:
+    if creds is not None:
+        config = creds.get("config") or {}
+        base = str(config.get("base_url", "")).rstrip("/")
+        user = str(config.get("user", ""))
+        app_password = _tenant_secret(creds) or ""
+        if not base or not user or not app_password:
+            # Name the missing FIELD, never a value (rule 4).
+            raise ChannelSendError(
+                "wordpress connection incomplete: base_url, user and secret are required"
+            )
+        return base, user, app_password
+    return (
+        _require_env("WORDPRESS_BASE_URL").rstrip("/"),
+        _require_env("WORDPRESS_USER"),
+        _require_env("WORDPRESS_APP_PASSWORD"),
+    )
+
+
+def wordpress_upload_media(
+    image_png: bytes, alt_text: str, job_id: str, creds: dict | None = None
+) -> int:
+    """M21 stage 1: upload to the WP Media Library, return wp_media_id.
+    The CALLER commits the id as a receipt BEFORE stage 2 (rule 8)."""
+    mode = os.environ.get("PUBLISH_MODE", "fake")
+    if mode == "fake":
+        if "wordpress" in _FAIL_NEXT:
+            _FAIL_NEXT.remove("wordpress")
+            raise ChannelSendError("injected transient failure for wordpress")
+        _OUTBOX.append(
+            {
+                "channel": "wordpress",
+                "kind": "media_upload",
+                "alt_text": alt_text,
+                "job_id": job_id,
+                "image_size": len(image_png),
+                "creds_source": "tenant" if creds else "env",
+            }
+        )
+        return 777_000 + len(_OUTBOX)
+    if mode != "live":
+        raise ChannelSendError("PUBLISH_MODE must be 'fake' or 'live'")
+    base, user, app_password = _wp_creds(creds)
+    try:
+        response = httpx.post(
+            f"{base}/wp-json/wp/v2/media",
+            data={"alt_text": alt_text},
+            files={"file": ("post.png", image_png, "image/png")},
+            headers={"Content-Disposition": 'attachment; filename="post.png"'},
+            auth=(user, app_password),
+            timeout=60,
+        )
+        response.raise_for_status()
+        return int(response.json()["id"])
+    except httpx.HTTPError as exc:
+        # Never echo the URL or credentials (rule 4).
+        raise ChannelSendError(f"channel endpoint failed: {type(exc).__name__}") from exc
+
+
+def wordpress_attach_post(
+    text: str, wp_media_id: int, job_id: str, creds: dict | None = None
+) -> None:
+    """M21 stage 2: create the post with featured_media = the stage-1 receipt."""
+    mode = os.environ.get("PUBLISH_MODE", "fake")
+    if mode == "fake":
+        if "wordpress" in _FAIL_NEXT:
+            _FAIL_NEXT.remove("wordpress")
+            raise ChannelSendError("injected transient failure for wordpress")
+        _OUTBOX.append(
+            {
+                "channel": "wordpress",
+                "kind": "photo",
+                "text": text,
+                "job_id": job_id,
+                "wp_media_id": wp_media_id,
+                "image_size": 1,
+                "creds_source": "tenant" if creds else "env",
+            }
+        )
+        return
+    if mode != "live":
+        raise ChannelSendError("PUBLISH_MODE must be 'fake' or 'live'")
+    base, user, app_password = _wp_creds(creds)
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    title = lines[0] if lines else text
+    try:
+        response = httpx.post(
+            f"{base}/wp-json/wp/v2/posts",
+            json={
+                "title": title,
+                "content": text,
+                "status": "publish",
+                "featured_media": wp_media_id,
+            },
+            auth=(user, app_password),
+            timeout=30,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        # Never echo the URL or credentials (rule 4).
+        raise ChannelSendError(f"channel endpoint failed: {type(exc).__name__}") from exc
+
+
 def _tenant_secret(creds: dict | None) -> str | None:
     if creds and str(creds.get("secret", "")).strip():
         return str(creds["secret"]).strip()

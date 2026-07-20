@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import os
 from typing import Literal
 
@@ -6,6 +8,7 @@ from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from rpim_model_gateway import idempotency, telegram
+from rpim_model_gateway.image_providers import IMAGE_PRICES, IMAGE_PROVIDERS
 from rpim_model_gateway.ledger import entries_for, record
 from rpim_model_gateway.providers import PROVIDERS, cost_usd
 from rpim_shared import HealthStatus, fake_embed
@@ -149,6 +152,73 @@ def complete_text(body: CompleteIn, x_internal_token: str | None = Header(defaul
         return payload
 
     raise HTTPException(status_code=503, detail=f"all model links failed: {'; '.join(errors)}")
+
+
+class ImageIn(BaseModel):
+    prompt: str = Field(min_length=1, max_length=4000)
+    size: str = Field(default="1024x1024", max_length=16)
+    tenant_id: str | None = None
+    # Cross-leg idempotency (rule 8): the core-api sends its media-asset id.
+    request_id: str | None = Field(default=None, max_length=64)
+
+
+@app.post("/image")
+def generate_image(body: ImageIn, x_internal_token: str | None = Header(default=None)) -> dict:
+    _require_internal(x_internal_token)
+
+    # Tenant-scoped idempotency key (rule 6) storing a LIGHTWEIGHT RECEIPT —
+    # never image bytes: 512 cached 1-4MB b64 blobs would OOM the single US
+    # VPS (design §3.2). The retry path re-reads bytes from the media volume.
+    idem_key = f"img:{body.tenant_id or 'unknown'}:{body.request_id}" if body.request_id else None
+    if idem_key:
+        cached = idempotency.get(idem_key)
+        if cached is not None:
+            return {**cached, "cached": True}
+
+    timeout = float(os.environ.get("IMAGE_TIMEOUT_S", "120"))
+    primary = os.environ.get("MODEL_IMG", "")
+    fallbacks = os.environ.get("MODEL_IMG_FALLBACKS", "")
+    links = [x.strip() for x in [primary, *fallbacks.split(",")] if x.strip()]
+    if not links:
+        raise HTTPException(status_code=503, detail="no image model configured (MODEL_IMG)")
+
+    errors: list[str] = []
+    for link in links:
+        provider_name, _, model = link.partition(":")
+        provider = IMAGE_PROVIDERS.get(provider_name)
+        if provider is None:
+            errors.append(f"{link}: unknown provider")
+            continue
+        try:
+            result = provider(model, body.prompt, size=body.size, timeout=timeout)
+        except Exception as exc:  # noqa: BLE001 — any link failure falls through
+            errors.append(f"{link}: {type(exc).__name__}: {exc}")
+            continue
+
+        raw = base64.b64decode(result["image_b64"])
+        cost = IMAGE_PRICES.get(model, 0.0)
+        receipt = {
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "provider": provider_name,
+            "model": model,
+            "units": 1,
+            "cost_usd": cost,
+        }
+        # Receipt cached BEFORE the ledger write (the /complete asymmetry,
+        # rule 8): a crash between the two under-charges once, never double.
+        if idem_key:
+            idempotency.put(idem_key, receipt)
+        record(
+            tenant_id=body.tenant_id,
+            task="image",
+            model=model,
+            units=1,
+            provider=provider_name,
+            cost_usd=cost,
+        )
+        return {**receipt, "image_b64": result["image_b64"]}
+
+    raise HTTPException(status_code=503, detail=f"all image links failed: {'; '.join(errors)}")
 
 
 class TelegramIn(BaseModel):

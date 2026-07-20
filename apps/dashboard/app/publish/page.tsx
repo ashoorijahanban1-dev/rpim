@@ -57,6 +57,7 @@ function channelLabel(channel: string): string {
 function statusLabel(status: string): string {
   if (status === "queued") return fa.publish.status_queued;
   if (status === "sent") return fa.publish.status_sent;
+  if (status === "stalled") return fa.publish.status_stalled;
   return status;
 }
 
@@ -137,6 +138,11 @@ export default function PublishPage() {
       })
       .catch(() => {});
   }, [router, loadDrafts, loadJobs]);
+
+  async function requeue(jobId: string) {
+    const resp = await api(`/publish/jobs/${jobId}/requeue`, { method: "POST" });
+    if (resp.ok) await loadJobs();
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -361,6 +367,15 @@ export default function PublishPage() {
                   {fa.publish.attempts}
                   {faNum(job.attempts)}
                 </span>
+                {job.status === "stalled" && (
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => requeue(job.job_id)}
+                  >
+                    {fa.publish.requeue}
+                  </button>
+                )}
               </div>
               <p className="text">
                 {job.scheduled_at &&

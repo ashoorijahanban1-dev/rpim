@@ -21,6 +21,7 @@ from rpim_core_api.models import (
     BrainSource,
     BrandProfile,
     ContentDraft,
+    MediaAsset,
     OnboardingInterview,
     PublishJob,
     Tenant,
@@ -79,9 +80,12 @@ def full_export(
     jobs = session.scalars(
         select(PublishJob).where(PublishJob.tenant_id == tenant_id).order_by(PublishJob.created_at)
     ).all()
+    media = session.scalars(
+        select(MediaAsset).where(MediaAsset.tenant_id == tenant_id).order_by(MediaAsset.created_at)
+    ).all()
 
     payload = {
-        "export_version": 2,  # M20: brain meta + chunk kinds
+        "export_version": 3,  # M21: + media_assets metadata (never bytes)
         "generated_at": now_app().isoformat(),
         "tenant": {
             "id": tenant.id,
@@ -119,6 +123,21 @@ def full_export(
             ],
             "chunks_count": len(chunks),
         },
+        "media_assets": [
+            {
+                "id": asset.id,
+                "kind": asset.kind,
+                "status": asset.status,
+                "alt_text": asset.alt_text,
+                "sha256": asset.sha256,
+                "provider": asset.provider,
+                "model": asset.model,
+                "wp_media_id": asset.wp_media_id,
+                "cost_usd": asset.cost_usd,
+                "created_at": _iso(asset.created_at),
+            }
+            for asset in media
+        ],
         "drafts": [
             {
                 "draft_id": draft.id,
