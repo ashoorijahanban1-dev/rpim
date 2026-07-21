@@ -176,14 +176,14 @@ def test_export_200_returns_all_top_level_keys(client: TestClient):
     )
 
 
-def test_export_version_is_three(client: TestClient):
-    """GET /export → export_version == 3 (M21 added media_assets metadata)."""
+def test_export_version_is_four(client: TestClient):
+    """GET /export → export_version == 4 (M22 slice D added measurement data)."""
     token = _setup_tenant(client, "m11-ver@test.com", "pw123456", "M11Ver")
     resp = client.get("/export", headers=_auth(token))
     assert resp.status_code == 200, f"GET /export must return 200: {resp.text}"
     body = resp.json()
-    assert body.get("export_version") == 3, (
-        f"export_version must be exactly 3 (int), got: {body.get('export_version')!r}"
+    assert body.get("export_version") == 4, (
+        f"export_version must be exactly 4 (int), got: {body.get('export_version')!r}"
     )
 
 
@@ -315,7 +315,7 @@ def test_export_e2e_roundtrip(client: TestClient):
     create publish job → dispatch (PUBLISH_MODE=fake) → GET /export →
     assert: brain marker in chunks; all 3 drafts with correct statuses;
     apprentice_events has kinds {approved, edited, rejected}; dispatched job
-    has campaign_code and status='sent'; export_version == 3.
+    has campaign_code and status='sent'; export_version == 4.
     """
     BRAIN_MARKER = f"EXPORT_E2E_BRAIN_MARKER_UNIQUE_{secrets.token_hex(8)}"
     CAMPAIGN_CODE = f"camp_e2e_{secrets.token_hex(6)}"
@@ -372,8 +372,8 @@ def test_export_e2e_roundtrip(client: TestClient):
     body = exp_resp.json()
 
     # ---- export_version == 1 ----
-    assert body.get("export_version") == 3, (
-        f"export_version must be 3 in e2e response, got: {body.get('export_version')!r}"
+    assert body.get("export_version") == 4, (
+        f"export_version must be 4 in e2e response, got: {body.get('export_version')!r}"
     )
 
     # ---- brain: unique marker must appear in at least one chunk text ----

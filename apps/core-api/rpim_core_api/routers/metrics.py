@@ -25,20 +25,25 @@ def snapshot_metrics(
     if not expected or x_internal_token != expected:
         raise HTTPException(status_code=403, detail="invalid internal token")
 
+    from rpim_core_api.measurement import analytics_providers  # noqa: PLC0415
+
     day = now_app().strftime("%Y-%m-%d")  # app-TZ lever (ADR 0032)
     tenant_ids = session.scalars(select(Tenant.id)).all()
     rows = 0
     skipped = 0
     for tenant_id in tenant_ids:
         try:
-            clicks_by_campaign = attribution.fetch_tenant_clicks(
+            # Slice D: the snapshot rides the provider registry like ingest —
+            # umami's property_ref is the tenant's utm_id (ADR 0042).
+            day_rows = analytics_providers.ANALYTICS_PROVIDERS["umami"](
                 attribution.tenant_key(tenant_id), day
             )
         except Exception:  # noqa: BLE001 — a dead source must not crash-loop
             # the beat (rule 8); count it and move on to the next tenant.
             skipped += 1
             continue
-        for campaign_code, clicks in clicks_by_campaign.items():
+        for entry in day_rows:
+            campaign_code = entry["campaign"]
             posts_sent = session.scalar(
                 select(func.count())
                 .select_from(PublishJob)
@@ -66,7 +71,8 @@ def snapshot_metrics(
                     day=day,
                 )
                 session.add(row)
-            row.clicks = int(clicks)
+            row.clicks = int(entry["clicks"])
+            row.sessions = int(entry.get("sessions", 0))
             row.posts_sent = int(posts_sent or 0)
             row.captured_at = now_app()
             rows += 1
