@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from rpim_core_api.routers import (
     admin_panel,
+    agent,
     auth,
     brain,
     brand_profile,
@@ -38,6 +39,7 @@ app.include_router(export.router)
 app.include_router(admin_panel.router)
 app.include_router(metrics.router)
 app.include_router(learnings.router)
+app.include_router(agent.router)
 
 
 @app.get("/health", response_model=HealthStatus)

@@ -23,6 +23,9 @@ class Tenant(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(200))
+    # M23 autonomy dial (blueprint §5, L0..L3). L0 default = the watchdog
+    # is INERT until the owner explicitly raises it (rule 1).
+    autonomy_level: Mapped[int] = mapped_column(default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -102,6 +105,8 @@ class ContentDraft(Base):
     flag_unsourced: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(16), default="draft")
     qa: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # M23: human | agent — the reviewer always sees who proposed (rule 1).
+    origin: Mapped[str] = mapped_column(String(16), default="human")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -368,6 +373,33 @@ class TenantLearning(Base):
     evidence: Mapped[dict] = mapped_column(JSON, default=dict)
     content_hash: Mapped[str] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(16), default="active")  # active | retired
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class AgentAction(Base):
+    """Watchdog audit row (M23, ADR 0046): one proposal per (tenant, trend,
+    kind) — rule-8 dedupe lives in the UNIQUE key, so a replayed scan can
+    never re-propose. rationale is a FIXED fa template + numbers: the human
+    always sees WHY the proposal exists."""
+
+    __tablename__ = "agent_actions"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "trend_item_id", "kind", name="uq_agent_scope"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(24), default="brief_proposal")
+    # NOT NULL by design review: NULLs are distinct in UNIQUE constraints,
+    # which would void the dedupe for any future trendless kind.
+    trend_item_id: Mapped[str] = mapped_column(ForeignKey("trend_items.id"))
+    draft_id: Mapped[str | None] = mapped_column(
+        ForeignKey("content_drafts.id"), nullable=True
+    )
+    score: Mapped[int] = mapped_column(default=0)  # trend heat at proposal time
+    relevance: Mapped[int] = mapped_column(default=0)  # brand fit 0..100 (§3.6)
+    rationale: Mapped[str] = mapped_column(String(1000), default="")
+    status: Mapped[str] = mapped_column(String(16), default="proposed")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 

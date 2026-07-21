@@ -16,6 +16,7 @@ type Draft = {
   created_at: string;
   brief: Record<string, string | null>;
   qa: { flags: QaFlag[]; requires_human: boolean } | null;
+  origin?: string; // M23: "agent" drafts get a visible badge (rule 1)
 };
 
 function currentMonth(): string {
@@ -189,6 +190,9 @@ export default function QueuePage() {
           <section key={d.draft_id} className={`card ${cardTone(d)}`}>
             <div className="meta">
               {statusChip(d)}
+              {d.origin === "agent" && (
+                <span className="chip warn">{fa.queue.agent_badge}</span>
+              )}
               {d.brief.channel && <span className="chip plain">{d.brief.channel}</span>}
               <span>
                 {d.brief.goal ? `${fa.queue.brief_prefix}${d.brief.goal} · ` : ""}

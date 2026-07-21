@@ -560,12 +560,14 @@ def test_m4_draft_gateway_failure_returns_503_not_500(client: TestClient, monkey
     clean 503 naming the gateway — the dashboard maps it to Persian."""
     import httpx  # noqa: PLC0415
 
-    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+    # M23 moved generation into content/service.py (§3.3) — the complete
+    # seam lives there now; the 503 contract is unchanged.
+    import rpim_core_api.content.service as content_service  # noqa: PLC0415
 
     def dead_complete(prompt, system=None, tenant_id=None, task="t1", request_id=None):
         raise httpx.ConnectError("gateway down")
 
-    monkeypatch.setattr(content_router, "complete", dead_complete)
+    monkeypatch.setattr(content_service, "complete", dead_complete)
 
     token = _setup_tenant(
         client, "draft-gw-down@example.com", "Password123!", "DraftGwDown"
@@ -583,7 +585,7 @@ def test_m4_draft_prompt_demands_final_output_only(client: TestClient, monkeypat
     """Pilot A0 reject signals: drafts opened with meta-preambles («پست
     تلگرام و بله برای معرفی…») and option menus. The M4 prompt contract must
     demand the final post text only (ADR 0031 carried risk)."""
-    import rpim_core_api.routers.content as content_router  # noqa: PLC0415
+    import rpim_core_api.content.service as content_service  # noqa: PLC0415
 
     captured: dict = {}
 
@@ -592,7 +594,7 @@ def test_m4_draft_prompt_demands_final_output_only(client: TestClient, monkeypat
         captured["prompt"] = prompt
         return "متن نهایی پست"
 
-    monkeypatch.setattr(content_router, "complete", spy_complete)
+    monkeypatch.setattr(content_service, "complete", spy_complete)
 
     token = _setup_tenant(
         client, "prompt-contract@example.com", "Password123!", "PromptContract"

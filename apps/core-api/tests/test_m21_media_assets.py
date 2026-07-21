@@ -264,7 +264,7 @@ def test_m21_export_v3_carries_media_metadata_not_bytes(client: TestClient):
     token = _register(client, "m21-exp@example.com", "M21Exp")
     _generate(client, token, _visual_prompt(client, token))
     body = client.get("/export", headers=_auth(token)).json()
-    assert body["export_version"] == 4, "M22 slice D is the current export contract"
+    assert body["export_version"] == 5, "M23a is the current export contract"
     media = body["media_assets"]
     assert media and set(media[0]) >= {
         "id", "kind", "status", "alt_text", "sha256", "provider", "created_at"

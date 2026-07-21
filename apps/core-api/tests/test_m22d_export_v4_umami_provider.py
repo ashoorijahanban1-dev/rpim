@@ -99,7 +99,7 @@ def test_m22d_export_v4_includes_measurement_sections(client: TestClient):
     _seed_measurement_rows(tenant_id)
 
     body = client.get("/export", headers=_auth(token)).json()
-    assert body["export_version"] == 4, "slice D bumps the export contract"
+    assert body["export_version"] == 5, "M23a is the current export contract"
 
     metrics = body["campaign_channel_metrics"]
     assert len(metrics) == 1 and metrics[0]["campaign_code"] == "spring-sale"

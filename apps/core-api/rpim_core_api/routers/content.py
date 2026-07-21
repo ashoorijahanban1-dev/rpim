@@ -1,22 +1,16 @@
-import re
 from typing import Literal
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from rpim_core_api.brain.service import BrandBrain
-from rpim_core_api.content.complete_client import complete
+from rpim_core_api.content.service import GenerationUnavailable, generate_draft
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity, require_editor
-from rpim_core_api.measurement import distiller
-from rpim_core_api.models import ApprenticeEvent, BrandProfile, ContentDraft
+from rpim_core_api.models import ApprenticeEvent, ContentDraft
 from rpim_core_api.schemas import BriefIn, DraftOut, EditIn, RejectIn
 
 router = APIRouter(prefix="/content", tags=["content"])
-
-_NUM_RE = re.compile(r"[0-9۰-۹]{2,}")
 
 
 def _get_draft(session: Session, tenant_id: str, draft_id: str) -> ContentDraft:
@@ -42,6 +36,7 @@ def _draft_out(draft: ContentDraft) -> DraftOut:
         context_refs=draft.context_refs,
         flag_unsourced=draft.flag_unsourced,
         status=draft.status,
+        origin=draft.origin,
     )
 
 
@@ -51,79 +46,20 @@ def create_draft(
     identity: Identity = Depends(require_editor),
     session: Session = Depends(get_session),
 ) -> DraftOut:
-    profile = session.scalar(
-        select(BrandProfile).where(BrandProfile.tenant_id == identity.tenant_id)
-    )
-
-    query = " ".join(filter(None, [body.brief.goal, body.brief.audience, body.brief.hook or ""]))
-    brain = BrandBrain(session, identity.tenant_id)
+    # The generation pipeline lives in content/service.py (M23, §3.3) —
+    # the watchdog rides the SAME path with origin="agent"; this route
+    # keeps only the HTTP contract (stage-specific 503s, unchanged).
     try:
-        chunks = brain.retrieve(query, k=5)
-    except httpx.HTTPError as exc:
-        # Same operational condition as brain ingest (cold/slow embeddings
-        # after a redeploy): a clean dashboard-mappable 503, not a bare 500 —
-        # this exact path killed the pilot's first draft.
-        raise HTTPException(
-            status_code=503, detail="embedding service unavailable — try again shortly"
-        ) from exc
-
-    context_block = brain.compose_context(chunks)
-    # Final-output-only contract (ADR 0031 + pilot A0 reject signals): the
-    # model opened drafts with meta-preambles («پست تلگرام و بله برای معرفی…»)
-    # and option menus. The contract lives in the system prompt AND as the
-    # prompt's last line — last-position instructions bind strongest.
-    system = (
-        "تو نویسنده محتوای برند هستی. لحن برند: "
-        + ((profile.tone or "رسمی و روشن") if profile else "رسمی و روشن")
-        + "\nفقط از «زمینه برند» استفاده کن؛ هیچ ادعا، قیمت یا مشخصه‌ای خارج از زمینه نیاور."
-        + (
-            "\nادعاهای ممنوع: " + "، ".join(profile.forbidden_claims)
-            if profile and profile.forbidden_claims
-            else ""
+        draft = generate_draft(
+            session, identity.tenant_id, body.brief.model_dump(), origin="human"
         )
-        + "\nخروجی تو عیناً به‌عنوان متن پست استفاده می‌شود. فقط متن نهایی خود پست"
-        " را بنویس: بدون مقدمه، بدون بازگویی بریف، بدون توضیح درباره‌ی متن،"
-        " بدون ارائه‌ی چند گزینه و بدون عنوان یا برچسب متا. از اولین کلمه تا"
-        " آخرین کلمه باید قابل انتشار باشد."
-    )
-    # M22 slice C (ADR 0043): the newest ACTIVE learned directives ride the
-    # system prompt as a capped, template-only section. Tenant strings can
-    # never reach here — that boundary is enforced inside the distiller.
-    learning = distiller.latest_active(session, identity.tenant_id)
-    if learning is not None:
-        system += distiller.render_section(learning.directives)
-    prompt = (
-        f"زمینه برند:\n{context_block}\n\n"
-        f"بریف: هدف={body.brief.goal} | مخاطب={body.brief.audience} | "
-        f"کانال={body.brief.channel} | قالب={body.brief.format}"
-        + (f" | قلاب={body.brief.hook}" if body.brief.hook else "")
-        + (f" | فراخوان={body.brief.cta}" if body.brief.cta else "")
-        + "\n\nحالا فقط متن نهایی پست را بنویس. با خود پست شروع کن، نه با توضیح یا مقدمه."
-    )
-    # Final content runs on T2 now that the eval gate cleared (ADR 0031);
-    # t1 was the ADR 0014 stopgap while MODEL_T2 was constitution-gated.
-    try:
-        text = complete(prompt, system=system, tenant_id=identity.tenant_id, task="t2")
-    except httpx.HTTPError as exc:
-        raise HTTPException(
-            status_code=503, detail="model gateway unavailable — try again shortly"
-        ) from exc
-
-    # Cheap unsourced-claim tripwire (full claim-check is M5 QA): any multi-
-    # digit number in the draft that never appears in the context gets flagged.
-    context_numbers = set(_NUM_RE.findall(context_block))
-    flag_unsourced = any(n not in context_numbers for n in _NUM_RE.findall(text))
-
-    draft = ContentDraft(
-        tenant_id=identity.tenant_id,
-        brief=body.brief.model_dump(),
-        context_refs=[c["source_title"] for c in chunks],
-        text=text,
-        flag_unsourced=flag_unsourced,
-        status="draft",
-    )
-    session.add(draft)
-    session.commit()
+    except GenerationUnavailable as exc:
+        detail = (
+            "embedding service unavailable — try again shortly"
+            if exc.stage == "embed"
+            else "model gateway unavailable — try again shortly"
+        )
+        raise HTTPException(status_code=503, detail=detail) from exc
     return _draft_out(draft)
 
 
@@ -152,6 +88,7 @@ def list_drafts(
                 "created_at": d.created_at.isoformat(),
                 "brief": d.brief,
                 "qa": d.qa,
+                "origin": d.origin,
             }
             for d in drafts
         ]

@@ -338,7 +338,7 @@ def test_m20_export_carries_meta_and_kind(client: TestClient):
     token = _register(client, "m20-export@example.com", "M20Export")
     client.post("/brain/catalog", json={"products": [_PRODUCT]}, headers=_auth(token))
     body = client.get("/export", headers=_auth(token)).json()
-    assert body["export_version"] == 4, "M22 slice D is the current export contract"
+    assert body["export_version"] == 5, "M23a is the current export contract"
     sources = body["brain"]["sources"]
     catalog = [s for s in sources if s["kind"] == "catalog"]
     assert catalog, f"catalog source must export with provenance kind: {sources}"

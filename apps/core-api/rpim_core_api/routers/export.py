@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, require_owner
 from rpim_core_api.models import (
+    AgentAction,
     AnalyticsCursor,
     ApprenticeEvent,
     BrainChunk,
@@ -103,8 +104,14 @@ def full_export(
         .order_by(AnalyticsCursor.provider)
     ).all()
 
+    agent_actions = session.scalars(
+        select(AgentAction)
+        .where(AgentAction.tenant_id == tenant_id)  # rule 6
+        .order_by(AgentAction.created_at)
+    ).all()
+
     payload = {
-        "export_version": 4,  # M22 slice D: + metrics, learnings, cursors
+        "export_version": 5,  # M23a: + draft origin, agent_actions
         "generated_at": now_app().isoformat(),
         "tenant": {
             "id": tenant.id,
@@ -167,6 +174,7 @@ def full_export(
                 "flag_unsourced": draft.flag_unsourced,
                 "qa": draft.qa,
                 "context_refs": draft.context_refs,
+                "origin": draft.origin,
                 "created_at": _iso(draft.created_at),
             }
             for draft in drafts
@@ -233,6 +241,19 @@ def full_export(
                 "updated_at": _iso(cursor.updated_at),
             }
             for cursor in cursors
+        ],
+        "agent_actions": [
+            {
+                "kind": action.kind,
+                "status": action.status,
+                "score": action.score,
+                "relevance": action.relevance,
+                "rationale": action.rationale,
+                "trend_item_id": action.trend_item_id,
+                "draft_id": action.draft_id,
+                "created_at": _iso(action.created_at),
+            }
+            for action in agent_actions
         ],
     }
     stamp = now_app().strftime("%Y%m%d")
