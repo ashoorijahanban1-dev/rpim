@@ -9,6 +9,7 @@ from rpim_core_api.routers import (
     content,
     crm,
     export,
+    learnings,
     metrics,
     onboarding,
     publish,
@@ -36,6 +37,7 @@ app.include_router(channels_hub.router)
 app.include_router(export.router)
 app.include_router(admin_panel.router)
 app.include_router(metrics.router)
+app.include_router(learnings.router)
 
 
 @app.get("/health", response_model=HealthStatus)

@@ -10,6 +10,7 @@ from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.content.complete_client import complete
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity, require_editor
+from rpim_core_api.measurement import distiller
 from rpim_core_api.models import ApprenticeEvent, BrandProfile, ContentDraft
 from rpim_core_api.schemas import BriefIn, DraftOut, EditIn, RejectIn
 
@@ -85,6 +86,12 @@ def create_draft(
         " بدون ارائه‌ی چند گزینه و بدون عنوان یا برچسب متا. از اولین کلمه تا"
         " آخرین کلمه باید قابل انتشار باشد."
     )
+    # M22 slice C (ADR 0043): the newest ACTIVE learned directives ride the
+    # system prompt as a capped, template-only section. Tenant strings can
+    # never reach here — that boundary is enforced inside the distiller.
+    learning = distiller.latest_active(session, identity.tenant_id)
+    if learning is not None:
+        system += distiller.render_section(learning.directives)
     prompt = (
         f"زمینه برند:\n{context_block}\n\n"
         f"بریف: هدف={body.brief.goal} | مخاطب={body.brief.audience} | "
