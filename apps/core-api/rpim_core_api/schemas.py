@@ -93,6 +93,7 @@ class DraftOut(BaseModel):
     context_refs: list[str]
     flag_unsourced: bool
     status: str
+    origin: str = "human"  # M23: human | agent (rule 1 transparency)
 
 
 class EditIn(BaseModel):

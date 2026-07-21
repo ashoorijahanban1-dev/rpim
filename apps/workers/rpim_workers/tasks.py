@@ -169,3 +169,25 @@ celery_app.conf.beat_schedule = {
         "schedule": 86400.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.agent_scan")
+def agent_scan() -> dict:
+    """Pokes core-api's watchdog scan (M23). Autonomy gates, halt checks,
+    caps and dedupe all live INSIDE core-api — a misbehaving beat can only
+    scan more often, never over-propose (rule 8)."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/agent/scan", headers)
+
+
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "agent-scan": {
+        "task": "rpim_workers.agent_scan",
+        "schedule": 1800.0,
+    },
+}

@@ -100,7 +100,8 @@
       "sensitivity": "حساسیت",
       "taste": "سلیقه"
     },
-    "flag_prefix": "• "
+    "flag_prefix": "• ",
+    "agent_badge": "پیشنهاد ایجنت"
   },
   "export": {
     "title": "خروجی کامل داده‌ها",
