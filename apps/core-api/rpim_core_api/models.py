@@ -369,3 +369,21 @@ class TenantLearning(Base):
     content_hash: Mapped[str] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(16), default="active")  # active | retired
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class AnalyticsCursor(Base):
+    """Per-(tenant, provider) ingestion watermark (M22 slice B, ADR 0042):
+    the last FULLY-ingested provider-local day. Advances only after a day
+    lands completely, so a crash or malformed payload resumes exactly at
+    the failed day (rule 8) — never a re-write, never a skip."""
+
+    __tablename__ = "analytics_cursors"
+    __table_args__ = (UniqueConstraint("tenant_id", "provider", name="uq_cursor_scope"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id"), index=True)
+    provider: Mapped[str] = mapped_column(String(16))  # ga4 | umami (next)
+    cursor: Mapped[str] = mapped_column(String(10))  # YYYY-MM-DD, provider-local
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
