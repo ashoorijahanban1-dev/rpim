@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "RPIM Core API — iran leg (dashboard backend, approval queue, tenants)"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.115",
+    "fastapi>=0.139.2",
     "uvicorn[standard]>=0.30",
     "pydantic-settings>=2.4",
     "rpim-shared",
