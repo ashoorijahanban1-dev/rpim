@@ -124,3 +124,25 @@ celery_app.conf.beat_schedule = {
         "schedule": 21600.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.ingest_analytics")
+def ingest_analytics() -> dict:
+    """Pokes core-api's cursor-based analytics ingestion (M22 slice B).
+    Cursors + upserts live INSIDE core-api — a misbehaving beat can only
+    poke more often, never double-ingest."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/metrics/ingest", headers)
+
+
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "ingest-analytics": {
+        "task": "rpim_workers.ingest_analytics",
+        "schedule": 21600.0,
+    },
+}

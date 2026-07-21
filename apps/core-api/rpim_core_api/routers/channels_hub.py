@@ -17,6 +17,12 @@ from rpim_core_api.deps import Identity, require_editor, require_owner
 from rpim_core_api.models import ChannelConnection
 from rpim_core_api.publisher.channels import SUPPORTED_CHANNELS
 
+# M22 slice B (ADR 0042): analytics-only slots — connectable, NEVER
+# publishable (tenant_creds/engine keep resolving SUPPORTED_CHANNELS only).
+# ga4 carries no secret: the platform service account is a leg-level env
+# NAME; per-tenant material is the non-secret property_id in config.
+ANALYTICS_CONNECTIONS = ("ga4",)
+
 router = APIRouter(prefix="/channels", tags=["channels"])
 
 
@@ -36,7 +42,7 @@ def _get_row(session: Session, tenant_id: str, channel: str) -> ChannelConnectio
 
 
 def _require_channel(channel: str) -> None:
-    if channel not in SUPPORTED_CHANNELS:
+    if channel not in SUPPORTED_CHANNELS + ANALYTICS_CONNECTIONS:
         raise HTTPException(status_code=404, detail="unsupported channel")
 
 
@@ -88,7 +94,13 @@ def upsert_channel(
                 status_code=503, detail="channel vault key missing — try again shortly"
             ) from exc
     row.config = dict(body.config)
-    row.status = "connected" if row.secret_sealed else "disconnected"
+    if channel in ANALYTICS_CONNECTIONS:
+        # Secret-less slot: connected iff the non-secret config is complete.
+        row.status = (
+            "connected" if str(row.config.get("property_id", "")).strip() else "disconnected"
+        )
+    else:
+        row.status = "connected" if row.secret_sealed else "disconnected"
     session.commit()
     return {"channel": channel, "status": row.status, "secret_set": bool(row.secret_sealed)}
 
