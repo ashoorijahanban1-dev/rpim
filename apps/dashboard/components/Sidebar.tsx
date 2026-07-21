@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/publish", label: fa.nav.publish },
   { href: "/channels", label: fa.nav.channels },
   { href: "/reports", label: fa.nav.reports },
+  { href: "/insights", label: fa.nav.insights },
   { href: "/export", label: fa.nav.export },
   { href: "/onboarding", label: fa.nav.brand_settings },
 ] as const;
