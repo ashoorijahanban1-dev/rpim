@@ -146,3 +146,26 @@ celery_app.conf.beat_schedule = {
         "schedule": 21600.0,
     },
 }
+
+
+@celery_app.task(name="rpim_workers.distill_learnings")
+def distill_learnings() -> dict:
+    """Pokes core-api's deterministic learning distiller (M22 slice C).
+    Hash-gated versioning lives INSIDE core-api — a misbehaving beat can
+    only distill more often, never append a duplicate version."""
+    core_url = os.environ.get("CORE_API_URL", "")
+    if not core_url:
+        # Name the env var, never a value (rule 4).
+        raise RuntimeError("env var CORE_API_URL is not set")
+    headers = {"X-Internal-Token": os.environ.get("INTERNAL_TOKEN", "")}
+    return _post(f"{core_url.rstrip('/')}/learnings/distill", headers)
+
+
+# Learnings move on human-feedback timescales — once a day is the design.
+celery_app.conf.beat_schedule = {
+    **(getattr(celery_app.conf, "beat_schedule", None) or {}),
+    "distill-learnings": {
+        "task": "rpim_workers.distill_learnings",
+        "schedule": 86400.0,
+    },
+}
