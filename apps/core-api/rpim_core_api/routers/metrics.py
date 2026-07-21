@@ -7,11 +7,43 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from rpim_core_api.db import get_session
+from rpim_core_api.deps import Identity, get_identity
 from rpim_core_api.measurement import attribution
 from rpim_core_api.models import CampaignChannelMetric, PublishJob, Tenant
 from rpim_shared.tz import now_app
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
+
+
+@router.get("/summary")
+def metrics_summary(
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Tenant-facing evidence window (M22 slice E, ADR 0045): the SAME
+    loader the distiller uses, so what the owner sees on /insights is
+    exactly what the brain learns from — one source of window truth,
+    tenant scoping included (rule 6)."""
+    from rpim_core_api.measurement import distiller  # noqa: PLC0415
+
+    evidence = distiller.load_evidence(session, identity.tenant_id)
+    campaigns = [
+        {
+            "campaign": code,
+            "clicks": agg["clicks"],
+            "posts_sent": agg["posts_sent"],
+            "ctr": round(agg["clicks"] / agg["posts_sent"], 4)
+            if agg["posts_sent"]
+            else None,
+        }
+        for code, agg in evidence["campaigns"].items()
+    ]
+    campaigns.sort(key=lambda c: (-c["clicks"], c["campaign"]))
+    return {
+        "window_days": evidence["window_days"],
+        "campaigns": campaigns,
+        "rejects": evidence["rejects"],
+    }
 
 
 @router.post("/snapshot")
