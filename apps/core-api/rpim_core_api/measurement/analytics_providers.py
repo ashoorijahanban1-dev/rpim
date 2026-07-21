@@ -7,11 +7,14 @@ VALIDATE shape (a malformed payload raises instead of poisoning rows).
 
 GA4 is the first adapter: fake mode reads the _FAKE_GA4 seam (tests/CI);
 live mode is env-guarded by NAME (rule 4) and its transport lands in the
-next slice with credential provisioning. Umami plugs in later as a second
-registry entry with the same signature.
+next slice with credential provisioning. Umami is the second entry (M22
+slice D): property_ref is the tenant's utm_id key, transport rides the
+existing attribution module (fake seam and env guards included).
 """
 
 import os
+
+from rpim_core_api.measurement import attribution
 
 
 class AnalyticsProviderError(Exception):
@@ -62,6 +65,29 @@ def _ga4_fetch_day(property_id: str, day: str) -> list[dict]:
     raise AnalyticsProviderError("ga4 live transport lands in the next slice")
 
 
+def _umami_fetch_day(utm_id: str, day: str) -> list[dict]:
+    """property_ref for umami is the tenant's utm_id (shared-site
+    containment, ADR 0041). Umami's query metric has no session split, so
+    sessions is 0 — the metric row keeps clicks as its signal."""
+    try:
+        counts = attribution.fetch_tenant_clicks(utm_id, day)
+        if not isinstance(counts, dict):
+            raise TypeError("expected a {campaign: clicks} mapping")
+        rows = [
+            {"campaign": campaign, "clicks": clicks, "sessions": 0}
+            for campaign, clicks in counts.items()
+        ]
+        return _validated(rows)
+    except AnalyticsProviderError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — any transport/shape failure
+        # becomes the ONE caller-visible error; class name only, no values.
+        raise AnalyticsProviderError(
+            f"umami fetch failed: {exc.__class__.__name__}"
+        ) from exc
+
+
 ANALYTICS_PROVIDERS = {
     "ga4": _ga4_fetch_day,
+    "umami": _umami_fetch_day,
 }

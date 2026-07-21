@@ -2,8 +2,9 @@
 
 The tenant owns every byte: brand profile, onboarding answers, brain texts,
 drafts, the A0 apprentice log (rule 8 — those signals are the tenant's
-property), and publish jobs. Embeddings are derived data and are NOT
-exported; re-ingesting the texts regenerates them.
+property), publish jobs, and (v4) the measurement loop — campaign metrics,
+learned directives with evidence, and ingestion cursors. Embeddings are
+derived data and are NOT exported; re-ingesting the texts regenerates them.
 """
 
 from datetime import datetime
@@ -16,15 +17,18 @@ from sqlalchemy.orm import Session
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, require_owner
 from rpim_core_api.models import (
+    AnalyticsCursor,
     ApprenticeEvent,
     BrainChunk,
     BrainSource,
     BrandProfile,
+    CampaignChannelMetric,
     ContentDraft,
     MediaAsset,
     OnboardingInterview,
     PublishJob,
     Tenant,
+    TenantLearning,
 )
 from rpim_shared.tz import now_app
 
@@ -83,9 +87,24 @@ def full_export(
     media = session.scalars(
         select(MediaAsset).where(MediaAsset.tenant_id == tenant_id).order_by(MediaAsset.created_at)
     ).all()
+    metric_rows = session.scalars(
+        select(CampaignChannelMetric)
+        .where(CampaignChannelMetric.tenant_id == tenant_id)  # rule 6
+        .order_by(CampaignChannelMetric.day, CampaignChannelMetric.campaign_code)
+    ).all()
+    learnings = session.scalars(
+        select(TenantLearning)
+        .where(TenantLearning.tenant_id == tenant_id)  # rule 6
+        .order_by(TenantLearning.version)
+    ).all()
+    cursors = session.scalars(
+        select(AnalyticsCursor)
+        .where(AnalyticsCursor.tenant_id == tenant_id)  # rule 6
+        .order_by(AnalyticsCursor.provider)
+    ).all()
 
     payload = {
-        "export_version": 3,  # M21: + media_assets metadata (never bytes)
+        "export_version": 4,  # M22 slice D: + metrics, learnings, cursors
         "generated_at": now_app().isoformat(),
         "tenant": {
             "id": tenant.id,
@@ -181,6 +200,39 @@ def full_export(
                 "created_at": _iso(job.created_at),
             }
             for job in jobs
+        ],
+        "campaign_channel_metrics": [
+            {
+                "campaign_code": row.campaign_code,
+                "channel": row.channel,
+                "source": row.source,
+                "day": row.day,
+                "clicks": row.clicks,
+                "sessions": row.sessions,
+                "impressions": row.impressions,
+                "posts_sent": row.posts_sent,
+                "captured_at": _iso(row.captured_at),
+            }
+            for row in metric_rows
+        ],
+        "tenant_learnings": [
+            {
+                "version": learning.version,
+                "directives": learning.directives,
+                "evidence": learning.evidence,
+                "content_hash": learning.content_hash,
+                "status": learning.status,
+                "created_at": _iso(learning.created_at),
+            }
+            for learning in learnings
+        ],
+        "analytics_cursors": [
+            {
+                "provider": cursor.provider,
+                "cursor": cursor.cursor,
+                "updated_at": _iso(cursor.updated_at),
+            }
+            for cursor in cursors
         ],
     }
     stamp = now_app().strftime("%Y%m%d")
