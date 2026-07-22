@@ -36,6 +36,24 @@ type Learning = {
   created_at: string;
 };
 
+type AgentActionItem = {
+  kind: string;
+  status: string;
+  score: number;
+  relevance: number;
+  rationale: string;
+  draft_id: string | null;
+  created_at: string;
+};
+
+// M23b: the autonomy dial labels, L0..L3 (blueprint §5) — locale-only.
+const LEVELS = [
+  fa.insights.level_0,
+  fa.insights.level_1,
+  fa.insights.level_2,
+  fa.insights.level_3,
+];
+
 const staggered: Variants = {
   initial: {},
   animate: { transition: { staggerChildren: 0.08 } },
@@ -57,6 +75,9 @@ export default function InsightsPage() {
   const [error, setError] = useState("");
   const [confirming, setConfirming] = useState<number | null>(null);
   const [retired, setRetired] = useState(false);
+  const [autonomy, setAutonomy] = useState<number | null>(null);
+  const [autonomySaved, setAutonomySaved] = useState(false);
+  const [actions, setActions] = useState<AgentActionItem[] | null>(null);
 
   const load = useCallback(async () => {
     const resp = await api("/metrics/summary");
@@ -71,6 +92,10 @@ export default function InsightsPage() {
     setSummary(await resp.json());
     const learningsResp = await api("/learnings");
     if (learningsResp.ok) setLearnings((await learningsResp.json()).items);
+    const autonomyResp = await api("/agent/autonomy");
+    if (autonomyResp.ok) setAutonomy((await autonomyResp.json()).autonomy_level);
+    const actionsResp = await api("/agent/actions");
+    if (actionsResp.ok) setActions((await actionsResp.json()).items);
   }, [router]);
 
   useEffect(() => {
@@ -80,6 +105,21 @@ export default function InsightsPage() {
     }
     load().catch(() => setError(fa.insights.error));
   }, [router, load]);
+
+  async function setLevel(level: number) {
+    // Owner-only server-side (M24 RBAC): editors get the API's 403 detail.
+    setAutonomySaved(false);
+    const resp = await api("/agent/autonomy", {
+      method: "PUT",
+      body: JSON.stringify({ level }),
+    });
+    if (!resp.ok) {
+      setError((await readErrorDetail(resp)) || fa.insights.error);
+      return;
+    }
+    setAutonomy(level);
+    setAutonomySaved(true);
+  }
 
   async function retire(version: number) {
     // Human approval in the UI (two-step confirm); the API is owner-only.
@@ -222,6 +262,71 @@ export default function InsightsPage() {
                       <summary>{fa.insights.evidence}</summary>
                       <pre dir="ltr">{JSON.stringify(item.evidence, null, 2)}</pre>
                     </details>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.section>
+        )}
+
+        {autonomy !== null && (
+          <motion.section variants={fadeUp}>
+            <div className="page-header">
+              <h2>{fa.insights.autonomy_title}</h2>
+            </div>
+            <p className="muted">{fa.insights.autonomy_hint}</p>
+            {autonomySaved && <p role="status">{fa.insights.autonomy_saved}</p>}
+            <div role="radiogroup" aria-label={fa.insights.autonomy_group_aria}>
+              {LEVELS.map((label, level) => (
+                <button
+                  key={label}
+                  type="button"
+                  role="radio"
+                  aria-checked={autonomy === level}
+                  className={autonomy === level ? "chip ok" : "chip plain"}
+                  onClick={() => setLevel(level)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {actions && (
+          <motion.section variants={fadeUp}>
+            <div className="page-header">
+              <h2>{fa.insights.agent_title}</h2>
+            </div>
+            <p className="muted">{fa.insights.agent_hint}</p>
+            {actions.length === 0 && (
+              <p className="empty-state">{fa.insights.agent_empty}</p>
+            )}
+            {actions.length > 0 && (
+              <ul className="plain">
+                {actions.map((item) => (
+                  <li key={`${item.draft_id ?? item.created_at}`}>
+                    <span
+                      className={
+                        item.status === "accepted"
+                          ? "chip ok"
+                          : item.status === "dismissed"
+                            ? "chip danger"
+                            : "chip warn"
+                      }
+                    >
+                      {item.status === "accepted"
+                        ? fa.insights.status_accepted
+                        : item.status === "dismissed"
+                          ? fa.insights.status_dismissed
+                          : fa.insights.status_proposed}
+                    </span>{" "}
+                    <span>{item.rationale}</span>{" "}
+                    <span className="muted">
+                      {fa.insights.score_label}: {faNum(item.score)} ·{" "}
+                      {fa.insights.relevance_label}: {faNum(item.relevance)} ·{" "}
+                      {relativeTime(item.created_at)}
+                    </span>
                   </li>
                 ))}
               </ul>

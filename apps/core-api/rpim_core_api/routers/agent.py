@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from rpim_core_api.brain.service import BrandBrain
 from rpim_core_api.content.service import GenerationUnavailable, generate_draft
 from rpim_core_api.db import get_session
-from rpim_core_api.deps import Identity, require_owner
+from rpim_core_api.deps import Identity, get_identity, require_owner
 from rpim_core_api.models import AgentAction, Tenant, TrendItem
 from rpim_core_api.qa.governance import is_publishing_halted
 from rpim_shared.tz import app_timezone, now_app
@@ -27,6 +27,47 @@ router = APIRouter(prefix="/agent", tags=["agent"])
 
 class AutonomyIn(BaseModel):
     level: int = Field(ge=0, le=3)  # blueprint §5: L0..L3
+
+
+@router.get("/autonomy")
+def get_autonomy(
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Every role reads the dial (M23b) — only the owner turns it (PUT)."""
+    tenant = session.get(Tenant, identity.tenant_id)
+    if tenant is None:
+        raise HTTPException(status_code=404, detail="tenant not found")
+    return {"autonomy_level": tenant.autonomy_level}
+
+
+@router.get("/actions")
+def list_actions(
+    identity: Identity = Depends(get_identity),
+    session: Session = Depends(get_session),
+) -> dict:
+    """The tenant's watchdog audit trail (M23b): why every proposal exists
+    and what the human decided. Newest first, capped."""
+    rows = session.scalars(
+        select(AgentAction)
+        .where(AgentAction.tenant_id == identity.tenant_id)  # rule 6
+        .order_by(AgentAction.created_at.desc(), AgentAction.id)
+        .limit(100)
+    ).all()
+    return {
+        "items": [
+            {
+                "kind": row.kind,
+                "status": row.status,
+                "score": row.score,
+                "relevance": row.relevance,
+                "rationale": row.rationale,
+                "draft_id": row.draft_id,
+                "created_at": row.created_at.isoformat(),
+            }
+            for row in rows
+        ]
+    }
 
 
 @router.put("/autonomy")
