@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from rpim_core_api.content.service import GenerationUnavailable, generate_draft
 from rpim_core_api.db import get_session
 from rpim_core_api.deps import Identity, get_identity, require_editor
-from rpim_core_api.models import ApprenticeEvent, ContentDraft
+from rpim_core_api.models import AgentAction, ApprenticeEvent, ContentDraft
 from rpim_core_api.schemas import BriefIn, DraftOut, EditIn, RejectIn
 
 router = APIRouter(prefix="/content", tags=["content"])
@@ -27,6 +27,22 @@ def _get_draft(session: Session, tenant_id: str, draft_id: str) -> ContentDraft:
 
 def _log_apprentice(session: Session, tenant_id: str, kind: str, payload: dict) -> None:
     session.add(ApprenticeEvent(tenant_id=tenant_id, kind=kind, schema_version=1, payload=payload))
+
+
+def _close_agent_loop(session: Session, draft: ContentDraft, verdict: str) -> None:
+    """M23b: the human verdict on an agent draft flips its audit row —
+    accepted (approve/edit) or dismissed (reject) — in the SAME commit as
+    the draft verdict. Human drafts have no action row; nothing happens."""
+    if draft.origin != "agent":
+        return
+    action = session.scalar(
+        select(AgentAction).where(
+            AgentAction.tenant_id == draft.tenant_id,  # rule 6
+            AgentAction.draft_id == draft.id,
+        )
+    )
+    if action is not None:
+        action.status = verdict
 
 
 def _draft_out(draft: ContentDraft) -> DraftOut:
@@ -119,6 +135,7 @@ def approve_draft(
         "approved",
         {"brief": draft.brief, "context_refs": draft.context_refs, "output": draft.text},
     )
+    _close_agent_loop(session, draft, "accepted")
     session.commit()
     return {"status": "approved"}
 
@@ -140,6 +157,7 @@ def edit_draft(
         "edited",
         {"brief": draft.brief, "draft": draft.text, "edited": body.edited_text},
     )
+    _close_agent_loop(session, draft, "accepted")  # an edit is acceptance
     session.commit()
     return {"status": "edited"}
 
@@ -165,6 +183,7 @@ def reject_draft(
             "note": body.note,
         },
     )
+    _close_agent_loop(session, draft, "dismissed")
     session.commit()
     return {"status": "rejected"}
 
