@@ -59,10 +59,21 @@ def _ga4_fetch_day(property_id: str, day: str) -> list[dict]:
         raise AnalyticsProviderError(
             "GA4_MODE=live requires env var GA4_CREDENTIALS_FILE"
         )
-    # Live transport (Data API runReport filtered by sessionCampaignId ==
-    # the tenant's utm_id) lands with credential provisioning — until then
-    # the cursor stays put and resumes exactly (rule 8), never guesses.
-    raise AnalyticsProviderError("ga4 live transport lands in the next slice")
+    try:
+        from rpim_core_api.measurement import ga4_live  # noqa: PLC0415
+
+        return _validated(ga4_live.fetch_day(credentials, property_id, day))
+    except AnalyticsProviderError:
+        raise
+    except Exception as exc:  # noqa: BLE001 — token/transport/shape: ONE
+        # caller-visible error, class name only — never a value (rule 4).
+        failure = exc.__class__.__name__
+    # Raised OUTSIDE the except block so neither __cause__ nor __context__
+    # carries the original exception: httpx error strings embed the request
+    # URL (which contains the property id), and anything walking the chain
+    # (Sentry, logging.exception) would leak it. The class name above is
+    # the whole diagnostic surface — deliberately.
+    raise AnalyticsProviderError(f"ga4 live fetch failed: {failure}")
 
 
 def _umami_fetch_day(utm_id: str, day: str) -> list[dict]:
