@@ -1,0 +1,82 @@
+name: coolify-pipeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: coolify-pipeline
+
+jobs:
+  deploy-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      COOLIFY_URL: ${{ secrets.COOLIFY_URL || vars.COOLIFY_URL || 'http://rpim.ir:8000' }}
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Provision & Deploy RPIM TV Pipeline
+        run: |
+          set +e
+          if [ -z "$COOLIFY_TOKEN" ]; then
+            echo "FATAL: COOLIFY_TOKEN secret is missing or empty" > report.txt
+            rc=2
+          else
+            bash scripts/coolify-pipeline-provision.sh > report.txt 2>&1
+            rc=$?
+          fi
+
+          python3 -c '
+          import os
+          tok = os.environ.get("COOLIFY_TOKEN") or ""
+          gk = os.environ.get("GEMINI_API_KEY") or ""
+          dk = os.environ.get("DEEPSEEK_API_KEY") or ""
+          s = open("report.txt", encoding="utf-8", errors="replace").read()
+          for k in [tok, gk, dk]:
+              if k:
+                  s = s.replace(k, "REDACTED")
+          open("report.txt", "w", encoding="utf-8").write(s)
+          '
+          echo "exit_code=$rc" >> report.txt
+          echo "rc=$rc" >> "$GITHUB_ENV"
+
+      - name: Wait and check deployment status
+        run: |
+          APP_UUID=$(grep -o 'PIPELINE_APP_UUID=[^ ]*' report.txt | cut -d= -f2 | tr -d '\r\n')
+          if [ -n "$APP_UUID" ]; then
+            echo "Monitoring deployment for $APP_UUID..."
+            for i in $(seq 1 30); do
+              sleep 10
+              STATUS=$(curl -sS -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_URL/api/v1/applications/$APP_UUID" | python3 -c "import sys, json; print(json.load(sys.stdin).get('status', 'unknown'))" 2>/dev/null || echo "err")
+              echo "Check $i (time: ${i}0s): status=$STATUS"
+              if [ "$STATUS" = "running" ]; then
+                echo "Application is running successfully!" >> report.txt
+                break
+              fi
+            done
+          fi
+
+      - name: Commit deployment report
+        run: |
+          mkdir -p docs/ops
+          {
+            echo "# RPIM TV Pipeline Deploy Report — $(date -u +%FT%TZ) — commit $GITHUB_SHA"
+            cat report.txt
+          } > docs/ops/pipeline-provision-report.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ops/pipeline-provision-report.txt
+          git diff --cached --quiet || git commit -m "chore(ops): rpim-tv-pipeline deploy report [skip ci]"
+          for attempt in 1 2 3; do
+            git push origin main && break
+            git pull --rebase origin main
+          done
+
+      - name: Reflect real status
+        run: exit "$rc"
