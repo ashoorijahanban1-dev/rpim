@@ -31,7 +31,7 @@ exclude = ["apps/dashboard"]
 dev = [
     "pytest>=8.3",
     "httpx>=0.27",
-    "ruff>=0.6",
+    "ruff>=0.15.22",
     # Sandbox acceptance run for M8B (chromium ships pre-installed there);
     # CI runners have no browser binary, so the live test self-skips.
     "playwright>=1.40",
