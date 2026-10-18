@@ -28,6 +28,26 @@ api() {
 
 jqpy() { python3 -c "import sys,json;$1"; }
 
+CANDIDATES=("https://panel.rpim.ir" "${COOLIFY_URL:-http://rpim.ir:8000}" "http://rpim.ir:8000" "http://209.145.63.253:8000")
+VALID_URL=""
+for u in "${CANDIDATES[@]}"; do
+	echo "Testing endpoint $u/api/v1/version ..."
+	CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$u/api/v1/version" \
+		-H "Authorization: Bearer $COOLIFY_TOKEN" \
+		-H "Content-Type: application/json" || echo "000")
+	echo "Result for $u: HTTP $CODE"
+	if [ "$CODE" = "200" ]; then
+		VALID_URL="$u"
+		break
+	fi
+done
+
+if [ -z "$VALID_URL" ]; then
+	echo "FATAL: Could not authenticate against any Coolify endpoint (returned HTTP 401 Unauthenticated)." >&2
+	exit 1
+fi
+
+COOLIFY_URL="$VALID_URL"
 echo "→ Coolify $(api GET /version | head -c 40)"
 
 SERVER_UUID=$(api GET /servers | jqpy "d=json.load(sys.stdin);print(d[0]['uuid'])")
